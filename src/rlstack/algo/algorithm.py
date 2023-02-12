@@ -10,7 +10,7 @@ from tensordict import TensorDict
 from torch.utils.data import DataLoader
 from typing_extensions import Self
 
-from ...utils import profile_ms
+from ..timing import profile_ms
 from ..optim import DAdaptAdam
 from ..specs import CompositeSpec, TensorSpec, UnboundedContinuousTensorSpec
 from .data import DEVICE, CollectStats, DataKeys, StepStats
@@ -634,7 +634,7 @@ class Algorithm:
             # Update algo stats.
             step_stats = pd.DataFrame(step_stats_per_batch).mean(axis=0).to_dict()
         step_stats["profiling/step_ms"] = step_timer()
-        return step_stats  # type: ignore[return-value]
+        return step_stats  # type: ignore[no-any-return]
 
     def to(self, device: DEVICE, /) -> Self:
         """Move the algorithm and its attributes to `device`."""
