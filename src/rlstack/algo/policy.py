@@ -267,7 +267,7 @@ class Model(
         """
 
 
-class DefaultModel(Model, Generic[_ObservationSpec, _ActionSpec]):
+class GenericModel(Model, Generic[_ObservationSpec, _ActionSpec]):
     """Generic model for constructing models from fixed observation and action specs."""
 
     def __init__(
@@ -281,7 +281,7 @@ class DefaultModel(Model, Generic[_ObservationSpec, _ActionSpec]):
 
 
 class DefaultContinuousModel(
-    DefaultModel[UnboundedContinuousTensorSpec, UnboundedContinuousTensorSpec]
+    GenericModel[UnboundedContinuousTensorSpec, UnboundedContinuousTensorSpec]
 ):
     """Default model for 1D continuous observations and action spaces."""
 
@@ -355,7 +355,7 @@ class DefaultContinuousModel(
 
 
 class DefaultDiscreteModel(
-    DefaultModel[UnboundedContinuousTensorSpec, DiscreteTensorSpec]
+    GenericModel[UnboundedContinuousTensorSpec, DiscreteTensorSpec]
 ):
     """Default model for 1D continuous observations and discrete action spaces."""
 

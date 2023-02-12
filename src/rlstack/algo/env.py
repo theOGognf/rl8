@@ -1,6 +1,6 @@
 """Environment protocol definition and helper dummy environment definitions."""
 
-from typing import Any, Protocol
+from typing import Any, Protocol, TypeVar, Generic
 
 import torch
 from tensordict import TensorDict
@@ -9,6 +9,9 @@ from typing_extensions import Self
 from ..specs import TensorSpec
 from .data import DEVICE
 
+
+_ObservationSpec = TypeVar("_ObservationSpec", bound=TensorSpec)
+_ActionSpec = TypeVar("_ActionSpec", bound=TensorSpec)
 
 class Env(Protocol):
     """Protocol defining the IsaacGym -like and OpenAI Gym -like environment
@@ -99,3 +102,7 @@ class Env(Protocol):
 
     def to(self, device: DEVICE, /) -> Self:
         """Move the environment and its attributes to `device`."""
+
+
+class GenericEnv(Env, Generic[_ObservationSpec, _ActionSpec]):
+    """Generic version of `Env` for environments with constant specs."""
