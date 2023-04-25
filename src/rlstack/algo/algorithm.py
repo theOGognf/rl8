@@ -259,10 +259,10 @@ class Algorithm:
         optimizer_cls: type[optim.Optimizer] = DAdaptAdam,
         optimizer_config: None | dict[str, Any] = None,
         lr_schedule: None | list[tuple[int, float]] = None,
-        lr_schedule_kind: SCHEDULE_KIND = "constant",
+        lr_schedule_kind: SCHEDULE_KIND = "step",
         entropy_coeff: float = 0.0,
         entropy_coeff_schedule: None | list[tuple[int, float]] = None,
-        entropy_coeff_schedule_kind: SCHEDULE_KIND = "constant",
+        entropy_coeff_schedule_kind: SCHEDULE_KIND = "step",
         gae_lambda: float = 0.95,
         gamma: float = 0.95,
         sgd_minibatch_size: None | int = None,
@@ -632,7 +632,7 @@ class Algorithm:
                 self.policy.feature_spec,
                 self.env.action_spec,
             )
-            self.buffer[:, -1, ...] = final_obs
+            self.buffer[DataKeys.OBS][:, -1, ...] = final_obs
             self.buffered = False
 
             # Update algo stats.
