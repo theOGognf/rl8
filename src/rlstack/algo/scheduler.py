@@ -163,6 +163,7 @@ class EntropyScheduler:
                     raise ValueError(
                         f"Entropy scheduler only supports kinds `interp` and `step`"
                     )
+        self.step(0)
 
     def step(self, count: int, /) -> None:
         self.coeff = self.scheduler.step(count)
@@ -249,7 +250,6 @@ class LRScheduler:
         kind: SCHEDULE_KIND = "step",
     ) -> None:
         self.optimizer = optimizer
-        self.coeff = 0.0
         if schedule is None:
             self.scheduler = ConstantScheduler(0.0)
         else:

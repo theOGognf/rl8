@@ -1,8 +1,9 @@
 """Timing/profiling/benchmarking utils."""
 
-from contextlib import contextmanager
-from typing import Generator, Callable
 import time
+from contextlib import contextmanager
+from typing import Callable, Generator
+
 
 @contextmanager
 def profile_ms() -> Generator[Callable[[], float], None, None]:

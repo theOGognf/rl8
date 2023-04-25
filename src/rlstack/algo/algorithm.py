@@ -6,13 +6,13 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from dadaptation import DAdaptAdam
 from tensordict import TensorDict
 from torch.utils.data import DataLoader
 from typing_extensions import Self
 
-from ..timing import profile_ms
-from ..optim import DAdaptAdam
 from ..specs import CompositeSpec, TensorSpec, UnboundedContinuousTensorSpec
+from ..timing import profile_ms
 from .data import DEVICE, CollectStats, DataKeys, StepStats
 from .env import Env
 from .policy import Distribution, Model, Policy
@@ -259,10 +259,10 @@ class Algorithm:
         optimizer_cls: type[optim.Optimizer] = DAdaptAdam,
         optimizer_config: None | dict[str, Any] = None,
         lr_schedule: None | list[tuple[int, float]] = None,
-        lr_schedule_kind: SCHEDULE_KIND = "step",
+        lr_schedule_kind: SCHEDULE_KIND = "constant",
         entropy_coeff: float = 0.0,
         entropy_coeff_schedule: None | list[tuple[int, float]] = None,
-        entropy_coeff_schedule_kind: SCHEDULE_KIND = "step",
+        entropy_coeff_schedule_kind: SCHEDULE_KIND = "constant",
         gae_lambda: float = 0.95,
         gamma: float = 0.95,
         sgd_minibatch_size: None | int = None,
@@ -316,7 +316,9 @@ class Algorithm:
         self.horizons_per_reset = horizons_per_reset
         self.gae_lambda = gae_lambda
         self.gamma = gamma
-        self.sgd_minibatch_size = sgd_minibatch_size
+        self.sgd_minibatch_size = (
+            sgd_minibatch_size if sgd_minibatch_size else num_envs * horizon
+        )
         self.num_sgd_iter = num_sgd_iter
         self.shuffle_minibatches = shuffle_minibatches
         self.clip_param = clip_param
@@ -365,7 +367,7 @@ class Algorithm:
                     :, -1, ...
                 ]
 
-            for t in range(self.horizon):
+            for t in range(self.horizon - 1):
                 # Sample the policy and step the environment.
                 in_batch = self.buffer[:, : (t + 1), ...]
                 sample_batch = self.policy.sample(
@@ -389,7 +391,9 @@ class Algorithm:
                 self.buffer[DataKeys.ACTIONS][:, t, ...] = sample_batch[
                     DataKeys.ACTIONS
                 ]
-                self.buffer[DataKeys.LOGP][:, t, ...] = sample_batch[DataKeys.LOGP]
+                self.buffer[DataKeys.LOGP][:, t, ...] = sample_batch[
+                    DataKeys.LOGP
+                ].unsqueeze(1)
                 self.buffer[DataKeys.VALUES][:, t, ...] = sample_batch[DataKeys.VALUES]
                 self.buffer[DataKeys.REWARDS][:, t, ...] = out_batch[DataKeys.REWARDS]
                 self.buffer[DataKeys.OBS][:, t + 1, ...] = out_batch[DataKeys.OBS]
@@ -556,7 +560,7 @@ class Algorithm:
                         sample_batch[DataKeys.FEATURES], self.policy.model
                     )
                     logp_ratio = torch.exp(
-                        curr_action_dist.logp(minibatch[DataKeys.ACTIONS])
+                        curr_action_dist.logp(minibatch[DataKeys.ACTIONS]).unsqueeze(1)
                         - minibatch[DataKeys.LOGP]
                     )
 

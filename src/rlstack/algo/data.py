@@ -4,7 +4,7 @@ from typing import TypedDict
 
 import torch
 
-DEVICE = int | str | torch.device
+DEVICE = str | torch.device
 
 
 class DataKeys:

@@ -1,17 +1,17 @@
 """Environment protocol definition and helper dummy environment definitions."""
 
-from typing import Any, Protocol, TypeVar, Generic
+from typing import Any, Generic, Protocol, TypeVar
 
 import torch
 from tensordict import TensorDict
 from typing_extensions import Self
 
-from ..specs import TensorSpec
-from .data import DEVICE
-
+from ..specs import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTensorSpec
+from .data import DEVICE, DataKeys
 
 _ObservationSpec = TypeVar("_ObservationSpec", bound=TensorSpec)
 _ActionSpec = TypeVar("_ActionSpec", bound=TensorSpec)
+
 
 class Env(Protocol):
     """Protocol defining the IsaacGym -like and OpenAI Gym -like environment
@@ -106,3 +106,78 @@ class Env(Protocol):
 
 class GenericEnv(Env, Generic[_ObservationSpec, _ActionSpec]):
     """Generic version of `Env` for environments with constant specs."""
+
+
+class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
+
+    bounds: float
+
+    state: torch.Tensor
+
+    def __init__(
+        self,
+        num_envs: int,
+        /,
+        *,
+        config: None | dict[str, Any] = None,
+        device: DEVICE = "cpu",
+    ) -> None:
+        if config is None:
+            config = {}
+        self.num_envs = num_envs
+        self.observation_spec = UnboundedContinuousTensorSpec(1, device=device)
+        self.bounds = config.get("bounds", 100.0)
+        self.state = self.bounds * torch.rand(num_envs, device=device).unsqueeze(1)
+
+    def reset(self, *, config: None | dict[str, Any] = None) -> torch.Tensor:
+        if config and "bounds" in config:
+            self.bounds = config["bounds"]
+        num_envs = self.state.size(0)
+        device = self.state.device
+        self.state = self.bounds * torch.rand(num_envs, device=device).unsqueeze(1)
+        return self.state
+
+    def to(self, device: DEVICE, /) -> Self:
+        self.state = self.state.to(device=device)
+        return self
+
+
+class ContinuousDummyEnv(DummyEnv[UnboundedContinuousTensorSpec]):
+    def __init__(
+        self,
+        num_envs: int,
+        /,
+        *,
+        config: dict[str, Any] | None = None,
+        device: DEVICE = "cpu",
+    ) -> None:
+        super().__init__(num_envs, config=config, device=device)
+        self.action_spec = UnboundedContinuousTensorSpec(1, device=device)
+
+    def step(self, action: torch.Tensor) -> TensorDict:
+        self.state += action
+        return TensorDict(
+            {DataKeys.OBS: self.state, DataKeys.REWARDS: -self.state.abs()},
+            batch_size=self.num_envs,
+        )
+
+
+class DiscreteDummyEnv(DummyEnv[DiscreteTensorSpec]):
+    def __init__(
+        self,
+        num_envs: int,
+        /,
+        *,
+        config: dict[str, Any] | None = None,
+        device: DEVICE = "cpu",
+    ) -> None:
+        super().__init__(num_envs, config=config, device=device)
+        self.action_spec = DiscreteTensorSpec(1, device=device)
+
+    def step(self, action: torch.Tensor) -> TensorDict:
+        action = action.unsqueeze(1)
+        self.state += 2 * action - 1
+        return TensorDict(
+            {DataKeys.OBS: self.state, DataKeys.REWARDS: -self.state.abs()},
+            batch_size=self.num_envs,
+        )

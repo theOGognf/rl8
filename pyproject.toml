@@ -23,6 +23,7 @@ classifiers = [
     "Typing :: Typed"
 ]
 dependencies = [
+    "dadaptation",
     "pandas",
     "tensordict",
     "torch",
