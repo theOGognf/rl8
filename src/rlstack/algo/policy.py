@@ -179,7 +179,7 @@ class Model(
             case DiscreteTensorSpec():
                 return Categorical.required_feature_spec(action_spec)
             case UnboundedContinuousTensorSpec():
-                return DiagGaussian.required_feature_spec(action_spec)
+                return Normal.required_feature_spec(action_spec)
             case _:
                 return deepcopy(action_spec)
 
@@ -269,6 +269,10 @@ class Model(
 
 class GenericModel(Model, Generic[_ObservationSpec, _ActionSpec]):
     """Generic model for constructing models from fixed observation and action specs."""
+
+    action_spec: _ActionSpec
+
+    observation_spec: _ObservationSpec
 
     def __init__(
         self,
@@ -388,7 +392,9 @@ class DefaultDiscreteModel(
             ),
             get_activation(activation_fn),
         )
-        feature_head = nn.Linear(hiddens[-1], action_spec.space.n)
+        feature_head = nn.Linear(
+            hiddens[-1], action_spec.shape[0] * action_spec.space.n
+        )
         nn.init.uniform_(feature_head.weight, a=-1e-3, b=1e-3)
         nn.init.zeros_(feature_head.bias)
         self.feature_model.append(feature_head)
@@ -409,7 +415,11 @@ class DefaultDiscreteModel(
         features = self.feature_model(obs)
         self._value = self.vf_model(obs)
         return TensorDict(
-            {"logits": features},
+            {
+                "logits": features.reshape(
+                    batch.batch_size, -1, self.action_spec.space.n
+                )
+            },
             batch_size=batch.batch_size,
         )
 
@@ -468,7 +478,7 @@ class Distribution(ABC):
             case DiscreteTensorSpec():
                 return Categorical
             case UnboundedContinuousTensorSpec():
-                return DiagGaussian
+                return Normal
             case _:
                 raise TypeError(
                     f"Action spec {action_spec} has no default distribution support"
@@ -555,12 +565,13 @@ class Categorical(
     def required_feature_spec(action_spec: DiscreteTensorSpec, /) -> CompositeSpec:
         return CompositeSpec(
             logits=UnboundedContinuousTensorSpec(
-                shape=action_spec.space.n, device=action_spec.device
+                shape=[action_spec.shape[0], action_spec.space.n],
+                device=action_spec.device,
             )
         )  # type: ignore[no-untyped-call]
 
 
-class DiagGaussian(
+class Normal(
     TorchDistributionWrapper[
         CompositeSpec, torch.distributions.Normal, UnboundedContinuousTensorSpec
     ]
@@ -573,13 +584,13 @@ class DiagGaussian(
         return self.dist.mode  # type: ignore[no-any-return]
 
     def entropy(self) -> torch.Tensor:
-        return super().entropy().sum(-1)
+        return super().entropy().sum(-1, keepdim=True)
 
     def kl_div(self, other: Self) -> torch.Tensor:
-        return super().kl_div(other).sum(-1)
+        return super().kl_div(other).sum(-1, keepdim=True)
 
     def logp(self, samples: torch.Tensor) -> torch.Tensor:
-        return super().logp(samples).sum(-1)
+        return super().logp(samples).sum(-1, keepdim=True)
 
     @staticmethod
     def required_feature_spec(

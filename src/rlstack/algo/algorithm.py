@@ -391,9 +391,7 @@ class Algorithm:
                 self.buffer[DataKeys.ACTIONS][:, t, ...] = sample_batch[
                     DataKeys.ACTIONS
                 ]
-                self.buffer[DataKeys.LOGP][:, t, ...] = sample_batch[
-                    DataKeys.LOGP
-                ].unsqueeze(1)
+                self.buffer[DataKeys.LOGP][:, t, ...] = sample_batch[DataKeys.LOGP]
                 self.buffer[DataKeys.VALUES][:, t, ...] = sample_batch[DataKeys.VALUES]
                 self.buffer[DataKeys.REWARDS][:, t, ...] = out_batch[DataKeys.REWARDS]
                 self.buffer[DataKeys.OBS][:, t + 1, ...] = out_batch[DataKeys.OBS]
@@ -560,7 +558,7 @@ class Algorithm:
                         sample_batch[DataKeys.FEATURES], self.policy.model
                     )
                     logp_ratio = torch.exp(
-                        curr_action_dist.logp(minibatch[DataKeys.ACTIONS]).unsqueeze(1)
+                        curr_action_dist.logp(minibatch[DataKeys.ACTIONS])
                         - minibatch[DataKeys.LOGP]
                     )
 
