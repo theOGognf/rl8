@@ -204,6 +204,8 @@ class Model(
             raise TypeError(
                 f"Observation spec {observation_spec} has no default model support"
             )
+        _assert_1d_spec(observation_spec)
+        _assert_1d_spec(action_spec)
         match action_spec:
             case UnboundedContinuousTensorSpec():
                 return DefaultContinuousModel
@@ -284,6 +286,26 @@ class GenericModel(Model, Generic[_ObservationSpec, _ActionSpec]):
         super().__init__(observation_spec, action_spec, **config)
 
 
+def _assert_1d_spec(spec: TensorSpec, /) -> None:
+    """Check if the spec is valid for default models and distributions
+    by asserting that it's 1D.
+
+    Args:
+        spec: Observation or action spec when using default models or
+            distributions.
+
+    Raises:
+        AssertionError: If `spec` is not 1D.
+
+    """
+    assert spec.shape.numel() == 1, (
+        "Default models and distributions do not support tensor specs "
+        "that aren't 1D. Tensor specs must have shape `[N]` "
+        "(where `N` is the number of independent elements) to be "
+        "compatible with default models and distributions."
+    )
+
+
 class DefaultContinuousModel(
     GenericModel[UnboundedContinuousTensorSpec, UnboundedContinuousTensorSpec]
 ):
@@ -315,11 +337,6 @@ class DefaultContinuousModel(
         bias: bool = True,
     ) -> None:
         super().__init__(observation_spec, action_spec)
-        if action_spec.shape.numel() != 1:
-            raise ValueError(
-                "Action spec must have shape `[A]` where `A` "
-                "is the number of independent actions"
-            )
         self.latent_model = nn.Sequential(
             MLP(
                 observation_spec.shape[0],
@@ -388,11 +405,6 @@ class DefaultDiscreteModel(
         bias: bool = True,
     ) -> None:
         super().__init__(observation_spec, action_spec)
-        if action_spec.shape.numel() != 1:
-            raise ValueError(
-                "Action spec must have shape `[A]` where `A` "
-                "is the number of independent actions"
-            )
         self.feature_model = nn.Sequential(
             MLP(
                 observation_spec.shape[0],
@@ -484,6 +496,7 @@ class Distribution(ABC):
             A distribution for simple, supported action specs.
 
         """
+        _assert_1d_spec(action_spec)
         match action_spec:
             case DiscreteTensorSpec():
                 return Categorical
@@ -577,11 +590,6 @@ class Categorical(
 
     @staticmethod
     def required_feature_spec(action_spec: DiscreteTensorSpec, /) -> CompositeSpec:
-        if action_spec.shape.numel() != 1:
-            raise ValueError(
-                "Action spec must have shape `[A]` where `A` "
-                "is the number of independent actions"
-            )
         return CompositeSpec(
             logits=UnboundedContinuousTensorSpec(
                 shape=torch.Size([action_spec.shape[0], action_spec.space.n]),
@@ -605,11 +613,6 @@ class Normal(
     def required_feature_spec(
         action_spec: UnboundedContinuousTensorSpec, /
     ) -> CompositeSpec:
-        if action_spec.shape.numel() != 1:
-            raise ValueError(
-                "Action spec must have shape `[A]` where `A` "
-                "is the number of independent actions"
-            )
         return CompositeSpec(
             mean=UnboundedContinuousTensorSpec(
                 shape=action_spec.shape, device=action_spec.device
