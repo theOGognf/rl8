@@ -266,7 +266,7 @@ class Algorithm:
         gae_lambda: float = 0.95,
         gamma: float = 0.95,
         sgd_minibatch_size: None | int = None,
-        num_sgd_iter: int = 4,
+        num_sgd_iter: int = 8,
         shuffle_minibatches: bool = True,
         clip_param: float = 0.2,
         vf_clip_param: float = 5.0,
@@ -298,6 +298,7 @@ class Algorithm:
             self.env.observation_spec,
             self.policy.feature_spec,
             self.env.action_spec,
+            device=device,
         )
         optimizer_config = optimizer_config or {}
         self.optimizer = optimizer_cls(
@@ -438,6 +439,8 @@ class Algorithm:
         feature_spec: TensorSpec,
         action_spec: TensorSpec,
         /,
+        *,
+        device: DEVICE = "cpu",
     ) -> TensorDict:
         """Initialize the experience buffer with a batch for each environment
         and transition expected from the environment.
@@ -454,6 +457,7 @@ class Algorithm:
                 output.
             action_spec: Spec defining the policy's action distribution
                 output.
+            device: Device to initialize the buffer on.
 
         Returns:
             A zeroed-out tensordict used for aggregating environment experience
@@ -472,7 +476,7 @@ class Algorithm:
                 DataKeys.RETURNS: UnboundedContinuousTensorSpec(1),
             }
         )  # type: ignore[no-untyped-call]
-        return buffer_spec.zero([num_envs, horizon])
+        return buffer_spec.zero([num_envs, horizon]).to(device)
 
     @property
     def num_envs(self) -> int:
@@ -629,6 +633,7 @@ class Algorithm:
                 self.env.observation_spec,
                 self.policy.feature_spec,
                 self.env.action_spec,
+                device=self.device,
             )
             self.buffer[DataKeys.OBS][:, -1, ...] = final_obs
             self.buffered = False
@@ -640,8 +645,8 @@ class Algorithm:
 
     def to(self, device: DEVICE, /) -> Self:
         """Move the algorithm and its attributes to `device`."""
-        self.buffer.to(device)
-        self.env.to(device)
-        self.policy.to(device)
+        self.buffer = self.buffer.to(device)
+        self.env = self.env.to(device)
+        self.policy = self.policy.to(device)
         self.device = device
         return self

@@ -152,7 +152,9 @@ class ContinuousDummyEnv(DummyEnv[UnboundedContinuousTensorSpec]):
         device: DEVICE = "cpu",
     ) -> None:
         super().__init__(num_envs, config=config, device=device)
-        self.action_spec = UnboundedContinuousTensorSpec(1, device=device)
+        self.action_spec = UnboundedContinuousTensorSpec(
+            shape=torch.Size([1]), device=device
+        )
 
     def step(self, action: torch.Tensor) -> TensorDict:
         self.state += action
@@ -172,10 +174,9 @@ class DiscreteDummyEnv(DummyEnv[DiscreteTensorSpec]):
         device: DEVICE = "cpu",
     ) -> None:
         super().__init__(num_envs, config=config, device=device)
-        self.action_spec = DiscreteTensorSpec(1, device=device)
+        self.action_spec = DiscreteTensorSpec(2, shape=torch.Size([1]), device=device)
 
     def step(self, action: torch.Tensor) -> TensorDict:
-        action = action.unsqueeze(1)
         self.state += 2 * action - 1
         return TensorDict(
             {DataKeys.OBS: self.state, DataKeys.REWARDS: -self.state.abs()},

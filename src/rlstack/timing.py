@@ -9,4 +9,4 @@ from typing import Callable, Generator
 def profile_ms() -> Generator[Callable[[], float], None, None]:
     """Profiling context manager in milliseconds."""
     start = time.perf_counter_ns()
-    yield lambda: 1e6 * (time.perf_counter_ns() - start)
+    yield lambda: (time.perf_counter_ns() - start) / 1e6

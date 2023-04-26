@@ -417,7 +417,7 @@ class DefaultDiscreteModel(
         return TensorDict(
             {
                 "logits": features.reshape(
-                    batch.batch_size, -1, self.action_spec.space.n
+                    -1, self.action_spec.shape[0], self.action_spec.space.n
                 )
             },
             batch_size=batch.batch_size,
@@ -458,7 +458,7 @@ class Distribution(ABC):
     #: computations.
     model: Model
 
-    def __init__(self, features: TensorDict, model: Model) -> None:
+    def __init__(self, features: TensorDict, model: Model, /) -> None:
         super().__init__()
         self.features = features
         self.model = model
@@ -528,14 +528,19 @@ class TorchDistributionWrapper(
     #: Underlying PyTorch distribution.
     dist: _TorchDistribution
 
+    def deterministic_sample(self) -> torch.Tensor:
+        return self.dist.mode  # type: ignore[no-any-return]
+
     def entropy(self) -> torch.Tensor:
-        return self.dist.entropy()  # type: ignore[no-any-return, no-untyped-call]
+        return self.dist.entropy().sum(-1, keepdim=True)  # type: ignore[no-any-return, no-untyped-call]
 
     def kl_div(self, other: Self) -> torch.Tensor:
-        return torch.distributions.kl.kl_divergence(self.dist, other.dist)
+        return torch.distributions.kl.kl_divergence(self.dist, other.dist).sum(
+            -1, keepdim=True
+        )
 
     def logp(self, samples: torch.Tensor) -> torch.Tensor:
-        return self.dist.log_prob(samples)  # type: ignore[no-any-return, no-untyped-call]
+        return self.dist.log_prob(samples).sum(-1, keepdim=True)  # type: ignore[no-any-return, no-untyped-call]
 
     @staticmethod
     @abstractmethod
@@ -554,18 +559,17 @@ class Categorical(
         CompositeSpec, torch.distributions.Categorical, DiscreteTensorSpec
     ]
 ):
-    def __init__(self, features: TensorDict, model: Model) -> None:
+    """Wrapper around the PyTorch categorical (i.e., discrete) distribution."""
+
+    def __init__(self, features: TensorDict, model: Model, /) -> None:
         super().__init__(features, model)
         self.dist = torch.distributions.Categorical(logits=features["logits"])  # type: ignore[no-untyped-call]
-
-    def deterministic_sample(self) -> torch.Tensor:
-        return self.dist.mode  # type: ignore[no-any-return]
 
     @staticmethod
     def required_feature_spec(action_spec: DiscreteTensorSpec, /) -> CompositeSpec:
         return CompositeSpec(
             logits=UnboundedContinuousTensorSpec(
-                shape=[action_spec.shape[0], action_spec.space.n],
+                shape=torch.Size([action_spec.shape[0], action_spec.space.n]),
                 device=action_spec.device,
             )
         )  # type: ignore[no-untyped-call]
@@ -576,21 +580,11 @@ class Normal(
         CompositeSpec, torch.distributions.Normal, UnboundedContinuousTensorSpec
     ]
 ):
+    """Wrapper around the PyTorch normal (i.e., gaussian) distribution."""
+
     def __init__(self, features: TensorDict, model: Model) -> None:
         super().__init__(features, model)
         self.dist = torch.distributions.Normal(loc=features["mean"], scale=torch.exp(features["log_std"]))  # type: ignore[no-untyped-call]
-
-    def deterministic_sample(self) -> torch.Tensor:
-        return self.dist.mode  # type: ignore[no-any-return]
-
-    def entropy(self) -> torch.Tensor:
-        return super().entropy().sum(-1, keepdim=True)
-
-    def kl_div(self, other: Self) -> torch.Tensor:
-        return super().kl_div(other).sum(-1, keepdim=True)
-
-    def logp(self, samples: torch.Tensor) -> torch.Tensor:
-        return super().logp(samples).sum(-1, keepdim=True)
 
     @staticmethod
     def required_feature_spec(
@@ -775,6 +769,6 @@ class Policy:
 
     def to(self, device: DEVICE, /) -> Self:
         """Move the policy and its attributes to `device`."""
-        self.model.to(device)
+        self.model = self.model.to(device)
         self.device = device
         return self
