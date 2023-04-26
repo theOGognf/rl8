@@ -85,6 +85,10 @@ CollectStats = TypedDict(
     "CollectStats",
     {
         "profiling/collect_ms": float,
+        "returns/min": float,
+        "returns/max": float,
+        "returns/mean": float,
+        "returns/std": float,
         "rewards/min": float,
         "rewards/max": float,
         "rewards/mean": float,

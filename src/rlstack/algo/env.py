@@ -109,9 +109,24 @@ class GenericEnv(Env, Generic[_ObservationSpec, _ActionSpec]):
 
 
 class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
+    """The simplest environment possible.
 
+    Useful for testing and debugging algorithms and policies. The state
+    is just a position along a 1D axis and the action perturbs the
+    state by some amount. The reward is the negative of the state's distance
+    from the origin, incentivizing policies to drive the state to the
+    origin as quickly as possible.
+
+    The environment's action space and step functions are defined by
+    subclasses.
+
+    """
+
+    #: State magnitude bounds for generating initial states upon
+    #: environment creation and environment resets.
     bounds: float
 
+    #: Current environment state that's a position along a 1D axis.
     state: torch.Tensor
 
     def __init__(
@@ -127,14 +142,20 @@ class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
         self.num_envs = num_envs
         self.observation_spec = UnboundedContinuousTensorSpec(1, device=device)
         self.bounds = config.get("bounds", 100.0)
-        self.state = self.bounds * torch.rand(num_envs, device=device).unsqueeze(1)
+        self.state = (
+            -self.bounds * torch.rand(num_envs, device=device).unsqueeze(1)
+            + self.bounds
+        )
 
     def reset(self, *, config: None | dict[str, Any] = None) -> torch.Tensor:
         if config and "bounds" in config:
             self.bounds = config["bounds"]
         num_envs = self.state.size(0)
         device = self.state.device
-        self.state = self.bounds * torch.rand(num_envs, device=device).unsqueeze(1)
+        self.state = (
+            -self.bounds * torch.rand(num_envs, device=device).unsqueeze(1)
+            + self.bounds
+        )
         return self.state
 
     def to(self, device: DEVICE, /) -> Self:
@@ -143,6 +164,12 @@ class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
 
 
 class ContinuousDummyEnv(DummyEnv[UnboundedContinuousTensorSpec]):
+    """A continuous version of the dummy environment.
+
+    Actions include moving the state left or right at any magnitude.
+
+    """
+
     def __init__(
         self,
         num_envs: int,
@@ -165,6 +192,14 @@ class ContinuousDummyEnv(DummyEnv[UnboundedContinuousTensorSpec]):
 
 
 class DiscreteDummyEnv(DummyEnv[DiscreteTensorSpec]):
+    """A discrete version of the dummy environment.
+
+    Actions include moving the state left or right one unit. This
+    environment is considered more difficult to solve than its
+    continuous counterpart because of the limited action space.
+
+    """
+
     def __init__(
         self,
         num_envs: int,

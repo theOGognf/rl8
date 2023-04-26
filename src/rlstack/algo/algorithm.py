@@ -266,7 +266,7 @@ class Algorithm:
         gae_lambda: float = 0.95,
         gamma: float = 0.95,
         sgd_minibatch_size: None | int = None,
-        num_sgd_iter: int = 8,
+        num_sgd_iter: int = 4,
         shuffle_minibatches: bool = True,
         clip_param: float = 0.2,
         vf_clip_param: float = 5.0,
@@ -417,7 +417,12 @@ class Algorithm:
             self.buffered = True
 
             # Aggregate some metrics.
+            returns = torch.sum(self.buffer[DataKeys.REWARDS], dim=1)
             collect_stats: CollectStats = {
+                "returns/min": float(torch.min(returns)),
+                "returns/max": float(torch.max(returns)),
+                "returns/mean": float(torch.mean(returns)),
+                "returns/std": float(torch.std(returns)),
                 "rewards/min": float(torch.min(self.buffer[DataKeys.REWARDS])),
                 "rewards/max": float(torch.max(self.buffer[DataKeys.REWARDS])),
                 "rewards/mean": float(torch.mean(self.buffer[DataKeys.REWARDS])),
