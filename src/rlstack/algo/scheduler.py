@@ -161,7 +161,7 @@ class EntropyScheduler:
                     self.scheduler = StepScheduler(schedule)
                 case _:
                     raise ValueError(
-                        f"Entropy scheduler only supports kinds `interp` and `step`"
+                        f"Entropy scheduler only supports kinds `interp` and `step`."
                     )
         self.step(0)
 
@@ -261,7 +261,7 @@ class LRScheduler:
                 case _:
                     raise ValueError(
                         f"Learning rate scheduler only supports "
-                        "kinds `interp` and `step`"
+                        "kinds `interp` and `step`."
                     )
 
     def step(self, count: int, /) -> None:

@@ -202,7 +202,7 @@ class Model(
         """
         if not isinstance(observation_spec, UnboundedContinuousTensorSpec):
             raise TypeError(
-                f"Observation spec {observation_spec} has no default model support"
+                f"Observation spec {observation_spec} has no default model support."
             )
         _assert_1d_spec(observation_spec)
         _assert_1d_spec(action_spec)
@@ -213,7 +213,7 @@ class Model(
                 return DefaultDiscreteModel
             case _:
                 raise TypeError(
-                    f"Action spec {action_spec} has no default model support"
+                    f"Action spec {action_spec} has no default model support."
                 )
 
     @abstractmethod
@@ -237,7 +237,7 @@ class Model(
 
         Raises:
             RuntimeError if the model's view requirements result in an
-            ambiguous batch size, making training and sampling impossible.
+                ambiguous batch size, making training and sampling impossible.
 
         """
         burn_sizes = {}
@@ -504,7 +504,7 @@ class Distribution(ABC):
                 return Normal
             case _:
                 raise TypeError(
-                    f"Action spec {action_spec} has no default distribution support"
+                    f"Action spec {action_spec} has no default distribution support."
                 )
 
     @abstractmethod
