@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 from typing_extensions import Self
 
 from ..specs import CompositeSpec, TensorSpec, UnboundedContinuousTensorSpec
-from ..timing import profile_ms
+from ..utils import profile_ms
 from .data import DEVICE, CollectStats, DataKeys, StepStats
 from .env import Env
 from .policy import Distribution, Model, Policy

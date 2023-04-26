@@ -1,4 +1,4 @@
-"""Timing/profiling/benchmarking utils."""
+"""General utils."""
 
 import time
 from contextlib import contextmanager

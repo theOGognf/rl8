@@ -315,6 +315,11 @@ class DefaultContinuousModel(
         bias: bool = True,
     ) -> None:
         super().__init__(observation_spec, action_spec)
+        if action_spec.shape.numel() != 1:
+            raise ValueError(
+                "Action spec must have shape `[A]` where `A` "
+                "is the number of independent actions"
+            )
         self.latent_model = nn.Sequential(
             MLP(
                 observation_spec.shape[0],
@@ -383,6 +388,11 @@ class DefaultDiscreteModel(
         bias: bool = True,
     ) -> None:
         super().__init__(observation_spec, action_spec)
+        if action_spec.shape.numel() != 1:
+            raise ValueError(
+                "Action spec must have shape `[A]` where `A` "
+                "is the number of independent actions"
+            )
         self.feature_model = nn.Sequential(
             MLP(
                 observation_spec.shape[0],
@@ -567,6 +577,11 @@ class Categorical(
 
     @staticmethod
     def required_feature_spec(action_spec: DiscreteTensorSpec, /) -> CompositeSpec:
+        if action_spec.shape.numel() != 1:
+            raise ValueError(
+                "Action spec must have shape `[A]` where `A` "
+                "is the number of independent actions"
+            )
         return CompositeSpec(
             logits=UnboundedContinuousTensorSpec(
                 shape=torch.Size([action_spec.shape[0], action_spec.space.n]),
@@ -590,6 +605,11 @@ class Normal(
     def required_feature_spec(
         action_spec: UnboundedContinuousTensorSpec, /
     ) -> CompositeSpec:
+        if action_spec.shape.numel() != 1:
+            raise ValueError(
+                "Action spec must have shape `[A]` where `A` "
+                "is the number of independent actions"
+            )
         return CompositeSpec(
             mean=UnboundedContinuousTensorSpec(
                 shape=action_spec.shape, device=action_spec.device
