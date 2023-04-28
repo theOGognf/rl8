@@ -24,6 +24,7 @@ classifiers = [
 ]
 dependencies = [
     "dadaptation",
+    "mlflow-skinny",
     "pandas",
     "tensordict",
     "torch",
@@ -87,11 +88,8 @@ changedir = {toxinidir}
 setenv =
     TOXINIDIR = {toxinidir}
 passenv =
-    BEA_API_KEY
-    FRED_API_KEY
     PIP_CACHE
     PIP_TRUSTED_HOST
-    SEC_API_USER_AGENT
 extras =
     dev
 commands =
@@ -132,10 +130,6 @@ setenv =
     docs: BUILD = html
     doctests: BUILD = doctest
     linkcheck: BUILD = linkcheck
-passenv =
-    BEA_API_KEY
-    FRED_API_KEY
-    SEC_API_USER_AGENT
 deps =
     -r {toxinidir}/docs/requirements.txt
 commands =
@@ -145,7 +139,7 @@ commands =
 description =
     Publish the package you have been developing to a package index server.
     By default, it uses testpypi. If you really want to publish your package
-    to be publicly accessible in PyPI, use the `-- --repository pypi` option.
+    to be publicly accessible in PyPI, use the `--repository pypi` option.
 skip_install = True
 changedir = {toxinidir}
 passenv =

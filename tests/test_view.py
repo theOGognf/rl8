@@ -2,8 +2,8 @@ import pytest
 import torch
 from tensordict import TensorDict
 
-from rlstack.algo.data import DataKeys
-from rlstack.algo.view import (
+from rlstack.data import DataKeys
+from rlstack.view import (
     PaddedRollingWindow,
     RollingWindow,
     ViewRequirement,

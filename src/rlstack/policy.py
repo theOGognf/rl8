@@ -9,15 +9,15 @@ import torch.nn as nn
 from tensordict import TensorDict
 from typing_extensions import Self
 
-from ..nn import MLP, Module, get_activation
-from ..specs import (
+from .data import DataKeys, Device
+from .nn import MLP, Module, get_activation
+from .specs import (
     CompositeSpec,
     DiscreteTensorSpec,
     TensorSpec,
     UnboundedContinuousTensorSpec,
 )
-from .data import DEVICE, DataKeys
-from .view import VIEW_KIND, ViewRequirement
+from .view import ViewKind, ViewRequirement
 
 _ObservationSpec = TypeVar("_ObservationSpec", bound=TensorSpec)
 _FeatureSpec = TypeVar("_FeatureSpec", bound=TensorSpec)
@@ -99,7 +99,7 @@ class Model(
         self.view_requirements = {DataKeys.OBS: ViewRequirement(DataKeys.OBS, shift=0)}
 
     def apply_view_requirements(
-        self, batch: TensorDict, /, *, kind: VIEW_KIND = "last"
+        self, batch: TensorDict, /, *, kind: ViewKind = "last"
     ) -> TensorDict:
         """Apply the model's view requirements, reshaping tensors as-needed.
 
@@ -637,6 +637,7 @@ class Policy:
             and inputs to the model's forward pass.
         action_spec: Spec defining the action distribution's outputs
             and the inputs to the environment.
+        model: Model instance to use. Mutually exclusive with ``model_cls``.
         model_cls: Model class to use.
         model_config: Model class args.
         dist_cls: Action distribution class.
@@ -644,7 +645,7 @@ class Policy:
     """
 
     #: Hardware device the policy's model is on.
-    device: DEVICE
+    device: Device
 
     #: Underlying policy action distribution that's parameterized by
     #: features produced by `model` and the `model` itself.
@@ -664,14 +665,25 @@ class Policy:
         action_spec: TensorSpec,
         /,
         *,
+        model: None | Model = None,
         model_cls: None | type[Model] = None,
         model_config: None | dict[str, Any] = None,
         dist_cls: None | type[Distribution] = None,
-        device: DEVICE = "cpu",
+        device: Device = "cpu",
     ) -> None:
-        model_cls = model_cls or Model.default_model_cls(observation_spec, action_spec)
         self.model_config = model_config or {}
-        self.model = model_cls(observation_spec, action_spec, **self.model_config)
+        if model and model_cls:
+            raise ValueError(
+                "`model` and `model_cls` args are mutually exclusive."
+                "Provide one or the other, but not both."
+            )
+        if model is None:
+            model_cls = model_cls or Model.default_model_cls(
+                observation_spec, action_spec
+            )
+            self.model = model_cls(observation_spec, action_spec, **self.model_config)
+        else:
+            self.model = model
         self.dist_cls = dist_cls or Distribution.default_dist_cls(action_spec)
         self.device = device
 
@@ -695,7 +707,7 @@ class Policy:
         batch: TensorDict,
         /,
         *,
-        kind: VIEW_KIND = "last",
+        kind: ViewKind = "last",
         deterministic: bool = False,
         inplace: bool = False,
         requires_grad: bool = False,
@@ -704,7 +716,7 @@ class Policy:
         return_values: bool = False,
         return_views: bool = False,
     ) -> TensorDict:
-        """Use `batch` to sample from the policy, sampling actions from
+        """Use ``batch`` to sample from the policy, sampling actions from
         the model and optionally sampling additional values often used for
         training and analysis.
 
@@ -721,15 +733,15 @@ class Policy:
             kind: String indicating the type of sample to perform. The model's
                 view requirements handles preprocessing slightly differently
                 depending on the value. Options include:
-                    - "last": Sample from `batch` using only the samples
+                    - "last": Sample from ``batch`` using only the samples
                         necessary to sample for the most recent observations
-                        within the `batch`'s T dimension.
-                    - "all": Sample from `batch` using all observations within
-                        the `batch`'s T dimension.
+                        within the ``batch``'s T dimension.
+                    - "all": Sample from ``batch`` using all observations within
+                        the ``batch``'s T dimension.
             deterministic: Whether to sample from the policy deterministically
                 (the actions are always the same for the same inputs) or
                 stochastically (there is a randomness to the policy's actions).
-            inplace: Whether to store policy outputs in the given `batch`
+            inplace: Whether to store policy outputs in the given ``batch``
                 tensor dict. Otherwise, create a separate tensor dict that
                 will only contain policy outputs.
             requires_grad: Whether to enable gradients for the underlying
@@ -748,13 +760,11 @@ class Policy:
                 in the output batch. Even if this flag is enabled, new views
                 are only returned if the views are not already present in
                 the output batch (i.e., if `inplace` is `True` and the views
-                are already in the `batch`, then the returned batch will just
+                are already in the ``batch``, then the returned batch will just
                 contain the original views).
 
         Returns:
             A tensor dict containing AT LEAST actions sampled from the policy.
-            See the `Args` section for how the data within the returned tensor
-            dict can vary.
 
         """
         if DataKeys.VIEWS in batch.keys():
@@ -790,7 +800,7 @@ class Policy:
         torch.set_grad_enabled(prev)
         return out
 
-    def to(self, device: DEVICE, /) -> Self:
+    def to(self, device: Device, /) -> Self:
         """Move the policy and its attributes to `device`."""
         self.model = self.model.to(device)
         self.device = device

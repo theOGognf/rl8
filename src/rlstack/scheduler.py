@@ -5,7 +5,7 @@ from typing import Literal, Protocol
 import numpy as np
 import torch.optim as optim
 
-SCHEDULE_KIND = Literal["interp", "step"]
+ScheduleKind = Literal["interp", "step"]
 
 
 class Scheduler(Protocol):
@@ -149,7 +149,7 @@ class EntropyScheduler:
         /,
         *,
         schedule: None | list[tuple[int, float]] = None,
-        kind: SCHEDULE_KIND = "step",
+        kind: ScheduleKind = "step",
     ) -> None:
         if schedule is None:
             self.scheduler = ConstantScheduler(coeff)
@@ -230,15 +230,15 @@ class LRScheduler:
 
     """
 
-    #: Current learning rate according to the schedule. `0` until `step` is
-    #: called for the first time.
+    #: Current learning rate according to the schedule. ``0`` until
+    #: :meth:`LRScheduler.step` is called for the first time.
     coeff: float
 
     #: Backend optimizer whose learning rate is updated in-place.
     optimizer: optim.Optimizer
 
-    #: Backend value scheduler used. The type depends on if a `schedule` arg is
-    #: provided and `kind`.
+    #: Backend value scheduler used. The type depends on if a ``schedule`` arg is
+    #: provided and ``kind``'s value.
     scheduler: Scheduler
 
     def __init__(
@@ -247,7 +247,7 @@ class LRScheduler:
         /,
         *,
         schedule: None | list[tuple[int, float]] = None,
-        kind: SCHEDULE_KIND = "step",
+        kind: ScheduleKind = "step",
     ) -> None:
         self.optimizer = optimizer
         if schedule is None:
@@ -263,6 +263,7 @@ class LRScheduler:
                         f"Learning rate scheduler only supports "
                         "kinds `interp` and `step`."
                     )
+        self.step(0)
 
     def step(self, count: int, /) -> None:
         if not isinstance(self.scheduler, ConstantScheduler):

@@ -7,7 +7,7 @@ from tensordict import TensorDict
 from typing_extensions import Self
 
 from ..specs import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTensorSpec
-from .data import DEVICE, DataKeys
+from .data import DataKeys, Device
 
 _ObservationSpec = TypeVar("_ObservationSpec", bound=TensorSpec)
 _ActionSpec = TypeVar("_ActionSpec", bound=TensorSpec)
@@ -19,7 +19,7 @@ class Env(Protocol):
 
     Args:
         num_envs: Number of parallel and independent environment being
-            simulated by one `Env` instance.
+            simulated by one :class:`Env` instance.
         config: Config detailing simulation options/parameters for the
             environment's initialization.
         device: Device the environment's underlying data should be
@@ -37,14 +37,14 @@ class Env(Protocol):
     config: dict[str, Any]
 
     #: Device the environment's underlying data is on.
-    device: DEVICE
+    device: Device
 
     #: Max number of steps an environment may take before being reset.
     max_horizon: int
 
     #: Number of parallel and independent environments being simulated
-    #: by one `Env` instance. If the learning buffer has batch size
-    #: [B, T], `num_envs` would be equivalent to B.
+    #: by one :class:`Env` instance. If the learning buffer has batch size
+    #: ``[B, T]``, ``num_envs`` would be equivalent to ``B``.
     num_envs: int
 
     #: Spec defining part of the environment's outputs (and policy's
@@ -58,17 +58,9 @@ class Env(Protocol):
         /,
         *,
         config: None | dict[str, Any] = None,
-        device: DEVICE = "cpu",
+        device: Device = "cpu",
     ) -> None:
         ...
-
-    def close(self) -> None:
-        """Close the environment, releasing all resources (memory, files, etc.)
-        associated with it. This is typically only called once at the end of
-        learning, so it's usually not useful. `reset` should handle most of
-        the resource allocation/freeing for the most part.
-
-        """
 
     def reset(
         self, *, config: None | dict[str, Any] = None
@@ -81,7 +73,7 @@ class Env(Protocol):
 
         Returns:
             Initial observation from the reset environment with spec
-            `Env.observation_spec`.
+            :attr:`Env.observation_spec`.
 
         """
 
@@ -100,7 +92,7 @@ class Env(Protocol):
 
         """
 
-    def to(self, device: DEVICE, /) -> Self:
+    def to(self, device: Device, /) -> Self:
         """Move the environment and its attributes to `device`."""
 
 
@@ -135,7 +127,7 @@ class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
         /,
         *,
         config: None | dict[str, Any] = None,
-        device: DEVICE = "cpu",
+        device: Device = "cpu",
     ) -> None:
         if config is None:
             config = {}
@@ -158,7 +150,7 @@ class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
         )
         return self.state
 
-    def to(self, device: DEVICE, /) -> Self:
+    def to(self, device: Device, /) -> Self:
         self.state = self.state.to(device=device)
         return self
 
@@ -176,7 +168,7 @@ class ContinuousDummyEnv(DummyEnv[UnboundedContinuousTensorSpec]):
         /,
         *,
         config: dict[str, Any] | None = None,
-        device: DEVICE = "cpu",
+        device: Device = "cpu",
     ) -> None:
         super().__init__(num_envs, config=config, device=device)
         self.action_spec = UnboundedContinuousTensorSpec(
@@ -206,7 +198,7 @@ class DiscreteDummyEnv(DummyEnv[DiscreteTensorSpec]):
         /,
         *,
         config: dict[str, Any] | None = None,
-        device: DEVICE = "cpu",
+        device: Device = "cpu",
     ) -> None:
         super().__init__(num_envs, config=config, device=device)
         self.action_spec = DiscreteTensorSpec(2, shape=torch.Size([1]), device=device)

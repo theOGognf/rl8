@@ -1,10 +1,10 @@
 """Definitions related to data passed between algorithm modules."""
 
-from typing import TypedDict
+from typing import Literal, TypedDict
 
 import torch
 
-DEVICE = str | torch.device
+Device = str | torch.device
 
 
 class DataKeys:
@@ -51,39 +51,12 @@ class DataKeys:
     #: value function).
     ADVANTAGES = "advantages"
 
-    #: Key denoting entropy of a probability distribution (a measure of a
-    #: probability distribution's randomness) loss.
-    ENTROPY_LOSS = "losses/entropy"
 
-    #: Key denoting KL divergence (a measure of distance between two probability
-    #: distributions) loss.
-    KL_DIV_LOSS = "losses/kl_div"
-
-    #: Key denoting loss associated with a learning algorithm's policy loss.
-    #: For PPO, this is a clipped policy loss ratio weighted by advantages.
-    POLICY_LOSS = "losses/policy"
-
-    #: Key denoting loss associated with a policy's model's ability to predict
-    #: values from the "values" key.
-    VF_LOSS = "losses/vf"
-
-    #: Key denoting sum of all losses.
-    TOTAL_LOSS = "losses/total"
-
-    #: Key denoting entropy coefficient for the entropy loss.
-    ENTROPY_COEFF = "coefficients/entropy"
-
-    #: Key denoting KL divergence coefficient for the KL divergence loss.
-    KL_DIV_COEFF = "coefficients/kl_div"
-
-    #: Key denoting value function loss coefficient.
-    VF_COEFF = "coefficients/vf"
-
-
-#: Stats updated and tracked within `Algorithm.collect`.
+#: Stats updated and tracked within :meth:`Algorithm.collect`.
 CollectStats = TypedDict(
     "CollectStats",
     {
+        "collects": int,
         "profiling/collect_ms": float,
         "returns/min": float,
         "returns/max": float,
@@ -98,7 +71,7 @@ CollectStats = TypedDict(
 )
 
 
-#: Stats updated and tracked within `Algorithm.step`.
+#: Stats updated and tracked within :meth:`Algorithm.step`.
 StepStats = TypedDict(
     "StepStats",
     {
@@ -111,6 +84,37 @@ StepStats = TypedDict(
         "losses/vf": float,
         "losses/total": float,
         "profiling/step_ms": float,
+        "steps": int,
     },
     total=False,
 )
+
+
+#: :meth:`Algorithm.collect` and :meth:`Algorithm.step` stats together.
+class TrainStats(CollectStats, StepStats):
+    ...
+
+
+#: All the keys from :class:`TrainStats`.
+TrainStatKey = Literal[
+    "collects",
+    "profiling/collect_ms",
+    "returns/min",
+    "returns/max",
+    "returns/mean",
+    "returns/std",
+    "rewards/min",
+    "rewards/max",
+    "rewards/mean",
+    "rewards/std",
+    "coefficients/entropy",
+    "coefficients/kl_div",
+    "coefficients/vf",
+    "losses/entropy",
+    "losses/kl_div",
+    "losses/policy",
+    "losses/vf",
+    "losses/total",
+    "profiling/step_ms",
+    "steps",
+]

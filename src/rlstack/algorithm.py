@@ -1,6 +1,8 @@
-"""Definitions related to RL algorithms (mainly variants of PPO)."""
+"""Definitions related to the RL algorithm (data collection and training)."""
 
-from typing import Any
+import time
+from contextlib import contextmanager
+from typing import Any, Callable, Generator
 
 import pandas as pd
 import torch
@@ -11,12 +13,18 @@ from tensordict import TensorDict
 from torch.utils.data import DataLoader
 from typing_extensions import Self
 
-from ..specs import CompositeSpec, TensorSpec, UnboundedContinuousTensorSpec
-from ..utils import profile_ms
-from .data import DEVICE, CollectStats, DataKeys, StepStats
+from .data import CollectStats, DataKeys, Device, StepStats
 from .env import Env
 from .policy import Distribution, Model, Policy
-from .scheduler import SCHEDULE_KIND, EntropyScheduler, KLUpdater, LRScheduler
+from .scheduler import EntropyScheduler, KLUpdater, LRScheduler, ScheduleKind
+from .specs import CompositeSpec, TensorSpec, UnboundedContinuousTensorSpec
+
+
+@contextmanager
+def _profile_ms() -> Generator[Callable[[], float], None, None]:
+    """Profiling context manager in milliseconds."""
+    start = time.perf_counter_ns()
+    yield lambda: (time.perf_counter_ns() - start) / 1e6
 
 
 class Algorithm:
@@ -28,6 +36,7 @@ class Algorithm:
     are infinite horizon with no terminal conditions. These assumptions
     allow the learning procedure to occur extremely fast even for
     complex, sequence-based models because:
+
         1) environments occur in parallel and are batched into a contingous
             buffer
         2) all environments are reset in parallel after a predetermined
@@ -37,11 +46,12 @@ class Algorithm:
 
     Args:
         env_cls: Highly parallelized environment for sampling experiences.
-            Instantiated with `env_config`. Will be stepped for `horizon`
-            each `collect` call.
-        env_config: Initial environment config passed to `env_cls` for the
+            Instantiated with ``env_config``. Will be stepped for ``horizon``
+            each :meth:`Algorithm.collect` call.
+        env_config: Initial environment config passed to ``env_cls`` for the
             environment instantiation. This is likely to be overwritten
             on the environment instance if reset with a new config.
+        model: Model instance to use. Mutually exclusive with ``model_cls``.
         model_cls: Optional custom policy model definition. A model class
             is provided for you based on the environment instance's specs
             if you don't provide one. Defaults to a simple feedforward
@@ -54,42 +64,48 @@ class Algorithm:
             for discrete actions and a gaussian action distribution for
             continuous actions. Complex actions are not supported for default
             action distributions.
-        horizon: Number of environment transitions to collect during `collect`.
-            The environment is reset based on `horizons_per_reset`. The
-            buffer's size is [B, T] where T is `horizon`.
-        horizons_per_reset: Number of times `collect` can be called before
-            resetting `env`. Set this to a higher number if you want learning
-            to occur across horizons. Leave this as the default `1` if it
-            doesn't matter that experiences and learning only occurs within
-            one horizon.
+        horizon: Number of environment transitions to collect during
+            :meth:`Algorithm.collect`. The environment is reset based on
+            ``horizons_per_reset``. The buffer's size is ``[B, T]`` where ``T`` is
+            ``horizon``.
+        horizons_per_reset: Number of times :meth:`Algorithm.collect` can be
+            called before resetting :attr:`Algorithm.env`. Set this to a higher
+            number if you want learning to occur across horizons. Leave this
+            as the default ``1`` if it doesn't matter that experiences and
+            learning only occurs within one horizon.
         num_envs: Number of parallelized simulation environments for the
             environment instance. Passed during the environment's
-            instantiation. The buffer's size is [B, T] where B is `num_envs`.
+            instantiation. The buffer's size is ``[B, T]`` where ``B`` is
+            ``num_envs``.
         optimizer_cls: Custom optimizer class. Defaults to an optimizer
             that doesn't require much tuning.
-        optimizer_config: Custom optimizer config unpacked into `optimizer_cls`
+        optimizer_config: Custom optimizer config unpacked into ``optimizer_cls``
             during optimizer instantiation.
         lr_schedule: Optional schedule that overrides the optimizer's learning rate.
             This deternmines the value of the learning rate according to the
             number of environment transitions experienced during learning.
             The learning rate is constant if this isn't provided.
-        lr_schedule_kind: Kind of learning rate scheduler to use if `lr_schedule`
+        lr_schedule_kind: Kind of learning rate scheduler to use if ``lr_schedule``
             is provided. Options include:
+
                 - "step": jump to values and hold until a new environment transition
                     count is reached.
                 - "interp": jump to values like "step", but interpolate between the
                     current value and the next value.
+
         entropy_coeff: Entropy coefficient value. Weight of the entropy loss w.r.t.
             other components of total loss. This value is ignored if
-            `entropy_coeff_schedule` is provded.
-        entropy_coeff_schedule: Optional schedule that overrides `entropy_coeff`. This
-            determines values of `entropy_coeff` according to the number of environment
+            ``entropy_coeff_schedule`` is provded.
+        entropy_coeff_schedule: Optional schedule that overrides ``entropy_coeff``. This
+            determines values of ``entropy_coeff`` according to the number of environment
             transitions experienced during learning.
         entropy_coeff_schedule_kind: Kind of entropy scheduler to use. Options include:
+
             - "step": jump to values and hold until a new environment transition
                 count is reached.
             - "interp": jump to values like "step", but interpolate between the
                 current value and the next value.
+
         gae_lambda: Generalized Advantage Estimation (GAE) hyperparameter for controlling
             the variance and bias tradeoff when estimating the state value
             function from collected environment transitions. A higher value
@@ -100,53 +116,56 @@ class Algorithm:
             rewards. Note, this does not control the bias/variance of the
             state value estimation and only controls the weight future rewards
             have on the total discounted return.
-        sgd_minibatch_size: PPO hyperparameter indicating the minibatc size `buffer`
-            is split into when updating the policy's model in `step`. It's usually best to
-            maximize the minibatch size to reduce the variance associated with
-            updating the policy's model, but also accelerate the computations
-            when learning (assuming a CUDA device is being used). If `None`,
-            the whole buffer is treated as one giant batch.
+        sgd_minibatch_size: PPO hyperparameter indicating the minibatch size
+            :attr:`Algorithm.buffer` is split into when updating the policy's model
+            in :meth:`Algorithm.step`. It's usually best to maximize the minibatch
+            size to reduce the variance associated with updating the policy's model,
+            and also to accelerate the computations when learning (assuming a CUDA
+            device is being used). If ``None``, the whole buffer is treated as one giant
+            batch.
         num_sgd_iter: PPO hyperparameter indicating the number of gradient steps to take
-            with the whole `buffer` when calling `step`.
-        shuffle_minibatches: Whether to shuffle minibatches within `step`.
+            with the whole :attr:`Algorithm.buffer` when calling :meth:`Algorithm.step`.
+        shuffle_minibatches: Whether to shuffle minibatches within :meth:`Algorithm.step`.
             Recommended, but not necessary if the minibatch size is large enough
             (e.g., the buffer is the batch).
         clip_param: PPO hyperparameter indicating the max distance the policy can
             update away from previously collected policy sample data with
             respect to likelihoods of taking actions conditioned on
             observations. This is the main innovation of PPO.
-        vf_clip_param: PPO hyperparameter similar to `clip_param` but for the
+        vf_clip_param: PPO hyperparameter similar to ``clip_param`` but for the
             value function estimate. A measure of max distance the model's
             value function is allowed to update away from previous value function
             samples.
         kl_coeff: KL divergence loss coefficient that weighs KL divergence loss w.r.t.
             other loss components. KL divergence loss is ignored and not computed
-            unless this is `> 0`. This is updated to make the mean KL divergence loss
-            be close to `kl_target`. If the mean KL divergence is higher than `target`,
-            then `coeff` is increased to increase the weight of the KL divergence
+            unless this is ``> 0``. This is updated to make the mean KL divergence loss
+            be close to ``kl_target``. If the mean KL divergence is higher than ``kl_target``,
+            then ``coeff`` is increased to increase the weight of the KL divergence
             in the loss, thus decreasing subsequent sampled mean KL divergence losses.
         kl_target: Target KL divergence. The desired distance between new and old
-            policies. Used for updating `kl_coeff`.
-        vf_coeff: PPO hyperparameter similar to `clip_param` but for the value function
+            policies. Used for updating ``kl_coeff``.
+        vf_coeff: PPO hyperparameter similar to ``clip_param`` but for the value function
             estimate. A measure of max distance the model's value function is
             allowed to update away from previous value function samples.
         max_grad_norm: Max gradient norm allowed when updating the policy's model
-            within `step`.
-        device: Device the `env`, `buffer`, and `policy` all reside on.
+            within :meth:`Algorithm.step`.
+        device: Device the :attr:`Algorithm.env`, :attr:`Algorithm.buffer`, and
+            :attr:`Algorithm.policy` all reside on.
 
     """
 
     #: Environment experiences buffer used for aggregating environment
     #: transition data and policy sample data. The same buffer object
-    #: is shared whenever using `collect`, so it's important to use data
-    #: collected by `collect`. Otherwise, it'll be overwritten by
-    #: subsequent `collect` calls. Buffer dimensions are constructed
-    #: by `num_envs` and `horizon`.
+    #: is shared whenever using :meth:`Algorithm.collect`, so it's
+    #: important to use data collected by :meth:`Algorithm.collect`.
+    #: Otherwise, it'll be overwritten by subsequent `collect` calls.
+    #: Buffer dimensions are constructed by ``num_envs`` and ``horizon``
+    #: args.
     buffer: TensorDict
 
-    #: Flag indicating whether `collect` has been called at least once
-    #: prior to calling `step`. Ensures dummy buffer data isn't used
-    #: to update the policy.
+    #: Flag indicating whether :meth:`Algorithm.collect` has been called
+    #: at least once prior to calling :meth:`Algorithm.step`. Ensures
+    #: dummy buffer data isn't used to update the policy.
     buffered: bool
 
     #: PPO hyperparameter indicating the max distance the policy can
@@ -155,14 +174,19 @@ class Algorithm:
     #: observations. This is the main innovation of PPO.
     clip_param: float
 
-    #: Device the `env`, `buffer`, and `policy` all reside on.
-    device: DEVICE
+    #: Number of times :meth:`Algorithm.collect` has been called.
+    collects: int
 
-    #: Entropy scheduler for updating the `entropy_coeff` after each `step`
-    #: call based on the number environment transitions collected and
-    #: learned on. By default, the entropy scheduler does not actually
-    #: update the entropy coefficient. The entropy scheduler only updates
-    #: the entropy coefficient if an `entropy_coeff_schedule` is provided.
+    #: Device the :attr:`Algorithm.env`, :attr:`Algorithm.buffer`, and
+    #: :attr:`Algorithm.policy` all reside on.
+    device: Device
+
+    #: Entropy scheduler for updating the ``entropy_coeff`` after each
+    #: :meth:`Algorithm.step` call based on the number environment transitions
+    #: collected and learned on. By default, the entropy scheduler does not
+    #: actually update the entropy coefficient. The entropy scheduler only
+    #: updates the entropy coefficient if an ``entropy_coeff_schedule`` is
+    #: provided.
     entropy_scheduler: EntropyScheduler
 
     #: Environment used for experience collection within the `collect` method.
@@ -195,8 +219,8 @@ class Algorithm:
     #: experiences and learning only occurs within one horizon.
     horizons_per_reset: int
 
-    #: KL divergence updater used for updating `kl_coeff` to make the sampled
-    #: mean KL divergence be close to `kl_target`.
+    #: KL divergence updater used for updating ``kl_coeff`` to make the sampled
+    #: mean KL divergence be close to ``kl_target``.
     kl_updater: KLUpdater
 
     #: Learning rate scheduler for updating `optimizer` learning rate after
@@ -215,22 +239,23 @@ class Algorithm:
     num_sgd_iter: int
 
     #: Underlying optimizer for updating the policy's model. Constructed from
-    #: `optimizer_cls` and `optimizer_config`. Defaults to a generally robust
-    #: optimizer that doesn't require much hyperparameter tuning.
+    #: ``optimizer_cls`` and ``optimizer_config``. Defaults to a generally
+    #: robust optimizer that doesn't require much hyperparameter tuning.
     optimizer: optim.Optimizer
 
-    #: Policy constructed from the `model_cls`, `model_config`, and `dist_cls`
-    #: kwargs. A default policy is constructed according to the environment's
-    #: observation and action specs if these policy args aren't provided.
-    #: The policy is what does all the action sampling within `collect` and
-    #: is what is updated within `step`.
+    #: Policy constructed from the ``model_cls``, ``model_config``, and
+    #: ``dist_cls`` kwargs. A default policy is constructed according to
+    #: the environment's observation and action specs if these policy args
+    #: aren't provided. The policy is what does all the action sampling
+    #: within :meth:`Algorithm.collect` and is what is updated within
+    #: :meth:`Algorithm.step`.
     policy: Policy
 
     #: PPO hyperparameter indicating the minibatc size `buffer` is split into
     #: when updating the policy's model in `step`. It's usually best to
     #: maximize the minibatch size to reduce the variance associated with
     #: updating the policy's model, but also accelerate the computations
-    #: when learning (assuming a CUDA device is being used). If `None`,
+    #: when learning (assuming a CUDA device is being used). If ``None``,
     #: the whole buffer is treated as one giant batch.
     sgd_minibatch_size: None | int
 
@@ -239,7 +264,10 @@ class Algorithm:
     #: is the batch).
     shuffle_minibatches: bool
 
-    #: PPO hyperparameter similar to `clip_param` but for the value function
+    #: Number of times :meth:`Algorithm.step` has been called.
+    steps: int
+
+    #: PPO hyperparameter similar to ``clip_param`` but for the value function
     #: estimate. A measure of max distance the model's value function is
     #: allowed to update away from previous value function samples.
     vf_clip_param: float
@@ -250,6 +278,7 @@ class Algorithm:
         /,
         *,
         env_config: None | dict[str, Any] = None,
+        model: None | Model = None,
         model_cls: None | type[Model] = None,
         model_config: None | dict[str, Any] = None,
         dist_cls: None | type[Distribution] = None,
@@ -259,10 +288,10 @@ class Algorithm:
         optimizer_cls: type[optim.Optimizer] = DAdaptAdam,
         optimizer_config: None | dict[str, Any] = None,
         lr_schedule: None | list[tuple[int, float]] = None,
-        lr_schedule_kind: SCHEDULE_KIND = "step",
+        lr_schedule_kind: ScheduleKind = "step",
         entropy_coeff: float = 0.0,
         entropy_coeff_schedule: None | list[tuple[int, float]] = None,
-        entropy_coeff_schedule_kind: SCHEDULE_KIND = "step",
+        entropy_coeff_schedule_kind: ScheduleKind = "step",
         gae_lambda: float = 0.95,
         gamma: float = 0.95,
         sgd_minibatch_size: None | int = None,
@@ -274,12 +303,13 @@ class Algorithm:
         kl_target: float = 1e-2,
         vf_coeff: float = 1.0,
         max_grad_norm: float = 5.0,
-        device: DEVICE = "cpu",
+        device: Device = "cpu",
     ) -> None:
         self.env = env_cls(num_envs, config=env_config, device=device)
         self.policy = Policy(
             self.env.observation_spec,
             self.env.action_spec,
+            model=model,
             model_cls=model_cls,
             model_config=model_config,
             dist_cls=dist_cls,
@@ -328,6 +358,8 @@ class Algorithm:
         self.max_grad_norm = max_grad_norm
         self.device = device
         self.buffered = False
+        self.steps = 0
+        self.collects = 0
 
     def collect(
         self, *, env_config: None | dict[str, Any] = None, deterministic: bool = False
@@ -359,7 +391,7 @@ class Algorithm:
             policy samples.
 
         """
-        with profile_ms() as collect_timer:
+        with _profile_ms() as collect_timer:
             # Gather initial observation.
             if not (self.horizons % self.horizons_per_reset):
                 self.buffer[DataKeys.OBS][:, 0, ...] = self.env.reset(config=env_config)
@@ -417,18 +449,21 @@ class Algorithm:
             self.buffered = True
 
             # Aggregate some metrics.
-            returns = torch.sum(self.buffer[DataKeys.REWARDS], dim=1)
+            rewards = self.buffer[DataKeys.REWARDS][:, :, :-1]
+            returns = torch.sum(rewards, dim=1)
             collect_stats: CollectStats = {
                 "returns/min": float(torch.min(returns)),
                 "returns/max": float(torch.max(returns)),
                 "returns/mean": float(torch.mean(returns)),
                 "returns/std": float(torch.std(returns)),
-                "rewards/min": float(torch.min(self.buffer[DataKeys.REWARDS])),
-                "rewards/max": float(torch.max(self.buffer[DataKeys.REWARDS])),
-                "rewards/mean": float(torch.mean(self.buffer[DataKeys.REWARDS])),
-                "rewards/std": float(torch.std(self.buffer[DataKeys.REWARDS])),
+                "rewards/min": float(torch.min(rewards)),
+                "rewards/max": float(torch.max(rewards)),
+                "rewards/mean": float(torch.mean(rewards)),
+                "rewards/std": float(torch.std(rewards)),
             }
         collect_stats["profiling/collect_ms"] = collect_timer()
+        self.collects += 1
+        collect_stats["collects"] = self.collects
         return collect_stats
 
     @property
@@ -445,7 +480,7 @@ class Algorithm:
         action_spec: TensorSpec,
         /,
         *,
-        device: DEVICE = "cpu",
+        device: Device = "cpu",
     ) -> TensorDict:
         """Initialize the experience buffer with a batch for each environment
         and transition expected from the environment.
@@ -502,7 +537,7 @@ class Algorithm:
                 "Call `collect` once prior to `step`."
             )
 
-        with profile_ms() as step_timer:
+        with _profile_ms() as step_timer:
             # Get number of environments and horizon. Remember, there's an extra
             # sample in the horizon because we store the final environment observation
             # for the next `collect` call and value function estimate for bootstrapping.
@@ -646,10 +681,12 @@ class Algorithm:
             # Update algo stats.
             step_stats = pd.DataFrame(step_stats_per_batch).mean(axis=0).to_dict()
         step_stats["profiling/step_ms"] = step_timer()
+        self.steps += 1
+        step_stats["steps"] = self.steps
         return step_stats  # type: ignore[no-any-return]
 
-    def to(self, device: DEVICE, /) -> Self:
-        """Move the algorithm and its attributes to `device`."""
+    def to(self, device: Device, /) -> Self:
+        """Move the algorithm and its attributes to ``device``."""
         self.buffer = self.buffer.to(device)
         self.env = self.env.to(device)
         self.policy = self.policy.to(device)
