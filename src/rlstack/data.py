@@ -56,7 +56,9 @@ class DataKeys:
 CollectStats = TypedDict(
     "CollectStats",
     {
-        "collects": int,
+        "counting/collect_calls": int,
+        "counting/horizons": int,
+        "counting/total_steps": int,
         "profiling/collect_ms": float,
         "returns/min": float,
         "returns/max": float,
@@ -78,13 +80,13 @@ StepStats = TypedDict(
         "coefficients/entropy": float,
         "coefficients/kl_div": float,
         "coefficients/vf": float,
+        "counting/step_calls": int,
         "losses/entropy": float,
         "losses/kl_div": float,
         "losses/policy": float,
         "losses/vf": float,
         "losses/total": float,
         "profiling/step_ms": float,
-        "steps": int,
     },
     total=False,
 )
@@ -97,7 +99,9 @@ class TrainStats(CollectStats, StepStats):
 
 #: All the keys from :class:`TrainStats`.
 TrainStatKey = Literal[
-    "collects",
+    "counting/collect_calls",
+    "counting/horizons",
+    "counting/total_steps",
     "profiling/collect_ms",
     "returns/min",
     "returns/max",
@@ -110,11 +114,11 @@ TrainStatKey = Literal[
     "coefficients/entropy",
     "coefficients/kl_div",
     "coefficients/vf",
+    "counting/step_calls",
     "losses/entropy",
     "losses/kl_div",
     "losses/policy",
     "losses/vf",
     "losses/total",
     "profiling/step_ms",
-    "steps",
 ]

@@ -1,1 +1,1 @@
-# rlstack: An Infinite Horizon RL Library for the Sane
+# rlstack: An RL Toolkit for the Sane

@@ -41,8 +41,6 @@ class Plateaus(Condition):
                 abs(new_value - self.old_value) <= self.rtol * abs(self.old_value)
             ):
                 self.losses += 1
-            elif not new_value:
-                self.losses += 1
             else:
                 self.losses = 0
         return self.losses >= self.patience

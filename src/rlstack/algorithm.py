@@ -175,7 +175,7 @@ class Algorithm:
     clip_param: float
 
     #: Number of times :meth:`Algorithm.collect` has been called.
-    collects: int
+    collect_calls: int
 
     #: Device the :attr:`Algorithm.env`, :attr:`Algorithm.buffer`, and
     #: :attr:`Algorithm.policy` all reside on.
@@ -265,7 +265,10 @@ class Algorithm:
     shuffle_minibatches: bool
 
     #: Number of times :meth:`Algorithm.step` has been called.
-    steps: int
+    step_calls: int
+
+    #: Total number of environment steps made.
+    total_steps: int
 
     #: PPO hyperparameter similar to ``clip_param`` but for the value function
     #: estimate. A measure of max distance the model's value function is
@@ -358,8 +361,9 @@ class Algorithm:
         self.max_grad_norm = max_grad_norm
         self.device = device
         self.buffered = False
-        self.steps = 0
-        self.collects = 0
+        self.total_steps = 0
+        self.step_calls = 0
+        self.collect_calls = 0
 
     def collect(
         self, *, env_config: None | dict[str, Any] = None, deterministic: bool = False
@@ -392,6 +396,13 @@ class Algorithm:
 
         """
         with _profile_ms() as collect_timer:
+            # Get number of environments and horizon. Remember, there's an extra
+            # sample in the horizon because we store the final environment observation
+            # for the next :meth:`Algorithm.collect` call and value function estimates
+            # for bootstrapping.
+            B = self.num_envs
+            T = self.horizon - 1
+
             # Gather initial observation.
             if not (self.horizons % self.horizons_per_reset):
                 self.buffer[DataKeys.OBS][:, 0, ...] = self.env.reset(config=env_config)
@@ -400,7 +411,7 @@ class Algorithm:
                     :, -1, ...
                 ]
 
-            for t in range(self.horizon - 1):
+            for t in range(T):
                 # Sample the policy and step the environment.
                 in_batch = self.buffer[:, : (t + 1), ...]
                 sample_batch = self.policy.sample(
@@ -449,7 +460,7 @@ class Algorithm:
             self.buffered = True
 
             # Aggregate some metrics.
-            rewards = self.buffer[DataKeys.REWARDS][:, :, :-1]
+            rewards = self.buffer[DataKeys.REWARDS][:, :-1, ...]
             returns = torch.sum(rewards, dim=1)
             collect_stats: CollectStats = {
                 "returns/min": float(torch.min(returns)),
@@ -461,9 +472,12 @@ class Algorithm:
                 "rewards/mean": float(torch.mean(rewards)),
                 "rewards/std": float(torch.std(rewards)),
             }
+        self.collect_calls += 1
+        self.total_steps += B * T
         collect_stats["profiling/collect_ms"] = collect_timer()
-        self.collects += 1
-        collect_stats["collects"] = self.collects
+        collect_stats["counting/collect_calls"] = self.collect_calls
+        collect_stats["counting/horizons"] = self.horizons
+        collect_stats["counting/total_steps"] = self.total_steps
         return collect_stats
 
     @property
@@ -540,7 +554,8 @@ class Algorithm:
         with _profile_ms() as step_timer:
             # Get number of environments and horizon. Remember, there's an extra
             # sample in the horizon because we store the final environment observation
-            # for the next `collect` call and value function estimate for bootstrapping.
+            # for the next :meth:`Algorithm.collect` call and value function estimates
+            # for bootstrapping.
             B = self.num_envs
             T = self.horizon - 1
 
@@ -680,9 +695,9 @@ class Algorithm:
 
             # Update algo stats.
             step_stats = pd.DataFrame(step_stats_per_batch).mean(axis=0).to_dict()
+        self.step_calls += 1
+        step_stats["counting/step_calls"] = self.step_calls
         step_stats["profiling/step_ms"] = step_timer()
-        self.steps += 1
-        step_stats["steps"] = self.steps
         return step_stats  # type: ignore[no-any-return]
 
     def to(self, device: Device, /) -> Self:

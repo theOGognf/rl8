@@ -22,14 +22,14 @@ class Trainer:
         self.stop_conditions = stop_conditions or []
 
     def run(self) -> TrainStats:
-        mlflow.start_run()
-        train_stats: TrainStats = {}
+        train_stats = self.train()
         while not any(
             [condition.eval(train_stats) for condition in self.stop_conditions]
         ):
             train_stats = self.train()
-        mlflow.end_run()
         return train_stats
 
     def train(self) -> TrainStats:
-        return {**self.algorithm.collect(), **self.algorithm.step()}  # type: ignore[misc]
+        train_stats = {**self.algorithm.collect(), **self.algorithm.step()}
+        mlflow.log_metrics(train_stats, step=train_stats["steps"])
+        return train_stats  # type: ignore[return-value]
