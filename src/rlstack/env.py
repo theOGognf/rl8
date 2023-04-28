@@ -6,8 +6,8 @@ import torch
 from tensordict import TensorDict
 from typing_extensions import Self
 
-from ..specs import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTensorSpec
 from .data import DataKeys, Device
+from .specs import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTensorSpec
 
 _ObservationSpec = TypeVar("_ObservationSpec", bound=TensorSpec)
 _ActionSpec = TypeVar("_ActionSpec", bound=TensorSpec)
