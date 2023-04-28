@@ -52,6 +52,33 @@ class DataKeys:
     ADVANTAGES = "advantages"
 
 
+#: :class:`Algorithm` hyperparameters.
+AlgorithmParams = TypedDict(
+    "AlgorithmParams",
+    {
+        "env_cls": str,
+        "model_cls": str,
+        "dist_cls": str,
+        "horizon": int,
+        "horizons_per_reset": int,
+        "num_envs": int,
+        "optimizer_cls": str,
+        "lr_schedule_kind": str,
+        "entropy_coeff_schedule_kind": str,
+        "entropy_coeff": float,
+        "gae_lambda": float,
+        "gamma": float,
+        "sgd_minibatch_size": int,
+        "num_sgd_iter": int,
+        "shuffle_minibatches": bool,
+        "clip_param": float,
+        "vf_clip_param": float,
+        "vf_coeff": float,
+        "max_grad_norm": float,
+    },
+)
+
+
 #: Stats updated and tracked within :meth:`Algorithm.collect`.
 CollectStats = TypedDict(
     "CollectStats",

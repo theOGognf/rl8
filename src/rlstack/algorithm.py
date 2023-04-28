@@ -13,7 +13,7 @@ from tensordict import TensorDict
 from torch.utils.data import DataLoader
 from typing_extensions import Self
 
-from .data import CollectStats, DataKeys, Device, StepStats
+from .data import AlgorithmParams, CollectStats, DataKeys, Device, StepStats
 from .env import Env
 from .policy import Distribution, Model, Policy
 from .scheduler import EntropyScheduler, LRScheduler, ScheduleKind
@@ -522,6 +522,31 @@ class Algorithm:
     def num_envs(self) -> int:
         """Number of environments ran in parallel."""
         return int(self.buffer.size(0))
+
+    @property
+    def params(self) -> AlgorithmParams:
+        """Return algorithm parameters."""
+        return {
+            "env_cls": self.env.__class__.__name__,
+            "model_cls": self.policy.model.__class__.__name__,
+            "dist_cls": self.policy.dist_cls.__name__,
+            "horizon": self.horizon,
+            "horizons_per_reset": self.horizons_per_reset,
+            "num_envs": self.num_envs,
+            "optimizer_cls": self.optimizer.__class__.__name__,
+            "lr_schedule_kind": self.lr_scheduler.scheduler.__class__.__name__,
+            "entropy_coeff_schedule_kind": self.entropy_scheduler.scheduler.__class__.__name__,
+            "entropy_coeff": self.entropy_scheduler.coeff,
+            "gae_lambda": self.gae_lambda,
+            "gamma": self.gamma,
+            "sgd_minibatch_size": self.sgd_minibatch_size,
+            "num_sgd_iter": self.num_sgd_iter,
+            "shuffle_minibatches": self.shuffle_minibatches,
+            "clip_param": self.clip_param,
+            "vf_clip_param": self.vf_clip_param,
+            "vf_coeff": self.vf_coeff,
+            "max_grad_norm": self.max_grad_norm,
+        }
 
     def step(self) -> StepStats:
         """Take a step with the algorithm, using collected environment
