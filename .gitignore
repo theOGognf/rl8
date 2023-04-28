@@ -1,6 +1,7 @@
 # Custom
 *.sqlite
 data/
+mlruns/
 notebooks/
 
 # Byte-compiled / optimized / DLL files

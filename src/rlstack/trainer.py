@@ -24,12 +24,12 @@ class Trainer:
     def run(self) -> TrainStats:
         train_stats = self.train()
         while not any(
-            [condition.eval(train_stats) for condition in self.stop_conditions]
+            [condition.__call__(train_stats) for condition in self.stop_conditions]
         ):
             train_stats = self.train()
         return train_stats
 
     def train(self) -> TrainStats:
         train_stats = {**self.algorithm.collect(), **self.algorithm.step()}
-        mlflow.log_metrics(train_stats, step=train_stats["steps"])
+        mlflow.log_metrics(train_stats, step=train_stats["counting/total_steps"])
         return train_stats  # type: ignore[return-value]

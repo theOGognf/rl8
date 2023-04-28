@@ -169,50 +169,6 @@ class EntropyScheduler:
         self.coeff = self.scheduler.step(count)
 
 
-class KLUpdater:
-    """KL divergence coefficient updater (not necessarily a scheduler) that
-    increases the weight of the KL divergence loss if the KL divergence
-    is higher than a target KL divergence (thus, reducing the mean KL
-    divergence).
-
-    This implementation is based on RLlib's KL updater mixin:
-        https://github.com/ray-project/ray/blob/master/rllib/policy/torch_mixins.py
-
-    Args:
-        coeff: Initial KL divergence loss coefficient. This is updated
-            to make the mean KL divergence loss be close to `target`.
-            If the mean KL divergence is higher than `target`, then
-            `coeff` is increased to increase the weight of the KL
-            divergence in the loss, thus decreasing subsequent sampled
-            mean KL divergence losses.
-        target: Target KL divergence. The desired distance between new
-            and old policies.
-
-    """
-
-    #: Current KL divergence coefficient value. Higher means more weight
-    #: applied to the KL divergence loss w.r.t. the total loss.
-    coeff: float
-
-    #: Initial KL divergence coefficient. Used for determining whether to
-    #: even call `step`.
-    initial_coeff: float
-
-    #: Target mean sampled KL divergence.
-    target: float
-
-    def __init__(self, coeff: float, /, *, target: float = 1e-2) -> None:
-        self.initial_coeff = coeff
-        self.coeff = coeff
-        self.target = target
-
-    def step(self, kl: float, /) -> None:
-        if kl > 2.0 * self.target:
-            self.coeff *= 1.5
-        elif kl < 0.5 * self.target:
-            self.coeff *= 0.5
-
-
 class LRScheduler:
     """Learning rate scheduler for scheduling optimizer learning rates based on
     environment transition counts during learning.

@@ -519,14 +519,6 @@ class Distribution(ABC):
         """
 
     @abstractmethod
-    def kl_div(self, other: Self) -> torch.Tensor:
-        """Compute the KL-divergence (a measurement of the difference
-        between two distributions) between two distributions (often of the
-        same type).
-
-        """
-
-    @abstractmethod
     def logp(self, samples: torch.Tensor | TensorDict) -> torch.Tensor:
         """Compute the log probability of sampling `samples` from the probability
         distribution.
@@ -556,11 +548,6 @@ class TorchDistributionWrapper(
 
     def entropy(self) -> torch.Tensor:
         return self.dist.entropy().sum(-1, keepdim=True)  # type: ignore[no-any-return, no-untyped-call]
-
-    def kl_div(self, other: Self) -> torch.Tensor:
-        return torch.distributions.kl.kl_divergence(self.dist, other.dist).sum(
-            -1, keepdim=True
-        )
 
     def logp(self, samples: torch.Tensor) -> torch.Tensor:
         return self.dist.log_prob(samples).sum(-1, keepdim=True)  # type: ignore[no-any-return, no-untyped-call]

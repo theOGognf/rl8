@@ -16,7 +16,7 @@ from typing_extensions import Self
 from .data import CollectStats, DataKeys, Device, StepStats
 from .env import Env
 from .policy import Distribution, Model, Policy
-from .scheduler import EntropyScheduler, KLUpdater, LRScheduler, ScheduleKind
+from .scheduler import EntropyScheduler, LRScheduler, ScheduleKind
 from .specs import CompositeSpec, TensorSpec, UnboundedContinuousTensorSpec
 
 
@@ -37,18 +37,18 @@ class Algorithm:
     allow the learning procedure to occur extremely fast even for
     complex, sequence-based models because:
 
-        1) environments occur in parallel and are batched into a contingous
-            buffer
-        2) all environments are reset in parallel after a predetermined
-            horizon is reached
-        3) and all operations occur on the same device, removing overhead
-            associated with data transfers between devices
+        1) Environments occur in parallel and are batched into a contingous
+           buffer.
+        2) All environments are reset in parallel after a predetermined
+           horizon is reached.
+        3) All operations occur on the same device, removing overhead
+           associated with data transfers between devices.
 
     Args:
         env_cls: Highly parallelized environment for sampling experiences.
             Instantiated with ``env_config``. Will be stepped for ``horizon``
             each :meth:`Algorithm.collect` call.
-        env_config: Initial environment config passed to ``env_cls`` for the
+        env_config: Initial environment config passed to ``env_cls`` for
             environment instantiation. This is likely to be overwritten
             on the environment instance if reset with a new config.
         model: Model instance to use. Mutually exclusive with ``model_cls``.
@@ -60,10 +60,10 @@ class Algorithm:
             during instantiation.
         dist_cls: Custom policy action distribution class. An action
             distribution class is provided for you based on the environment
-            instance's specs. Defaults to a categorical action distribution
-            for discrete actions and a gaussian action distribution for
-            continuous actions. Complex actions are not supported for default
-            action distributions.
+            instance's specs if you don't provide one. Defaults to a categorical
+            action distribution for discrete actions and a normal action
+            distribution for continuous actions. Complex actions are not
+            supported for default action distributions.
         horizon: Number of environment transitions to collect during
             :meth:`Algorithm.collect`. The environment is reset based on
             ``horizons_per_reset``. The buffer's size is ``[B, T]`` where ``T`` is
@@ -136,31 +136,20 @@ class Algorithm:
             value function estimate. A measure of max distance the model's
             value function is allowed to update away from previous value function
             samples.
-        kl_coeff: KL divergence loss coefficient that weighs KL divergence loss w.r.t.
-            other loss components. KL divergence loss is ignored and not computed
-            unless this is ``> 0``. This is updated to make the mean KL divergence loss
-            be close to ``kl_target``. If the mean KL divergence is higher than ``kl_target``,
-            then ``coeff`` is increased to increase the weight of the KL divergence
-            in the loss, thus decreasing subsequent sampled mean KL divergence losses.
-        kl_target: Target KL divergence. The desired distance between new and old
-            policies. Used for updating ``kl_coeff``.
         vf_coeff: PPO hyperparameter similar to ``clip_param`` but for the value function
             estimate. A measure of max distance the model's value function is
             allowed to update away from previous value function samples.
         max_grad_norm: Max gradient norm allowed when updating the policy's model
             within :meth:`Algorithm.step`.
-        device: Device the :attr:`Algorithm.env`, :attr:`Algorithm.buffer`, and
+        device: Device :attr:`Algorithm.env`, :attr:`Algorithm.buffer`, and
             :attr:`Algorithm.policy` all reside on.
 
     """
 
-    #: Environment experiences buffer used for aggregating environment
+    #: Environment experience buffer used for aggregating environment
     #: transition data and policy sample data. The same buffer object
-    #: is shared whenever using :meth:`Algorithm.collect`, so it's
-    #: important to use data collected by :meth:`Algorithm.collect`.
-    #: Otherwise, it'll be overwritten by subsequent `collect` calls.
-    #: Buffer dimensions are constructed by ``num_envs`` and ``horizon``
-    #: args.
+    #: is shared whenever using :meth:`Algorithm.collect` Buffer dimensions
+    #: are determined by ``num_envs`` and ``horizon`` args.
     buffer: TensorDict
 
     #: Flag indicating whether :meth:`Algorithm.collect` has been called
@@ -189,9 +178,9 @@ class Algorithm:
     #: provided.
     entropy_scheduler: EntropyScheduler
 
-    #: Environment used for experience collection within the `collect` method.
-    #: It's ultimately on the environment to make learning efficient by
-    #: parallelizing simulations.
+    #: Environment used for experience collection within the
+    #: :meth:`Algorithm.collect` method. It's ultimately up to the environment
+    #: to make learning efficient by parallelizing simulations.
     env: Env
 
     #: Generalized Advantage Estimation (GAE) hyperparameter for controlling
@@ -208,20 +197,18 @@ class Algorithm:
     #: have on the total discounted return.
     gamma: float
 
-    #: Running count of number of environment horizons reach (number of
-    #: calls to `collect`). Used for tracking when to reset `env` based
-    #: on `horizons_per_reset`.
+    #: Running count of number of environment horizons sampled. This is
+    #: equivalent to :attr:`Algorithm.collect_calls`. Used for tracking
+    #: when to reset :attr:`Algorithm.env` based on
+    #: :attr:`Algorithm.horizons_per_reset`.
     horizons: int
 
-    #: Number of times `collect` can be called before resetting `env`.
-    #: Set this to a higher number if you want learning to occur across
-    #: horizons. Leave this as the default `1` if it doesn't matter that
-    #: experiences and learning only occurs within one horizon.
+    #: Number of times :meth:`Algorithm.collect` can be called before
+    #: resetting :attr:`Algorithm.env`. Set this to a higher number if you
+    #: want learning to occur across horizons. Leave this as the default
+    #: ``1`` if it doesn't matter that experiences and learning only occurs
+    #: within one horizon.
     horizons_per_reset: int
-
-    #: KL divergence updater used for updating ``kl_coeff`` to make the sampled
-    #: mean KL divergence be close to ``kl_target``.
-    kl_updater: KLUpdater
 
     #: Learning rate scheduler for updating `optimizer` learning rate after
     #: each `step` call based on the number of environment transitions
@@ -231,11 +218,12 @@ class Algorithm:
     #: if a `learning_rate_schedule` is provided.
     lr_scheduler: LRScheduler
 
-    #: Max gradient norm allowed when updating the policy's model within `step`.
+    #: Max gradient norm allowed when updating the policy's model within
+    #: :meth:`Algorithm.step`.
     max_grad_norm: float
 
     #: PPO hyperparameter indicating the number of gradient steps to take
-    #: with the whole `buffer` when calling `step`.
+    #: with the whole :attr:`Algorithm.buffer` when calling `step`.
     num_sgd_iter: int
 
     #: Underlying optimizer for updating the policy's model. Constructed from
@@ -270,9 +258,10 @@ class Algorithm:
     #: Total number of environment steps made.
     total_steps: int
 
-    #: PPO hyperparameter similar to ``clip_param`` but for the value function
-    #: estimate. A measure of max distance the model's value function is
-    #: allowed to update away from previous value function samples.
+    #: PPO hyperparameter similar to :attr:`Algorithm.clip_param` but for
+    #: the value function estimate. A measure of max distance the model's
+    #: value function is allowed to update away from previous value
+    #: function samples.
     vf_clip_param: float
 
     def __init__(
@@ -302,8 +291,6 @@ class Algorithm:
         shuffle_minibatches: bool = True,
         clip_param: float = 0.2,
         vf_clip_param: float = 5.0,
-        kl_coeff: float = 1e-4,
-        kl_target: float = 1e-2,
         vf_coeff: float = 1.0,
         max_grad_norm: float = 5.0,
         device: Device = "cpu",
@@ -340,7 +327,6 @@ class Algorithm:
         self.lr_scheduler = LRScheduler(
             self.optimizer, schedule=lr_schedule, kind=lr_schedule_kind
         )
-        self.kl_updater = KLUpdater(kl_coeff, target=kl_target)
         self.entropy_scheduler = EntropyScheduler(
             entropy_coeff,
             schedule=entropy_coeff_schedule,
@@ -474,10 +460,10 @@ class Algorithm:
             }
         self.collect_calls += 1
         self.total_steps += B * T
-        collect_stats["profiling/collect_ms"] = collect_timer()
         collect_stats["counting/collect_calls"] = self.collect_calls
         collect_stats["counting/horizons"] = self.horizons
         collect_stats["counting/total_steps"] = self.total_steps
+        collect_stats["profiling/collect_ms"] = collect_timer()
         return collect_stats
 
     @property
@@ -572,6 +558,10 @@ class Algorithm:
             self.buffer[DataKeys.RETURNS] = (
                 self.buffer[DataKeys.ADVANTAGES] + self.buffer[DataKeys.VALUES]
             )
+            std, mean = torch.std_mean(self.buffer[DataKeys.ADVANTAGES])
+            self.buffer[DataKeys.ADVANTAGES] = (
+                self.buffer[DataKeys.ADVANTAGES] - mean
+            ) / (std + 1e-8)
 
             # Batchify the buffer. Save the last sample for adding it back to the
             # buffer. Remove the last sample afterwards since it contains dummy
@@ -610,13 +600,10 @@ class Algorithm:
                     )
 
                     # Get action distributions and their log probability ratios.
-                    prev_action_dist = self.policy.dist_cls(
-                        minibatch[DataKeys.FEATURES], self.policy.model
-                    )
                     curr_action_dist = self.policy.dist_cls(
                         sample_batch[DataKeys.FEATURES], self.policy.model
                     )
-                    logp_ratio = torch.exp(
+                    ratio = torch.exp(
                         curr_action_dist.logp(minibatch[DataKeys.ACTIONS])
                         - minibatch[DataKeys.LOGP]
                     )
@@ -631,11 +618,9 @@ class Algorithm:
                         self.vf_clip_param,
                     ).mean()
                     policy_loss = torch.min(
-                        minibatch[DataKeys.ADVANTAGES] * logp_ratio,
+                        minibatch[DataKeys.ADVANTAGES] * ratio,
                         minibatch[DataKeys.ADVANTAGES]
-                        * torch.clamp(
-                            logp_ratio, 1 - self.clip_param, 1 + self.clip_param
-                        ),
+                        * torch.clamp(ratio, 1 - self.clip_param, 1 + self.clip_param),
                     ).mean()
                     entropy_loss = curr_action_dist.entropy().mean()
 
@@ -647,13 +632,13 @@ class Algorithm:
                         - self.entropy_scheduler.coeff * entropy_loss
                     )
 
-                    # Optional KL divergence loss.
-                    if self.kl_updater.initial_coeff > 0:
-                        kl_div_loss = prev_action_dist.kl_div(curr_action_dist).mean()
-                        total_loss += self.kl_updater.coeff * kl_div_loss
-                        self.kl_updater.step(float(kl_div_loss))
-                    else:
-                        kl_div_loss = torch.tensor(0.0, device=self.device)
+                    # Calculate approximate KL divergence for debugging.
+                    with torch.no_grad():
+                        logp_ratio = (
+                            curr_action_dist.logp(minibatch[DataKeys.ACTIONS])
+                            - minibatch[DataKeys.LOGP]
+                        )
+                        kl_div = torch.mean((torch.exp(logp_ratio) - 1) - logp_ratio)
 
                     # Optimize.
                     self.optimizer.zero_grad()
@@ -667,10 +652,9 @@ class Algorithm:
                     step_stats_per_batch.append(
                         {
                             "coefficients/entropy": self.entropy_scheduler.coeff,
-                            "coefficients/kl_div": self.kl_updater.coeff,
                             "coefficients/vf": self.vf_coeff,
+                            "debugging/kl_div": float(kl_div),
                             "losses/entropy": float(entropy_loss),
-                            "losses/kl_div": float(kl_div_loss),
                             "losses/policy": float(policy_loss),
                             "losses/vf": float(vf_loss),
                             "losses/total": float(total_loss),
