@@ -1,0 +1,4 @@
+sphinx==6.*
+sphinx-copybutton
+sphinx_rtd_theme
+sphinxcontrib-programoutput

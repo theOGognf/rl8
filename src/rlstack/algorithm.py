@@ -22,7 +22,10 @@ from .specs import CompositeSpec, TensorSpec, UnboundedContinuousTensorSpec
 
 @contextmanager
 def _profile_ms() -> Generator[Callable[[], float], None, None]:
-    """Profiling context manager in milliseconds."""
+    """Profiling context manager that returns the time it took for the
+    code to execute within the context's scope in milliseconds.
+
+    """
     start = time.perf_counter_ns()
     yield lambda: (time.perf_counter_ns() - start) / 1e6
 
@@ -37,12 +40,12 @@ class Algorithm:
     allow the learning procedure to occur extremely fast even for
     complex, sequence-based models because:
 
-        1) Environments occur in parallel and are batched into a contingous
-           buffer.
-        2) All environments are reset in parallel after a predetermined
-           horizon is reached.
-        3) All operations occur on the same device, removing overhead
-           associated with data transfers between devices.
+        * Environments occur in parallel and are batched into a contingous
+          buffer.
+        * All environments are reset in parallel after a predetermined
+          horizon is reached.
+        * All operations occur on the same device, removing overhead
+          associated with data transfers between devices.
 
     Args:
         env_cls: Highly parallelized environment for sampling experiences.
@@ -88,9 +91,9 @@ class Algorithm:
         lr_schedule_kind: Kind of learning rate scheduler to use if ``lr_schedule``
             is provided. Options include:
 
-                - "step": jump to values and hold until a new environment transition
+                * "step": jump to values and hold until a new environment transition
                     count is reached.
-                - "interp": jump to values like "step", but interpolate between the
+                * "interp": jump to values like "step", but interpolate between the
                     current value and the next value.
 
         entropy_coeff: Entropy coefficient value. Weight of the entropy loss w.r.t.
@@ -101,9 +104,9 @@ class Algorithm:
             transitions experienced during learning.
         entropy_coeff_schedule_kind: Kind of entropy scheduler to use. Options include:
 
-            - "step": jump to values and hold until a new environment transition
+            * "step": jump to values and hold until a new environment transition
                 count is reached.
-            - "interp": jump to values like "step", but interpolate between the
+            * "interp": jump to values like "step", but interpolate between the
                 current value and the next value.
 
         gae_lambda: Generalized Advantage Estimation (GAE) hyperparameter for controlling
@@ -534,8 +537,6 @@ class Algorithm:
             "horizons_per_reset": self.horizons_per_reset,
             "num_envs": self.num_envs,
             "optimizer_cls": self.optimizer.__class__.__name__,
-            "lr_schedule_kind": self.lr_scheduler.scheduler.__class__.__name__,
-            "entropy_coeff_schedule_kind": self.entropy_scheduler.scheduler.__class__.__name__,
             "entropy_coeff": self.entropy_scheduler.coeff,
             "gae_lambda": self.gae_lambda,
             "gamma": self.gamma,
@@ -678,11 +679,11 @@ class Algorithm:
                         {
                             "coefficients/entropy": self.entropy_scheduler.coeff,
                             "coefficients/vf": self.vf_coeff,
-                            "debugging/kl_div": float(kl_div),
                             "losses/entropy": float(entropy_loss),
                             "losses/policy": float(policy_loss),
                             "losses/vf": float(vf_loss),
                             "losses/total": float(total_loss),
+                            "monitors/kl_div": float(kl_div),
                         }
                     )
 

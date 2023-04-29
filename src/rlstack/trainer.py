@@ -22,10 +22,9 @@ class Trainer:
         self.stop_conditions = stop_conditions or []
 
     def run(self) -> TrainStats:
+        mlflow.log_params(self.algorithm.params)
         train_stats = self.train()
-        while not any(
-            [condition.__call__(train_stats) for condition in self.stop_conditions]
-        ):
+        while not any([condition(train_stats) for condition in self.stop_conditions]):
             train_stats = self.train()
         return train_stats
 
