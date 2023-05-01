@@ -216,6 +216,11 @@ class Model(
                     f"Action spec {action_spec} has no default model support."
                 )
 
+    @property
+    def device(self) -> Device:
+        """Return the device the model is currently on."""
+        return next(self.parameters()).device
+
     @abstractmethod
     def forward(self, batch: TensorDict, /) -> TensorDict:
         """Process a batch of tensors and return features to be fed into an
@@ -371,7 +376,7 @@ class DefaultContinuousModel(
         nn.init.zeros_(self.action_mean.bias)
         self.action_log_std = nn.Linear(hiddens[-1], action_spec.shape[0], bias=True)
         nn.init.uniform_(self.action_log_std.weight, a=-1e-3, b=1e-3)
-        nn.init.ones_(self.action_log_std.bias)
+        nn.init.zeros_(self.action_log_std.bias)
         self.vf_model = nn.Sequential(
             MLP(
                 observation_spec.shape[0],
@@ -391,7 +396,7 @@ class DefaultContinuousModel(
         action_log_std = self.action_log_std(latents)
         self._value = self.vf_model(obs)
         return TensorDict(
-            {"mean": action_mean, "log_std": action_log_std},
+            {"mean": action_mean, "log_std": torch.tanh(action_log_std)},
             batch_size=batch.batch_size,
             device=obs.device,
         )

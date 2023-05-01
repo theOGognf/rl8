@@ -32,20 +32,9 @@ class Env(Protocol):
     #: policy's underlying components, and the learning buffer.
     action_spec: TensorSpec
 
-    #: Current environment config detailing simulation options or
-    #: parameters.
-    config: dict[str, Any]
-
-    #: Device the environment's underlying data is on.
-    device: Device
-
-    #: Max number of steps an environment may take before being reset.
+    #: An optional attribute denoting the max number of steps an environment
+    #: may take before being reset.
     max_horizon: int
-
-    #: Number of parallel and independent environments being simulated
-    #: by one :class:`Env` instance. If the learning buffer has batch size
-    #: ``[B, T]``, ``num_envs`` would be equivalent to ``B``.
-    num_envs: int
 
     #: Spec defining part of the environment's outputs (and policy's
     #: model's outputs). Used for initializing the policy, the
@@ -83,7 +72,7 @@ class Env(Protocol):
 
         Args:
             action: Action to apply to the environment with tensor spec
-                `Env.action_spec`.
+                :attr:`Env.action_spec`.
 
         Returns:
             A tensordict containing keys and values:
@@ -93,7 +82,7 @@ class Env(Protocol):
         """
 
     def to(self, device: Device, /) -> Self:
-        """Move the environment and its attributes to `device`."""
+        """Move the environment and its attributes to ``device``."""
 
 
 class GenericEnv(Env, Generic[_ObservationSpec, _ActionSpec]):
@@ -137,21 +126,19 @@ class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
     ) -> None:
         if config is None:
             config = {}
-        self.num_envs = num_envs
         self.observation_spec = UnboundedContinuousTensorSpec(1, device=device)
         self.bounds = config.get("bounds", 100.0)
         self.state = (
             -self.bounds * torch.rand(num_envs, device=device).unsqueeze(1)
             + self.bounds
         )
-        self.device = device
 
     def reset(self, *, config: None | dict[str, Any] = None) -> torch.Tensor:
         if config and "bounds" in config:
             self.bounds = config["bounds"]
-        num_envs = self.state.size(0)
         self.state = (
-            -self.bounds * torch.rand(num_envs, device=self.device).unsqueeze(1)
+            -self.bounds
+            * torch.rand(self.state.size(0), device=self.state.device).unsqueeze(1)
             + self.bounds
         )
         return self.state
@@ -159,7 +146,6 @@ class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
     def to(self, device: Device, /) -> Self:
         self.observation_spec = self.observation_spec.to(device)  # type: ignore[assignment]
         self.state = self.state.to(device=device)
-        self.device = device
         return self
 
 
@@ -187,8 +173,8 @@ class ContinuousDummyEnv(DummyEnv[UnboundedContinuousTensorSpec]):
         self.state += action
         return TensorDict(
             {DataKeys.OBS: self.state, DataKeys.REWARDS: -self.state.abs()},
-            batch_size=self.num_envs,
-            device=self.device,
+            batch_size=self.state.size(0),
+            device=self.state.device,
         )
 
 
@@ -216,6 +202,6 @@ class DiscreteDummyEnv(DummyEnv[DiscreteTensorSpec]):
         self.state += 2 * action - 1
         return TensorDict(
             {DataKeys.OBS: self.state, DataKeys.REWARDS: -self.state.abs()},
-            batch_size=self.num_envs,
-            device=self.device,
+            batch_size=self.state.size(0),
+            device=self.state.device,
         )

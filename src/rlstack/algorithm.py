@@ -7,6 +7,7 @@ from typing import Any, Callable, Generator
 import pandas as pd
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 from dadaptation import DAdaptAdam
 from tensordict import TensorDict
@@ -139,9 +140,8 @@ class Algorithm:
             value function estimate. A measure of max distance the model's
             value function is allowed to update away from previous value function
             samples.
-        vf_coeff: PPO hyperparameter similar to ``clip_param`` but for the value function
-            estimate. A measure of max distance the model's value function is
-            allowed to update away from previous value function samples.
+        vf_coeff: Value function loss component weight. Only needs to be tuned
+            when the policy and value function share parameters.
         max_grad_norm: Max gradient norm allowed when updating the policy's model
             within :meth:`Algorithm.step`.
         device: Device :attr:`Algorithm.env`, :attr:`Algorithm.buffer`, and
@@ -268,6 +268,10 @@ class Algorithm:
     #: function samples.
     vf_clip_param: float
 
+    #: Value function loss component weight. Only needs to be tuned
+    #: when the policy and value function share parameters.
+    vf_coeff: float
+
     def __init__(
         self,
         env_cls: type[Env],
@@ -278,7 +282,7 @@ class Algorithm:
         model_cls: None | type[Model] = None,
         model_config: None | dict[str, Any] = None,
         dist_cls: None | type[Distribution] = None,
-        horizon: None | int = None,
+        horizon: None | int = 32,
         horizons_per_reset: int = 1,
         num_envs: int = 8192,
         optimizer_cls: type[optim.Optimizer] = DAdaptAdam,
@@ -309,13 +313,8 @@ class Algorithm:
             dist_cls=dist_cls,
             device=device,
         )
-        if horizon is None:
-            if hasattr(self.env, "max_horizon"):
-                horizon = self.env.max_horizon
-            else:
-                horizon = 32
-        else:
-            horizon = min(horizon, self.env.max_horizon)
+        max_horizon = self.env.max_horizon if hasattr(self.env, "max_horizon") else 32
+        horizon = min(horizon, max_horizon) if horizon else max_horizon
         self.buffer_spec = CompositeSpec(  # type: ignore[no-untyped-call]
             {
                 DataKeys.OBS: self.env.observation_spec,
@@ -599,14 +598,17 @@ class Algorithm:
                     )
 
                     # Compute main, required losses.
-                    vf_loss = torch.clamp(
-                        torch.pow(
-                            minibatch[DataKeys.RETURNS] - sample_batch[DataKeys.VALUES],
-                            2.0,
-                        ),
-                        0.0,
-                        self.vf_clip_param,
-                    ).mean()
+                    vf_loss = torch.mean(
+                        torch.clamp(
+                            F.smooth_l1_loss(
+                                sample_batch[DataKeys.VALUES],
+                                minibatch[DataKeys.RETURNS],
+                                reduction="none",
+                            ),
+                            0.0,
+                            self.vf_clip_param,
+                        )
+                    )
                     policy_loss = torch.min(
                         minibatch[DataKeys.ADVANTAGES] * ratio,
                         minibatch[DataKeys.ADVANTAGES]
