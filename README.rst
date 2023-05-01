@@ -3,9 +3,9 @@ rlstack: An RL Toolkit for the Sane
 
 **rlstack** is a simple, high throughput, infinite horizon RL library that can
 simulate highly parallelized environments, and can train a PPO policy using
-those highly parallelized environments, achieving around 250k environment
-transitions (and 1 update) per second using a single, off-the-shelf computing
-device.
+those highly parallelized environments, achieving around 500k environment
+transitions (and one policy update) per second using a single, off-the-shelf
+computing device.
 
 * **Documentation**: https://theogognf.github.io/rlstack/
 * **PyPI**: https://pypi.org/project/rlstack/
@@ -111,12 +111,26 @@ RL workflow.
 Related Projects
 ================
 
-* ray.rllib: Ray's RLlib is the industry standard RL library. It supports all
+* `RL Games`_: RL Games is a high performance RL library built around popular
+  environment protocols.
+* `RLlib`_: Ray's RLlib is the industry standard RL library that supports all
   the popular RL algorithms and variants, and can scale workloads from your
   laptop all the way to the cloud.
-* sample_factory: Sample Factory is similar to **rlstack** in that it provides
-  an efficient and high quality implementation of PPO with a focus on accelerating
-  training for a single machine.
-* stable_baselines3: Stable Baselines 3 is a set of reliable and user-friendly
+* `Sample Factory`_: Sample Factory provides an efficient and high quality
+  implementation of PPO with a focus on accelerating training for a single machine
+  with support for a wide variety of environment protocols.
+* `SKRL`_: SKRL focuses on readability, splicity, and transparency of RL algorithm
+  implementations with support for a wide variety of environment protocols.
+* `Stable Baselines 3`_: Stable Baselines 3 is a set of reliable and user-friendly
   RL algorithm implementations that integrate with a rich set of features desirable
   by most practitioners and use cases.
+* `TorchRL`_: TorchRL is PyTorch's RL library that's focused on efficient, modular,
+  documented, and tested RL building blocks and algorithm implementations aimed
+  at supporting research in RL.
+
+`RL Games`_: https://github.com/Denys88/rl_games
+`RLlib`_: https://docs.ray.io/en/latest/rllib/index.html
+`Sample Factory`_: https://github.com/alex-petrenko/sample-factory
+`SKRL`_: https://github.com/Toni-SM/skrl
+`Stable Baselines 3`_: https://github.com/DLR-RM/stable-baselines3
+`TorchRL`_: https://github.com/pytorch/rl

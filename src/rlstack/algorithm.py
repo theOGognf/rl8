@@ -17,7 +17,7 @@ from .data import AlgorithmParams, CollectStats, DataKeys, Device, StepStats
 from .env import Env
 from .policy import Distribution, Model, Policy
 from .scheduler import EntropyScheduler, LRScheduler, ScheduleKind
-from .specs import CompositeSpec, TensorSpec, UnboundedContinuousTensorSpec
+from .specs import CompositeSpec, UnboundedContinuousTensorSpec
 
 
 @contextmanager
@@ -40,11 +40,11 @@ class Algorithm:
     allow the learning procedure to occur extremely fast even for
     complex, sequence-based models because:
 
-        * Environments occur in parallel and are batched into a contingous
+        - Environments occur in parallel and are batched into a contingous
           buffer.
-        * All environments are reset in parallel after a predetermined
+        - All environments are reset in parallel after a predetermined
           horizon is reached.
-        * All operations occur on the same device, removing overhead
+        - All operations occur on the same device, removing overhead
           associated with data transfers between devices.
 
     Args:
@@ -91,9 +91,9 @@ class Algorithm:
         lr_schedule_kind: Kind of learning rate scheduler to use if ``lr_schedule``
             is provided. Options include:
 
-                * "step": jump to values and hold until a new environment transition
+                - "step": jump to values and hold until a new environment transition
                     count is reached.
-                * "interp": jump to values like "step", but interpolate between the
+                - "interp": jump to values like "step", but interpolate between the
                     current value and the next value.
 
         entropy_coeff: Entropy coefficient value. Weight of the entropy loss w.r.t.
@@ -104,9 +104,9 @@ class Algorithm:
             transitions experienced during learning.
         entropy_coeff_schedule_kind: Kind of entropy scheduler to use. Options include:
 
-            * "step": jump to values and hold until a new environment transition
+            - "step": jump to values and hold until a new environment transition
                 count is reached.
-            * "interp": jump to values like "step", but interpolate between the
+            - "interp": jump to values like "step", but interpolate between the
                 current value and the next value.
 
         gae_lambda: Generalized Advantage Estimation (GAE) hyperparameter for controlling
@@ -154,6 +154,12 @@ class Algorithm:
     #: is shared whenever using :meth:`Algorithm.collect` Buffer dimensions
     #: are determined by ``num_envs`` and ``horizon`` args.
     buffer: TensorDict
+
+    #: Tensor spec defining the environment experience buffer components
+    #: and dimensions. Used for instantiating :attr:`Algorithm.buffer`
+    #: at :class:`Algorithm` instantiation and each :meth:`Algorithm.step`
+    #: call.
+    buffer_spec: CompositeSpec
 
     #: Flag indicating whether :meth:`Algorithm.collect` has been called
     #: at least once prior to calling :meth:`Algorithm.step`. Ensures
@@ -243,12 +249,11 @@ class Algorithm:
     policy: Policy
 
     #: PPO hyperparameter indicating the minibatc size `buffer` is split into
-    #: when updating the policy's model in `step`. It's usually best to
-    #: maximize the minibatch size to reduce the variance associated with
+    #: when updating the policy's model in :meth:`Algorithm.step`. It's usually
+    #: best to maximize the minibatch size to reduce the variance associated with
     #: updating the policy's model, but also accelerate the computations
-    #: when learning (assuming a CUDA device is being used). If ``None``,
-    #: the whole buffer is treated as one giant batch.
-    sgd_minibatch_size: None | int
+    #: when learning (assuming a CUDA device is being used).
+    sgd_minibatch_size: int
 
     #: Whether to shuffle minibatches within `step`. Recommended, but not
     #: necessary if the minibatch size is large enough (e.g., the buffer
@@ -315,14 +320,21 @@ class Algorithm:
                 horizon = 32
         else:
             horizon = min(horizon, self.env.max_horizon)
-        self.buffer = self.init_buffer(
-            num_envs,
-            horizon + 1,
-            self.env.observation_spec,
-            self.policy.feature_spec,
-            self.env.action_spec,
-            device=device,
-        )
+        self.buffer_spec = CompositeSpec(
+            {
+                DataKeys.OBS: self.env.observation_spec,
+                DataKeys.REWARDS: UnboundedContinuousTensorSpec(1),
+                DataKeys.FEATURES: self.policy.feature_spec,
+                DataKeys.ACTIONS: self.env.action_spec,
+                DataKeys.LOGP: UnboundedContinuousTensorSpec(1),
+                DataKeys.VALUES: UnboundedContinuousTensorSpec(1),
+                DataKeys.ADVANTAGES: UnboundedContinuousTensorSpec(1),
+                DataKeys.RETURNS: UnboundedContinuousTensorSpec(1),
+            },
+        ).to(
+            device
+        )  # type: ignore[no-untyped-call]
+        self.buffer = self.buffer_spec.zero([num_envs, horizon + 1])
         optimizer_config = optimizer_config or {}
         self.optimizer = optimizer_cls(
             self.policy.model.parameters(), **optimizer_config
@@ -359,24 +371,25 @@ class Algorithm:
     ) -> CollectStats:
         """Collect environment transitions and policy samples in a buffer.
 
-        This is one of the main `Algorithm` methods. This is usually called
-        immediately prior to `step` to collect experiences used
-        for learning.
+        This is one of the main :class:`Algorithm` methods. This is usually
+        called immediately prior to :meth:`Algorithm.step` to collect
+        experiences used for learning.
 
         The environment is reset immediately prior to collecting
-        transitions according to the `horizons_per_reset` attribute. If
+        transitions according to :attr:`Algorithm.horizons_per_reset`. If
         the environment isn't reset, then the last observation is used as
         the initial observation.
 
-        This method sets the `buffered` flag to enable calling of the
-        `step` method to assure `step` isn't called with dummy data.
+        This method sets the :attr:`Algorithm.buffered` flag to enable calling
+        of the :meth:`Algorithm.step` method to assure it isn't called with dummy
+        data.
 
         Args:
-            env_config: Optional config to pass to the environment's `reset`
+            env_config: Optional config to pass to the :meth:`Env.reset`
                 method. This isn't used if the environment isn't scheduled
-                to be reset according to the `horizons_per_reset` attribute.
+                to be reset according to :attr:`Algorithm.horizons_per_reset`.
             deterministic: Whether to sample from the policy deterministically.
-                This is usally `False` during learning and `True` during
+                This is usally ``False`` during learning and ``True`` during
                 evaluation.
 
         Returns:
@@ -473,53 +486,6 @@ class Algorithm:
     def horizon(self) -> int:
         """Max number of transitions to run for each environment."""
         return int(self.buffer.size(1))
-
-    @staticmethod
-    def init_buffer(
-        num_envs: int,
-        horizon: int,
-        observation_spec: TensorSpec,
-        feature_spec: TensorSpec,
-        action_spec: TensorSpec,
-        /,
-        *,
-        device: Device = "cpu",
-    ) -> TensorDict:
-        """Initialize the experience buffer with a batch for each environment
-        and transition expected from the environment.
-
-        This only initializes environment transition data and doesn't
-        necessarily initialize all the data used for learning.
-
-        Args:
-            num_envs: Number of environments being simulated in parallel.
-            horizon: Number of timesteps to store for each environment.
-            observation_spec: Spec defining the policy's model's forward pass
-                input.
-            feature_spec: Spec defining the policy's model's forward pass
-                output.
-            action_spec: Spec defining the policy's action distribution
-                output.
-            device: Device to initialize the buffer on.
-
-        Returns:
-            A zeroed-out tensordict used for aggregating environment experience
-            data.
-
-        """
-        buffer_spec = CompositeSpec(
-            {
-                DataKeys.OBS: observation_spec,
-                DataKeys.REWARDS: UnboundedContinuousTensorSpec(1),
-                DataKeys.FEATURES: feature_spec,
-                DataKeys.ACTIONS: action_spec,
-                DataKeys.LOGP: UnboundedContinuousTensorSpec(1),
-                DataKeys.VALUES: UnboundedContinuousTensorSpec(1),
-                DataKeys.ADVANTAGES: UnboundedContinuousTensorSpec(1),
-                DataKeys.RETURNS: UnboundedContinuousTensorSpec(1),
-            }
-        )  # type: ignore[no-untyped-call]
-        return buffer_spec.zero([num_envs, horizon]).to(device)
 
     @property
     def num_envs(self) -> int:
@@ -692,13 +658,11 @@ class Algorithm:
             self.entropy_scheduler.step(B * T)
 
             # Reset the buffer and buffered flag.
-            self.buffer = self.init_buffer(
-                B,
-                T + 1,
-                self.env.observation_spec,
-                self.policy.feature_spec,
-                self.env.action_spec,
-                device=self.device,
+            self.buffer = self.buffer_spec.zero(
+                [
+                    B,
+                    T + 1,
+                ]
             )
             self.buffer[DataKeys.OBS][:, -1, ...] = final_obs
             self.buffered = False
@@ -712,6 +676,7 @@ class Algorithm:
 
     def to(self, device: Device, /) -> Self:
         """Move the algorithm and its attributes to ``device``."""
+        self.buffer_spec = self.buffer_spec.to(device)
         self.buffer = self.buffer.to(device)
         self.env = self.env.to(device)
         self.policy = self.policy.to(device)

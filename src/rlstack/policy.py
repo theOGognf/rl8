@@ -232,6 +232,24 @@ class Model(
 
         """
 
+    def to(self, device: Device) -> Self:  # type: ignore[override]
+        """Helper for changing the device the model is on.
+
+        The specs associated with the model aren't updated with the PyTorch
+        module's ``to`` method since they aren't PyTorch modules themselves.
+
+        Args:
+            device: Target device.
+
+        Returns:
+            The updated model.
+
+        """
+        self.observation_spec = self.observation_spec.to(device)
+        self.action_spec = self.action_spec.to(device)
+        self.feature_spec = self.feature_spec.to(device)
+        return super().to(device)
+
     def validate_view_requirements(self) -> None:
         """Helper for validating a model's view requirements.
 
@@ -272,8 +290,10 @@ class Model(
 class GenericModel(Model, Generic[_ObservationSpec, _ActionSpec]):
     """Generic model for constructing models from fixed observation and action specs."""
 
+    #: Action space campatible with the model.
     action_spec: _ActionSpec
 
+    #: Observation space compatible with the model.
     observation_spec: _ObservationSpec
 
     def __init__(
@@ -373,6 +393,7 @@ class DefaultContinuousModel(
         return TensorDict(
             {"mean": action_mean, "log_std": action_log_std},
             batch_size=batch.batch_size,
+            device=obs.device,
         )
 
     def value_function(self) -> torch.Tensor:
@@ -443,6 +464,7 @@ class DefaultDiscreteModel(
                 )
             },
             batch_size=batch.batch_size,
+            device=obs.device,
         )
 
     def value_function(self) -> torch.Tensor:
@@ -788,7 +810,7 @@ class Policy:
         return out
 
     def to(self, device: Device, /) -> Self:
-        """Move the policy and its attributes to `device`."""
+        """Move the policy and its attributes to ``device``."""
         self.model = self.model.to(device)
         self.device = device
         return self

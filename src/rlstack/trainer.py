@@ -20,9 +20,9 @@ class Trainer:
         algorithm_config = algorithm_config or {}
         self.algorithm = Algorithm(env_cls, **algorithm_config)
         self.stop_conditions = stop_conditions or []
+        mlflow.log_params(self.algorithm.params)
 
     def run(self) -> TrainStats:
-        mlflow.log_params(self.algorithm.params)
         train_stats = self.train()
         while not any([condition(train_stats) for condition in self.stop_conditions]):
             train_stats = self.train()

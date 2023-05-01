@@ -99,6 +99,12 @@ class Env(Protocol):
 class GenericEnv(Env, Generic[_ObservationSpec, _ActionSpec]):
     """Generic version of `Env` for environments with constant specs."""
 
+    #: Environment observation spec.
+    observation_spec: _ObservationSpec
+
+    #: Environment aciton spec.
+    action_spec: _ActionSpec
+
 
 class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
     """The simplest environment possible.
@@ -138,20 +144,22 @@ class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
             -self.bounds * torch.rand(num_envs, device=device).unsqueeze(1)
             + self.bounds
         )
+        self.device = device
 
     def reset(self, *, config: None | dict[str, Any] = None) -> torch.Tensor:
         if config and "bounds" in config:
             self.bounds = config["bounds"]
         num_envs = self.state.size(0)
-        device = self.state.device
         self.state = (
-            -self.bounds * torch.rand(num_envs, device=device).unsqueeze(1)
+            -self.bounds * torch.rand(num_envs, device=self.device).unsqueeze(1)
             + self.bounds
         )
         return self.state
 
     def to(self, device: Device, /) -> Self:
+        self.observation_spec = self.observation_spec.to(device)  # type: ignore[assignment]
         self.state = self.state.to(device=device)
+        self.device = device
         return self
 
 
@@ -180,6 +188,7 @@ class ContinuousDummyEnv(DummyEnv[UnboundedContinuousTensorSpec]):
         return TensorDict(
             {DataKeys.OBS: self.state, DataKeys.REWARDS: -self.state.abs()},
             batch_size=self.num_envs,
+            device=self.device,
         )
 
 
@@ -208,4 +217,5 @@ class DiscreteDummyEnv(DummyEnv[DiscreteTensorSpec]):
         return TensorDict(
             {DataKeys.OBS: self.state, DataKeys.REWARDS: -self.state.abs()},
             batch_size=self.num_envs,
+            device=self.device,
         )
