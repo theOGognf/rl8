@@ -175,10 +175,6 @@ class Algorithm:
     #: Number of times :meth:`Algorithm.collect` has been called.
     collect_calls: int
 
-    #: Device the :attr:`Algorithm.env`, :attr:`Algorithm.buffer`, and
-    #: :attr:`Algorithm.policy` all reside on.
-    device: Device
-
     #: Entropy scheduler for updating the ``entropy_coeff`` after each
     #: :meth:`Algorithm.step` call based on the number environment transitions
     #: collected and learned on. By default, the entropy scheduler does not
@@ -320,7 +316,7 @@ class Algorithm:
                 horizon = 32
         else:
             horizon = min(horizon, self.env.max_horizon)
-        self.buffer_spec = CompositeSpec(
+        self.buffer_spec = CompositeSpec(  # type: ignore[no-untyped-call]
             {
                 DataKeys.OBS: self.env.observation_spec,
                 DataKeys.REWARDS: UnboundedContinuousTensorSpec(1),
@@ -331,9 +327,7 @@ class Algorithm:
                 DataKeys.ADVANTAGES: UnboundedContinuousTensorSpec(1),
                 DataKeys.RETURNS: UnboundedContinuousTensorSpec(1),
             },
-        ).to(
-            device
-        )  # type: ignore[no-untyped-call]
+        ).to(device)
         self.buffer = self.buffer_spec.zero([num_envs, horizon + 1])
         optimizer_config = optimizer_config or {}
         self.optimizer = optimizer_cls(
@@ -360,7 +354,6 @@ class Algorithm:
         self.vf_clip_param = vf_clip_param
         self.vf_coeff = vf_coeff
         self.max_grad_norm = max_grad_norm
-        self.device = device
         self.buffered = False
         self.total_steps = 0
         self.step_calls = 0
@@ -481,6 +474,11 @@ class Algorithm:
         collect_stats["counting/total_steps"] = self.total_steps
         collect_stats["profiling/collect_ms"] = collect_timer()
         return collect_stats
+
+    @property
+    def device(self) -> Device:
+        """Return the device the policy is residing on."""
+        return self.policy.device
 
     @property
     def horizon(self) -> int:
@@ -680,5 +678,4 @@ class Algorithm:
         self.buffer = self.buffer.to(device)
         self.env = self.env.to(device)
         self.policy = self.policy.to(device)
-        self.device = device
         return self

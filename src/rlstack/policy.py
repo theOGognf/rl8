@@ -566,13 +566,13 @@ class TorchDistributionWrapper(
     dist: _TorchDistribution
 
     def deterministic_sample(self) -> torch.Tensor:
-        return self.dist.mode  # type: ignore[no-any-return]
+        return self.dist.mode
 
     def entropy(self) -> torch.Tensor:
-        return self.dist.entropy().sum(-1, keepdim=True)  # type: ignore[no-any-return, no-untyped-call]
+        return self.dist.entropy().sum(-1, keepdim=True)
 
     def logp(self, samples: torch.Tensor) -> torch.Tensor:
-        return self.dist.log_prob(samples).sum(-1, keepdim=True)  # type: ignore[no-any-return, no-untyped-call]
+        return self.dist.log_prob(samples).sum(-1, keepdim=True)
 
     @staticmethod
     @abstractmethod
@@ -583,7 +583,7 @@ class TorchDistributionWrapper(
         """
 
     def sample(self) -> torch.Tensor:
-        return self.dist.sample()  # type: ignore[no-any-return, no-untyped-call]
+        return self.dist.sample()
 
 
 class Categorical(
@@ -653,9 +653,6 @@ class Policy:
 
     """
 
-    #: Hardware device the policy's model is on.
-    device: Device
-
     #: Underlying policy action distribution that's parameterized by
     #: features produced by `model` and the `model` itself.
     dist_cls: type[Distribution]
@@ -693,13 +690,18 @@ class Policy:
             self.model = model_cls(observation_spec, action_spec, **self.model_config)
         else:
             self.model = model
+        self.model = self.model.to(device)
         self.dist_cls = dist_cls or Distribution.default_dist_cls(action_spec)
-        self.device = device
 
     @property
     def action_spec(self) -> TensorSpec:
         """Return the action spec used for constructing the model."""
         return self.model.action_spec
+
+    @property
+    def device(self) -> Device:
+        """Return the device the policy's model is on."""
+        return next(self.model.parameters()).device
 
     @property
     def feature_spec(self) -> TensorSpec:
@@ -812,5 +814,4 @@ class Policy:
     def to(self, device: Device, /) -> Self:
         """Move the policy and its attributes to ``device``."""
         self.model = self.model.to(device)
-        self.device = device
         return self
