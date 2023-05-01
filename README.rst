@@ -128,9 +128,9 @@ Related Projects
   documented, and tested RL building blocks and algorithm implementations aimed
   at supporting research in RL.
 
-`RL Games`_: https://github.com/Denys88/rl_games
-`RLlib`_: https://docs.ray.io/en/latest/rllib/index.html
-`Sample Factory`_: https://github.com/alex-petrenko/sample-factory
-`SKRL`_: https://github.com/Toni-SM/skrl
-`Stable Baselines 3`_: https://github.com/DLR-RM/stable-baselines3
-`TorchRL`_: https://github.com/pytorch/rl
+.. _`RL Games`: https://github.com/Denys88/rl_games
+.. _`RLlib`: https://docs.ray.io/en/latest/rllib/index.html
+.. _`Sample Factory`: https://github.com/alex-petrenko/sample-factory
+.. _`SKRL`: https://github.com/Toni-SM/skrl
+.. _`Stable Baselines 3`: https://github.com/DLR-RM/stable-baselines3
+.. _`TorchRL`: https://github.com/pytorch/rl
