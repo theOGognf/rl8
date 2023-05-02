@@ -43,5 +43,5 @@ ACTIVATIONS: dict[str, type[nn.Module]] = {
 
 
 def get_activation(name: str, /, **params: Any) -> nn.Module:
-    """Return an activation instance by its `name`."""
+    """Return an activation instance by its ``name``."""
     return ACTIVATIONS[name](**params)

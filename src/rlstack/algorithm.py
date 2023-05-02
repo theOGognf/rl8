@@ -140,6 +140,11 @@ class Algorithm:
             value function estimate. A measure of max distance the model's
             value function is allowed to update away from previous value function
             samples.
+        dual_clip_param: PPO hyperparameter that clips like ``clip_param`` but when
+            advantage estimations are negative. Helps prevent instability for
+            continuous action spaces when policies are making large updates.
+            Leave ``None`` for this clip to not apply. Otherwise, typical values
+            are around ``5``.
         vf_coeff: Value function loss component weight. Only needs to be tuned
             when the policy and value function share parameters.
         max_grad_norm: Max gradient norm allowed when updating the policy's model
@@ -184,6 +189,11 @@ class Algorithm:
 
     #: Number of times :meth:`Algorithm.collect` has been called.
     collect_calls: int
+
+    #: PPO hyperparameter that clips like :attr:`Algorithm.clip_param`` but when
+    #: advantage estimations are negative. Helps prevent instability for
+    #: continuous action spaces when policies are making large updates.
+    dual_clip_param: float
 
     #: Entropy scheduler for updating the ``entropy_coeff`` after each
     #: :meth:`Algorithm.step` call based on the number environment transitions
@@ -309,6 +319,7 @@ class Algorithm:
         shuffle_minibatches: bool = True,
         clip_param: float = 0.2,
         vf_clip_param: float = 5.0,
+        dual_clip_param: None | float = None,
         vf_coeff: float = 1.0,
         max_grad_norm: float = 5.0,
         device: Device = "cpu",
@@ -361,6 +372,7 @@ class Algorithm:
         self.shuffle_minibatches = shuffle_minibatches
         self.clip_param = clip_param
         self.vf_clip_param = vf_clip_param
+        self.dual_clip_param = dual_clip_param
         self.vf_coeff = vf_coeff
         self.max_grad_norm = max_grad_norm
         self.buffered = False
@@ -618,11 +630,23 @@ class Algorithm:
                             self.vf_clip_param,
                         )
                     )
-                    policy_loss = torch.min(
-                        minibatch[DataKeys.ADVANTAGES] * ratio,
-                        minibatch[DataKeys.ADVANTAGES]
-                        * torch.clamp(ratio, 1 - self.clip_param, 1 + self.clip_param),
-                    ).mean()
+                    surr1 = minibatch[DataKeys.ADVANTAGES] * ratio
+                    surr2 = minibatch[DataKeys.ADVANTAGES] * torch.clamp(
+                        ratio, 1 - self.clip_param, 1 + self.clip_param
+                    )
+                    if self.dual_clip_param:
+                        clip1 = torch.min(surr1, surr2)
+                        clip2 = torch.max(
+                            clip1, self.dual_clip_param * minibatch[DataKeys.ADVANTAGES]
+                        )
+                        policy_loss = torch.where(
+                            minibatch[DataKeys.ADVANTAGES] < 0, clip2, clip1
+                        ).mean()
+                    else:
+                        policy_loss = torch.min(
+                            surr1,
+                            surr2,
+                        ).mean()
                     entropy_loss = curr_action_dist.entropy().mean()
 
                     # Maximize entropy, maximize policy actions associated with high advantages,
