@@ -147,6 +147,16 @@ class Algorithm:
         device: Device :attr:`Algorithm.env`, :attr:`Algorithm.buffer`, and
             :attr:`Algorithm.policy` all reside on.
 
+    Examples:
+        Instantiate an algorithm for a dummy environment and update underlying
+        policy once.
+
+        >>> from rlstack import Algorithm
+        >>> from rlstack.env import DiscreteDummyEnv
+        >>> algo = Algorithm(DiscreteDummyEnv)
+        >>> algo.collect()
+        >>> algo.step()  # doctest: +SKIP
+
     """
 
     #: Environment experience buffer used for aggregating environment
@@ -244,16 +254,16 @@ class Algorithm:
     #: :meth:`Algorithm.step`.
     policy: Policy
 
-    #: PPO hyperparameter indicating the minibatc size `buffer` is split into
-    #: when updating the policy's model in :meth:`Algorithm.step`. It's usually
-    #: best to maximize the minibatch size to reduce the variance associated with
-    #: updating the policy's model, but also accelerate the computations
-    #: when learning (assuming a CUDA device is being used).
+    #: PPO hyperparameter indicating the minibatc size :attr:`Algorithm.buffer`
+    #: is split into when updating the policy's model in :meth:`Algorithm.step`.
+    #: It's usually best to maximize the minibatch size to reduce the variance
+    #: associated with updating the policy's model, but also accelerate the
+    #: computations when learning (assuming a CUDA device is being used).
     sgd_minibatch_size: int
 
-    #: Whether to shuffle minibatches within `step`. Recommended, but not
-    #: necessary if the minibatch size is large enough (e.g., the buffer
-    #: is the batch).
+    #: Whether to shuffle minibatches within :meth:`Algorithm.step`.
+    #: Recommended, but not necessary if the minibatch size is large enough
+    #: (e.g., the buffer is the batch).
     shuffle_minibatches: bool
 
     #: Number of times :meth:`Algorithm.step` has been called.
@@ -373,8 +383,7 @@ class Algorithm:
         the initial observation.
 
         This method sets the :attr:`Algorithm.buffered` flag to enable calling
-        of the :meth:`Algorithm.step` method to assure it isn't called with dummy
-        data.
+        of :meth:`Algorithm.step` so it isn't called with dummy data.
 
         Args:
             env_config: Optional config to pass to the :meth:`Env.reset`

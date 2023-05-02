@@ -70,7 +70,8 @@ class Model(
 
     #: Spec defining the forward pass output. Useful for passing inputs to an
     #: action distribution or stroing values in the replay buffer. Defaults
-    #: to `action_spec`. This should be overwritten in a model's `__init__`.
+    #: to `action_spec`. This should be overwritten in a model's ``__init__``
+    #: for models that feed into custom action distributions .
     feature_spec: TensorSpec
 
     #: Spec defining the forward pass input. Useful for validating the forward
@@ -81,7 +82,8 @@ class Model(
     #: policy prior to being passed to the forward pass. Useful for handling
     #: sequence shifting or masking so you don't have to.
     #: By default, observations are passed with no shifting.
-    #: This should be overwritten in a model's `__init__`.
+    #: This should be overwritten in a model's ``__init__`` for custom view
+    #: requirements.
     view_requirements: dict[str, ViewRequirement]
 
     def __init__(
@@ -109,22 +111,23 @@ class Model(
 
         Args:
             batch: Batch to feed into the policy's underlying model. Expected
-                to be of size [B, T, ...] where B is the batch dimension,
-                and T is the time or sequence dimension. B is typically
+                to be of size ``[B, T, ...]`` where ``B`` is the batch dimension,
+                and ``T`` is the time or sequence dimension. ``B`` is typically
                 the number of parallel environments being sampled for during
-                massively parallel training, and T is typically the number
+                massively parallel training, and ``T`` is typically the number
                 of time steps or observations sampled from the environments.
-                The B and T dimensions are typically combined into one dimension
+                The ``B`` and ``T`` dimensions are typically combined into one dimension
                 during application of the view requirements.
             kind: String indicating the type of view requirements to apply.
                 The model's view requirements are applied slightly differently
                 depending on the value. Options include:
+
                     - "last": Apply the view requirements using only the samples
                         necessary to sample for the most recent observations
-                        within the `batch`'s T dimension.
-                    - "all": Sample from `batch` using all observations within
-                        the `batch`'s T dimension. Expand the B and T dimensions
-                        together.
+                        within the ``batch``'s ``T`` dimension.
+                    - "all": Sample from ``batch`` using all observations within
+                        the ``batch``'s ``T`` dimension. Expand the ``B`` and ``T``
+                        dimensions together.
 
         """
         batch_sizes = {}
@@ -163,7 +166,7 @@ class Model(
         Args:
             action_spec: Spec defining the outputs of the policy's action
                 distribution that this model is a component of. Typically
-                passed into `Model.__init__`.
+                passed into the model's ``__init__``.
 
         Returns:
             A spec defining the inputs to the policy's action distribution.
@@ -172,7 +175,7 @@ class Model(
             (e.g., logits and mean/scales, respectively). For complex
             distributions, this returns a copy of the action spec and the model
             is expected to assign the correct feature spec within its own
-            `__init__`.
+            ``__init__``.
 
         """
         match action_spec:
@@ -227,9 +230,9 @@ class Model(
         action distribution.
 
         Args:
-            batch: A tensordict expected to have at least an "obs" key with any
+            batch: A tensordict expected to have at least an ``"obs"`` key with any
                 tensor spec. The policy that the model is a component of
-                processes the batch according to the model's `view_requirements`
+                processes the batch according to :attr:`Model.view_requirements`
                 prior to passing the batch to the forward pass.
 
         Returns:
@@ -282,7 +285,7 @@ class Model(
     @abstractmethod
     def value_function(self) -> torch.Tensor:
         """Return the value function output for the most recent forward pass.
-        Note that a `forward` call has to be performed first before this
+        Note that a :meth`Model.forward` call has to be performed first before this
         method can return anything.
 
         This helps prevent extra forward passes from being performed just to
@@ -320,13 +323,13 @@ def _assert_1d_spec(spec: TensorSpec, /) -> None:
             distributions.
 
     Raises:
-        AssertionError: If `spec` is not 1D.
+        AssertionError: If ``spec`` is not 1D.
 
     """
     assert spec.shape.numel() == 1, (
         "Default models and distributions do not support tensor specs "
-        "that aren't 1D. Tensor specs must have shape `[N]` "
-        "(where `N` is the number of independent elements) to be "
+        "that aren't 1D. Tensor specs must have shape ``[N]`` "
+        "(where ``N`` is the number of independent elements) to be "
         "compatible with default models and distributions."
     )
 
@@ -411,7 +414,7 @@ class DefaultDiscreteModel(
 ):
     """Default model for 1D continuous observations and discrete action spaces."""
 
-    #: Value function estimate set after `forward`.
+    #: Value function estimate set after the forward pass.
     _value: None | torch.Tensor
 
     #: Transform observations to features for action distributions.
@@ -490,15 +493,15 @@ class Distribution(ABC):
     constrained to just a single vector.
 
     Args:
-        features: Features from `model`'s forward pass.
+        features: Features from ``model``'s forward pass.
         model: Model for parameterizing the probability distribution.
 
     """
 
-    #: Features from `model` forward pass. Simple action distributions
-    #: expect one field and corresponding tensor in the tensor dict,
-    #: but custom action distributions can return any kind of tensor
-    #: dict from `model`.
+    #: Features from :attr:`Distribution.model` forward pass. Simple action
+    #: distributions expect one field and corresponding tensor in the
+    #: tensor dict, but custom action distributions can return any kind of
+    #: tensor dict from :attr:`Distribution.model`.
     features: TensorDict
 
     #: Model from the parent policy also passed to the action distribution.
@@ -560,9 +563,9 @@ class Distribution(ABC):
 class TorchDistributionWrapper(
     Distribution, Generic[_FeatureSpec, _TorchDistribution, _ActionSpec]
 ):
-    """Wrapper class for `torch.distributions`.
+    """Wrapper class for PyTorch distributions.
 
-    This is taken directly from RLlib:
+    This is inspired by RLlib:
         https://github.com/ray-project/ray/blob/master/rllib/models/torch/torch_action_dist.py
 
     """
@@ -659,7 +662,7 @@ class Policy:
     """
 
     #: Underlying policy action distribution that's parameterized by
-    #: features produced by `model` and the `model` itself.
+    #: features produced by :attr:`Policy.model`.
     dist_cls: type[Distribution]
 
     #: Underlying policy model that processes environment observations
@@ -738,22 +741,24 @@ class Policy:
 
         Args:
             batch: Batch to feed into the policy's underlying model. Expected
-                to be of size [B, T, ...] where B is the batch dimension,
-                and T is the time or sequence dimension. B is typically
+                to be of size ``[B, T, ...]`` where ``B`` is the batch dimension,
+                and ``T`` is the time or sequence dimension. ``B`` is typically
                 the number of parallel environments being sampled for during
                 massively parallel training, and T is typically the number
                 of time steps or observations sampled from the environments.
-                The B and T dimensions are typically combined into one dimension
+                The ``B`` and ``T`` dimensions are typically combined into one dimension
                 during batch preprocessing according to the model's view
                 requirements.
             kind: String indicating the type of sample to perform. The model's
                 view requirements handles preprocessing slightly differently
                 depending on the value. Options include:
+
                     - "last": Sample from ``batch`` using only the samples
                         necessary to sample for the most recent observations
-                        within the ``batch``'s T dimension.
+                        within the ``batch``'s ``T`` dimension.
                     - "all": Sample from ``batch`` using all observations within
-                        the ``batch``'s T dimension.
+                        the ``batch``'s ``T`` dimension.
+
             deterministic: Whether to sample from the policy deterministically
                 (the actions are always the same for the same inputs) or
                 stochastically (there is a randomness to the policy's actions).
@@ -775,7 +780,7 @@ class Policy:
             return_views: Whether to return the observation view requirements
                 in the output batch. Even if this flag is enabled, new views
                 are only returned if the views are not already present in
-                the output batch (i.e., if `inplace` is `True` and the views
+                the output batch (i.e., if `inplace` is ``True`` and the views
                 are already in the ``batch``, then the returned batch will just
                 contain the original views).
 

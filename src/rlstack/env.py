@@ -14,8 +14,8 @@ _ActionSpec = TypeVar("_ActionSpec", bound=TensorSpec)
 
 
 class Env(Protocol):
-    """Protocol defining the IsaacGym -like and OpenAI Gym -like environment
-    for supporting highly parallelized simulation.
+    """Protocol defining the IsaacGym -like environments for supporting
+    highly parallelized simulation.
 
     Args:
         num_envs: Number of parallel and independent environment being
@@ -76,6 +76,7 @@ class Env(Protocol):
 
         Returns:
             A tensordict containing keys and values:
+
                 - "obs": New environment observations.
                 - "rewards": New environment rewards.
 

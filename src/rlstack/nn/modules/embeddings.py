@@ -24,11 +24,11 @@ class PositionalEmbedding(
     Args:
         embed_dim: Input feature dimension.
         max_len: Max input sequence length.
-        dropout: Dropout on the output of `forward`.
+        dropout: Dropout on the output of :meth:`PositionalEmbedding.forward`.
 
     """
 
-    #: Dropout on the output of `forward`.
+    #: Dropout on the output of :meth:`PositionalEmbedding.forward`.
     dropout: nn.Dropout
 
     #: Positional embedding tensor.
@@ -47,11 +47,11 @@ class PositionalEmbedding(
         self.register_buffer("pe", pe)
 
     def forward(self, x: torch.Tensor, /) -> torch.Tensor:
-        """Add positional embeddings to `x`.
+        """Add positional embeddings to ``x``.
 
         Args:
-            x: Tensor with shape [B, T, E] where B is the batch dimension,
-                T is the time or sequence dimension, and E is a feature
+            x: Tensor with shape ``[B, T, E]`` where ``B`` is the batch dimension,
+                ``T`` is the time or sequence dimension, and ``E`` is a feature
                 dimension.
 
         Returns:

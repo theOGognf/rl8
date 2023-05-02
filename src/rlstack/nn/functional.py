@@ -7,14 +7,14 @@ FINFO = torch.finfo()
 
 
 def binary_mask_to_float_mask(mask: torch.Tensor, /) -> torch.Tensor:
-    """Convert `0` and `1` elements in a binary mask to `-inf` and `0`,
+    """Convert ``0`` and ``1`` elements in a binary mask to ``-inf`` and ``0``,
     respectively.
 
     Args:
-        mask: Binary mask tensor:
+        mask: Binary mask tensor.
 
     Returns:
-        Float mask tensor where `0` indicates an UNPADDED or VALID value.
+        Float mask tensor where ``0`` indicates an UNPADDED or VALID value.
 
     """
     return (
@@ -25,14 +25,14 @@ def binary_mask_to_float_mask(mask: torch.Tensor, /) -> torch.Tensor:
 
 
 def float_mask_to_binary_mask(mask: torch.Tensor, /) -> torch.Tensor:
-    """Convert `0` and `-inf` elements into a boolean mask of `True` and
-    `False`, respectively.
+    """Convert ``0`` and ``-inf`` elements into a boolean mask of ``True`` and
+    ``False``, respectively.
 
     Args:
         mask: Float mask tensor.
 
     Returns:
-        Boolean mask tensor where `True` indicates an UNPADDED or VALID value.
+        Boolean mask tensor where ``True`` indicates an UNPADDED or VALID value.
 
     """
     return (
@@ -48,11 +48,11 @@ def mask_from_lengths(x: torch.Tensor, lengths: torch.Tensor, /) -> torch.Tensor
     according to tensor lengths.
 
     Args:
-        x: Tensor with shape [B, T, ...].
-        lengths: Lengths of the T sequence for each B element in `x`.
+        x: Tensor with shape ``[B, T, ...]``.
+        lengths: Lengths of the ``T`` sequence for each B element in ``x``.
 
     Returns:
-        Sequence mask of shape [B, T].
+        Sequence mask of shape ``[B, T]``.
 
     """
     B, T = x.shape[:2]
@@ -71,18 +71,18 @@ def masked_avg(
     dim: int = 1,
     keepdim: bool = False,
 ) -> torch.Tensor:
-    """Apply a masked average to `x` along `dim`.
+    """Apply a masked average to ``x`` along ``dim``.
 
     Useful for pooling potentially padded features.
 
     Args:
-        x: Tensor with shape [B, T, ...] to apply pooling to.
-        mask: Mask with shape [B, T] indicating UNPADDED or VALID values.
+        x: Tensor with shape ``[B, T, ...]`` to apply pooling to.
+        mask: Mask with shape ``[B, T]`` indicating UNPADDED or VALID values.
         dim: Dimension to pool along.
         keepdim: Whether to keep the pooled dimension.
 
     Returns:
-        Masked max of `x` along `dim` and the indices of those maximums.
+        Masked max of ``x`` along ``dim`` and the indices of those maximums.
 
     """
     if mask is not None:
@@ -101,13 +101,13 @@ def masked_avg(
 def masked_categorical_sample(
     x: torch.Tensor, /, *, mask: None | torch.Tensor = None, dim: int = 1
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """Masked categorical sampling of `x`.
+    """Masked categorical sampling of ``x``.
 
     Typically used for sampling from outputs of `masked_log_softmax`.
 
     Args:
-        x: Logits with shape [B, T, ...] to sample from.
-        mask: Mask with shape [B, T] indicating UNPADDED or VALID values.
+        x: Logits with shape ``[B, T, ...]`` to sample from.
+        mask: Mask with shape ``[B, T]`` indicating UNPADDED or VALID values.
         dim: Dimension to gather sampled values along.
 
     Returns:
@@ -126,14 +126,14 @@ def masked_categorical_sample(
 def masked_log_softmax(
     x: torch.Tensor, /, *, mask: None | torch.Tensor = None, dim: int = -1
 ) -> torch.Tensor:
-    """Apply a masked log softmax to `x` along `dim`.
+    """Apply a masked log softmax to ``x`` along ``dim``.
 
     Typically used for getting logits from a model that predicts a sequence.
     The output of this function is typically passed to `masked_categorical_sample`.
 
     Args:
-        x: Tensor with shape [B, T, ...].
-        mask: Mask with shape [B, T] indicating UNPADDED or VALID values.
+        x: Tensor with shape ``[B, T, ...]``.
+        mask: Mask with shape ``[B, T]`` indicating UNPADDED or VALID values.
         dim: Dimension to apply log softmax along.
 
     Returns:
@@ -154,17 +154,17 @@ def masked_max(
     mask: None | torch.Tensor = None,
     dim: int = 1,
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """Apply a masked max to `x` along `dim`.
+    """Apply a masked max to ``x`` along ``dim``.
 
     Useful for pooling potentially padded features.
 
     Args:
-        x: Tensor with shape [B, T, ...] to apply pooling to.
-        mask: Mask with shape [B, T] indicating UNPADDED or VALID values.
+        x: Tensor with shape ``[B, T, ...]`` to apply pooling to.
+        mask: Mask with shape ``[B, T]`` indicating UNPADDED or VALID values.
         dim: Dimension to pool along.
 
     Returns:
-        Masked max of `x` along `dim` and the indices of those maximums.
+        Masked max of ``x`` along ``dim`` and the indices of those maximums.
 
     """
     if mask is not None:
@@ -183,21 +183,23 @@ def skip_connection(
     kind: None | str = "cat",
     dim: int = -1,
 ) -> torch.Tensor:
-    """Perform a skip connection for `x` and `y`.
+    """Perform a skip connection for ``x`` and ``y``.
 
     Args:
-        x: Skip connection seed with shape [B, T, ...].
-        y: Skip connection seed with same shape as `x`.
+        x: Skip connection seed with shape ``[B, T, ...]``.
+        y: Skip connection seed with same shape as ``x``.
         kind: Type of skip connection to use.
             Options include:
+
                 - "residual" for a standard residual connection (summing outputs)
                 - "cat" for concatenating outputs
-                - `None` for no skip connection
+                - ``None`` for no skip connection
+
         dim: Dimension to apply concatentation along. Only valid when
-            `kind` is "cat"
+            ``kind`` is ``"cat"``
 
     Returns:
-        A tensor with shape depending on `kind`.
+        A tensor with shape depending on ``kind``.
 
     """
     match kind:

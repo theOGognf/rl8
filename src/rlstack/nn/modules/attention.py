@@ -49,19 +49,19 @@ class PointerNetwork(
         encoder_out: torch.Tensor,
         mask: None | torch.Tensor = None,
     ) -> torch.Tensor:
-        """Select valid values from `encoder_out` as indicated by `mask` using
-        features from `decoder_out`.
+        """Select valid values from ``encoder_out`` as indicated by ``mask`` using
+        features from ``decoder_out``.
 
         Args:
-            decoder_out: Sequence decoder output with shape [B, D, C].
-            encoder_out: Sequence encoder output with shape [B, E, C].
-            mask: Mask with shape [B, D, E] indicating the sequence element of
+            decoder_out: Sequence decoder output with shape ``[B, D, C]``.
+            encoder_out: Sequence encoder output with shape ``[B, E, C]``.
+            mask: Mask with shape ``[B, D, E]`` indicating the sequence element of
                 `encoder_out` that can be selected.
 
         Returns:
-            Logits with shape [B, D, E] indicating the likelihood of selecting
-            an encoded sequence element in E for each decoder sequence element in D.
-            The last item in the D dimension, [:, -1, :], typically indicates
+            Logits with shape ``[B, D, E]`` indicating the likelihood of selecting
+            an encoded sequence element in E for each decoder sequence element in ``D``.
+            The last item in the ``D`` dimension, ``[:, -1, :]``, typically indicates
             the likelihoods of selecting each encoder sequence element for the
             next decoder sequence element (which is usually the desired output).
 
@@ -84,7 +84,7 @@ class CrossAttention(
     ]
 ):
     """Perform multihead attention keys to a query, mapping the keys of
-    sequence length K to the query of sequence length Q.
+    sequence length ``K`` to the query of sequence length ``Q``.
 
     Args:
         embed_dim: Key and query feature dimension.
@@ -98,7 +98,7 @@ class CrossAttention(
             the output of the multihead attention and the feedforward
             module.
         fan_in: Whether to apply downsampling within the skip connection
-            when using a `skip_kind` that increases hidden feature
+            when using a ``skip_kind`` that increases hidden feature
             dimensions.
 
     """
@@ -173,18 +173,18 @@ class CrossAttention(
         attention_mask: None | torch.Tensor = None,
     ) -> torch.Tensor:
         """Apply multihead attention keys to a query, mapping the keys of
-        sequence length K to the query of sequence length Q.
+        sequence length ``K`` to the query of sequence length ``Q``.
 
         Args:
-            q: Query with shape [B, Q, E].
-            kv: Keys with shape [B, K, E].
-            key_padding_mask: Mask with shape [B, K] indicating sequence
-                elements of `kv` that are PADDED or INVALID values.
-            attention_mask: Mask with shape [Q, K] that indicates whether
-                elements in Q can attend to elements in K.
+            q: Query with shape ``[B, Q, E]``.
+            kv: Keys with shape ``[B, K, E]``.
+            key_padding_mask: Mask with shape ``[B, K]`` indicating sequence
+                elements of ``kv`` that are PADDED or INVALID values.
+            attention_mask: Mask with shape ``[Q, K]`` that indicates whether
+                elements in ``Q`` can attend to elements in ``K``.
 
         Returns:
-            Values with shape [B, Q, E].
+            Values with shape ``[B, Q, E]``.
 
         """
         qkv = self._attention_block(
@@ -217,7 +217,7 @@ class SelfAttention(
             the output of the multihead attention and the feedforward
             module.
         fan_in: Whether to apply downsampling within the skip connection
-            when using a `skip_kind` that increases hidden feature
+            when using a ``skip_kind`` that increases hidden feature
             dimensions.
 
     """
@@ -285,18 +285,18 @@ class SelfAttention(
         key_padding_mask: None | torch.Tensor = None,
         attention_mask: None | torch.Tensor = None,
     ) -> torch.Tensor:
-        """Apply self-attention to `x`, attending sequence elements to
+        """Apply self-attention to ``x``, attending sequence elements to
         themselves.
 
         Args:
-            x: Query with shape [B, X, E].
-            key_padding_mask: Mask with shape [B, X] indicating sequence
-                elements of `kv` that are PADDED or INVALID values.
-            attention_mask: Mask with shape [X, X] that indicates whether
-                elements in X can attend to other elements in X.
+            x: Query with shape ``[B, X, E]``.
+            key_padding_mask: Mask with shape ``[B, X]`` indicating sequence
+                elements of ``kv`` that are PADDED or INVALID values.
+            attention_mask: Mask with shape ``[X, X]`` that indicates whether
+                elements in ``X`` can attend to other elements in ``X``.
 
         Returns:
-            Values with shape [B, X, E].
+            Values with shape ``[B, X, E]``.
 
         """
         qkv = self._attention_block(
@@ -314,7 +314,7 @@ class SelfAttentionStack(
 
     Args:
         module: Self-attention module to repeat.
-        num_layers: Number of layers of `module` to repeat.
+        num_layers: Number of layers of ``module`` to repeat.
 
     """
 
@@ -328,18 +328,18 @@ class SelfAttentionStack(
         key_padding_mask: None | torch.Tensor = None,
         attention_mask: None | torch.Tensor = None,
     ) -> torch.Tensor:
-        """Iteratively apply self-attention to `x`, attending sequence
+        """Iteratively apply self-attention to ``x``, attending sequence
         elements to themselves.
 
         Args:
-            x: Query with shape [B, X, E].
-            key_padding_mask: Mask with shape [B, X] indicating sequence
-                elements of `kv` that are PADDED or INVALID values.
-            attention_mask: Mask with shape [X, X] that indicates whether
-                elements in X can attend to other elements in X.
+            x: Query with shape ``[B, X, E]``.
+            key_padding_mask: Mask with shape ``[B, X]`` indicating sequence
+                elements of ```kv``` that are PADDED or INVALID values.
+            attention_mask: Mask with shape ``[X, X]`` that indicates whether
+                elements in ``X`` can attend to other elements in ``X``.
 
         Returns:
-            Values with shape [B, X, E].
+            Values with shape ``[B, X, E]``.
 
         """
         out = x

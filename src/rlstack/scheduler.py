@@ -15,7 +15,7 @@ class Scheduler(Protocol):
     """
 
     def step(self, count: int, /) -> float:
-        """Return the value associated with the schedule for `ts` environment
+        """Return the value associated with the schedule for ``count`` environment
         transitions.
 
         """
@@ -55,11 +55,11 @@ class InterpScheduler(Scheduler):
     """
 
     #: Number of environment transitions needed to trigger the next value
-    #: step in `y`.
+    #: step in ``y``.
     x: list[int]
 
     #: Value to step the schedule to when a the number of environment
-    #: transitions exceeds the corresponding element in `x`.
+    #: transitions exceeds the corresponding element in ``x``.
     y: list[float]
 
     def __init__(self, schedule: list[tuple[int, float]], /) -> None:
@@ -124,11 +124,12 @@ class EntropyScheduler:
 
     Args:
         coeff: Entropy coefficient value. This value is ignored if a
-            `schedule` is provided.
-        schedule: Optional schedule that overrides `coeff`. This determines
+            ``schedule`` is provided.
+        schedule: Optional schedule that overrides ``coeff``. This determines
             values of `coeff` according to the number of environment
             transitions experienced during learning.
         kind: Kind of scheduler to use. Options include:
+
             - "step": jump to values and hold until a new environment transition
                 count is reached.
             - "interp": jump to values like "step", but interpolate between the
@@ -139,8 +140,8 @@ class EntropyScheduler:
     #: Current entropy coefficient value.
     coeff: float
 
-    #: Backend value scheduler used. The type depends on if a `schedule` arg is
-    #: provided and `kind`.
+    #: Backend value scheduler used. The type depends on if a ``schedule`` arg is
+    #: provided and ``kind``.
     scheduler: Scheduler
 
     def __init__(
@@ -174,11 +175,12 @@ class LRScheduler:
     environment transition counts during learning.
 
     Args:
-        optimizer: Optimizer to update with each `step`.
+        optimizer: Optimizer to update with each :meth:`LRScheduler.step`.
         schedule: Optional schedule that overrides the optimizer's learning rate.
             This determines values of the learning rate according to the
             number of environment transitions experienced during learning.
         kind: Kind of scheduler to use. Options include:
+
             - "step": jump to values and hold until a new environment transition
                 count is reached.
             - "interp": jump to values like "step", but interpolate between the

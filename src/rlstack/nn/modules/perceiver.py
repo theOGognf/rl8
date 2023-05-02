@@ -86,19 +86,19 @@ class PerceiverLayer(
         attention_mask: None | torch.Tensor = None,
     ) -> torch.Tensor:
         """Apply cross-attention keys to a query, mapping the keys of
-        sequence length K to the query of sequence length Q.
+        sequence length ``K`` to the query of sequence length ``Q``.
 
         Args:
-            q: Query with shape [B, Q, E]. Usually the latent array from
+            q: Query with shape ``[B, Q, E]``. Usually the latent array from
                 previous forward passes or perceiver layers.
-            kv: Keys with shape [B, K, E].
-            key_padding_mask: Mask with shape [B, K] indicating sequence
-                elements of `kv` that are PADDED or INVALID values.
-            attention_mask: Mask with shape [Q, K] that indicates whether
-                elements in Q can attend to elements in K.
+            kv: Keys with shape ``[B, K, E]``.
+            key_padding_mask: Mask with shape ``[B, K]`` indicating sequence
+                elements of ``kv`` that are PADDED or INVALID values.
+            attention_mask: Mask with shape ``[Q, K]`` that indicates whether
+                elements in ``Q`` can attend to elements in ``K``.
 
         Returns:
-            Values with shape [B, Q, E].
+            Values with shape ``[B, Q, E]``.
 
         """
         latent = self.cross_attention(q, kv, key_padding_mask, attention_mask)
@@ -136,7 +136,7 @@ class PerceiverIOLayer(
             outputs of the multihead attentions and the feedforward
             modules.
         fan_in: Whether to apply downsampling within the skip connection
-            when using a `skip_kind` that increases hidden feature
+            when using a ``skip_kind`` that increases hidden feature
             dimensions.
 
     """
@@ -190,19 +190,19 @@ class PerceiverIOLayer(
         attention_mask: None | torch.Tensor = None,
     ) -> torch.Tensor:
         """Apply cross-attention keys to a query, mapping the keys of
-        sequence length K to the query of sequence length Q.
+        sequence length ``K`` to the query of sequence length ``Q``.
 
         Args:
-            q: Query with shape [B, Q, E]. Usually the latent array from
+            q: Query with shape ``[B, Q, E]``. Usually the latent array from
                 previous forward passes or perceiver layers.
-            kv: Keys with shape [B, K, E].
-            key_padding_mask: Mask with shape [B, K] indicating sequence
-                elements of `kv` that are PADDED or INVALID values.
-            attention_mask: Mask with shape [Q, K] that indicates whether
-                elements in Q can attend to elements in K.
+            kv: Keys with shape ``[B, K, E]``.
+            key_padding_mask: Mask with shape ``[B, K]`` indicating sequence
+                elements of ``kv`` that are PADDED or INVALID values.
+            attention_mask: Mask with shape ``[Q, K]`` that indicates whether
+                elements in ``Q`` can attend to elements in ``K``.
 
         Returns:
-            Values with shape [B, O, E] where O is the output array sequence
+            Values with shape ``[B, O, E]`` where ``O`` is the output array sequence
             size.
 
         """
