@@ -219,7 +219,7 @@ class LRScheduler:
                 case _:
                     raise ValueError(
                         f"Learning rate scheduler only supports "
-                        "kinds `interp` and `step`."
+                        f"kinds `interp` and `step`."
                     )
         self.step(0)
 

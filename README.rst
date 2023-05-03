@@ -1,7 +1,7 @@
 rlstack: An RL Toolkit for the Sane
 ===================================
 
-**rlstack** is a simple, high throughput, infinite horizon RL library that can
+**rlstack** is a high throughput, infinite horizon RL library that can
 simulate highly parallelized environments, and can train a PPO policy using
 those highly parallelized environments, achieving around 500k environment
 transitions (and one policy update) per second using a single, off-the-shelf

@@ -42,7 +42,18 @@ class And(Condition):
 
 
 class Plateaus(Condition):
-    """Condition that returns ``True`` if"""
+    """Condition that returns ``True`` if the value being monitored plateaus
+    for ``patience`` number of times.
+
+    Args:
+        key: Key of train stat to monitor.
+        patience: Threshold for :attr:`Plateaus.losses` to reach for the condition
+            to return ``True``.
+        rtol: Relative tolerance when comparing values of :attr:`Plateaus.key`
+            between calls to determine if the call contributes to
+            :attr:`Plateaus.losses`.
+
+    """
 
     #: Key of train stat to inspect when called.
     key: TrainStatKey
@@ -60,7 +71,7 @@ class Plateaus(Condition):
     patience: int
 
     #: Relative tolerance when comparing values of :attr:`Plateaus.key`
-    #: betweencalls to determine if the call contributes to
+    #: between calls to determine if the call contributes to
     #: :attr:`Plateaus.losses`.
     rtol: float
 
@@ -85,6 +96,23 @@ class Plateaus(Condition):
 
 
 class HitsLowerBound(Condition):
+    """Condition that returns ``True`` if the value being monitored hits a
+    lower bound value.
+
+    Args:
+        key: Key of train stat to monitor.
+        lower_bound: Minimum threshold for the value of ``key`` to reach before
+            this condition returns ``True`` when called.
+
+    """
+
+    #: Key of train stat to inspect when called.
+    key: TrainStatKey
+
+    #: Minimum threshold for the value of ``key`` to reach before
+    #: this condition returns ``True`` when called.
+    lower_bound: float
+
     def __init__(self, key: TrainStatKey, lower_bound: float, /) -> None:
         self.key = key
         self.lower_bound = lower_bound
@@ -94,6 +122,23 @@ class HitsLowerBound(Condition):
 
 
 class HitsUpperBound(Condition):
+    """Condition that returns ``True`` if the value being monitored hits an
+    upper bound value.
+
+    Args:
+        key: Key of train stat to monitor.
+        upper_bound: Maximum threshold for the value of ``key`` to reach before
+            this condition returns ``True`` when called.
+
+    """
+
+    #: Key of train stat to inspect when called.
+    key: TrainStatKey
+
+    #: Maximum threshold for the value of ``key`` to reach before
+    #: this condition returns ``True`` when called.
+    upper_bound: float
+
     def __init__(self, key: TrainStatKey, upper_bound: float, /) -> None:
         self.key = key
         self.upper_bound = upper_bound
