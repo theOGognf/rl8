@@ -39,24 +39,21 @@ class Model(
     a value function approximation and features to be consumed by an
     action distribution for action sampling.
 
-    This definition is largely inspired by RLlib's model concept:
-        https://github.com/ray-project/ray/blob/master/rllib/models/modelv2.py.
+    This definition is largely inspired by RLlib's `model concept`_.
 
     The model is intended to be called with the forward pass (like any
     other PyTorch module) to get the inputs to the policy's action
     distribution. It's expected that the value function approximation
     is stored after each forward pass in some intermediate attribute
-    and can be accessed with a subsequent call to `value_function`.
-
-    Example data flow (adapted from the RLlib reference above):
-        batch -> forward() -> features
-            L> value_function() -> V(s)
+    and can be accessed with a subsequent call to :meth:`Model.value_function`.
 
     Args:
         observation_spec: Spec defining the forward pass input.
         action_spec: Spec defining the outputs of the policy's action
             distribution that this model is a component of.
         config: Model-specific configuration.
+
+    .. _`model concept`: https://github.com/ray-project/ray/blob/master/rllib/models/modelv2.py
 
     """
 
@@ -123,11 +120,11 @@ class Model(
                 depending on the value. Options include:
 
                     - "last": Apply the view requirements using only the samples
-                        necessary to sample for the most recent observations
-                        within the ``batch``'s ``T`` dimension.
+                      necessary to sample for the most recent observations
+                      within the ``batch``'s ``T`` dimension.
                     - "all": Sample from ``batch`` using all observations within
-                        the ``batch``'s ``T`` dimension. Expand the ``B`` and ``T``
-                        dimensions together.
+                      the ``batch``'s ``T`` dimension. Expand the ``B`` and ``T``
+                      dimensions together.
 
         """
         batch_sizes = {}
@@ -484,8 +481,7 @@ class Distribution(ABC):
     """Policy component that defines a probability distribution over a
     feature set from a model.
 
-    This definition is largely inspired by RLlib's action distribution:
-        https://github.com/ray-project/ray/blob/master/rllib/models/action_dist.py
+    This definition is largely inspired by RLlib's `action distribution`_.
 
     Most commonly, the feature set is a single vector of logits or log
     probabilities used for defining and sampling from the probability
@@ -495,6 +491,8 @@ class Distribution(ABC):
     Args:
         features: Features from ``model``'s forward pass.
         model: Model for parameterizing the probability distribution.
+
+    .. _`action distribution`: https://github.com/ray-project/ray/blob/master/rllib/models/action_dist.py
 
     """
 
@@ -565,8 +563,9 @@ class TorchDistributionWrapper(
 ):
     """Wrapper class for PyTorch distributions.
 
-    This is inspired by RLlib:
-        https://github.com/ray-project/ray/blob/master/rllib/models/torch/torch_action_dist.py
+    This is inspired by `RLlib`_.
+
+    .. _`RLlib`: https://github.com/ray-project/ray/blob/master/rllib/models/torch/torch_action_dist.py
 
     """
 

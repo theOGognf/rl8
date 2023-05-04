@@ -32,14 +32,13 @@ def _profile_ms() -> Generator[Callable[[], float], None, None]:
 
 
 class Algorithm:
-    """An optimized PPO (https://arxiv.org/pdf/1707.06347.pdf) algorithm
-    with common tricks for stabilizing and accelerating learning.
+    """An optimized `PPO`_ algorithm with common tricks for stabilizing
+    and accelerating learning.
 
     This algorithm assumes environments are parallelized much like
-    IsaacGym environments (https://arxiv.org/pdf/2108.10470.pdf) and
-    are infinite horizon with no terminal conditions. These assumptions
-    allow the learning procedure to occur extremely fast even for
-    complex, sequence-based models because:
+    `IsaacGym environments`_ and are infinite horizon with no terminal
+    conditions. These assumptions allow the learning procedure to occur
+    extremely fast even for complex, sequence-based models because:
 
         - Environments occur in parallel and are batched into a contingous
           buffer.
@@ -93,9 +92,9 @@ class Algorithm:
             is provided. Options include:
 
                 - "step": jump to values and hold until a new environment transition
-                    count is reached.
+                  count is reached.
                 - "interp": jump to values like "step", but interpolate between the
-                    current value and the next value.
+                  current value and the next value.
 
         entropy_coeff: Entropy coefficient value. Weight of the entropy loss w.r.t.
             other components of total loss. This value is ignored if
@@ -106,9 +105,9 @@ class Algorithm:
         entropy_coeff_schedule_kind: Kind of entropy scheduler to use. Options include:
 
             - "step": jump to values and hold until a new environment transition
-                count is reached.
+              count is reached.
             - "interp": jump to values like "step", but interpolate between the
-                current value and the next value.
+              current value and the next value.
 
         gae_lambda: Generalized Advantage Estimation (GAE) hyperparameter for controlling
             the variance and bias tradeoff when estimating the state value
@@ -161,6 +160,9 @@ class Algorithm:
         >>> algo = Algorithm(DiscreteDummyEnv)
         >>> algo.collect()
         >>> algo.step()  # doctest: +SKIP
+
+    .. _`PPO`: https://arxiv.org/pdf/1707.06347.pdf
+    .. _`IsaacGym environments`: https://arxiv.org/pdf/2108.10470.pdf
 
     """
 

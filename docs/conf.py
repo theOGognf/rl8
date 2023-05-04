@@ -123,5 +123,4 @@ intersphinx_mapping = {
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
     "tensordict": ("https://pytorch.org/rl/tensordict/", None),
     "torch": ("https://pytorch.org/docs/stable/", None),
-    "typing_extensions": ("https://typing.readthedocs.io/en/latest/", None),
 }
