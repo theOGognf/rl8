@@ -4,7 +4,6 @@
    :maxdepth: 2
    :caption: Contents
 
-   Examples <examples>
    API <api/modules>
 
 :ref:`genindex`
