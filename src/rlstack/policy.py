@@ -573,13 +573,13 @@ class TorchDistributionWrapper(
     dist: _TorchDistribution
 
     def deterministic_sample(self) -> torch.Tensor:
-        return self.dist.mode
+        return self.dist.mode  # type: ignore[no-any-return]
 
     def entropy(self) -> torch.Tensor:
-        return self.dist.entropy().sum(-1, keepdim=True)
+        return self.dist.entropy().sum(-1, keepdim=True)  # type: ignore
 
     def logp(self, samples: torch.Tensor) -> torch.Tensor:
-        return self.dist.log_prob(samples).sum(-1, keepdim=True)
+        return self.dist.log_prob(samples).sum(-1, keepdim=True)  # type: ignore
 
     @staticmethod
     @abstractmethod
@@ -590,7 +590,7 @@ class TorchDistributionWrapper(
         """
 
     def sample(self) -> torch.Tensor:
-        return self.dist.sample()
+        return self.dist.sample()  # type: ignore
 
 
 class Categorical(

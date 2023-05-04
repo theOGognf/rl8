@@ -195,7 +195,7 @@ class Algorithm:
     #: PPO hyperparameter that clips like :attr:`Algorithm.clip_param` but when
     #: advantage estimations are negative. Helps prevent instability for
     #: continuous action spaces when policies are making large updates.
-    dual_clip_param: float
+    dual_clip_param: None | float
 
     #: Entropy scheduler for updating the ``entropy_coeff`` after each
     #: :meth:`Algorithm.step` call based on the number environment transitions
@@ -669,7 +669,7 @@ class Algorithm:
 
                     # Optimize.
                     self.optimizer.zero_grad()
-                    total_loss.backward()
+                    total_loss.backward()  # type: ignore[no-untyped-call]
                     nn.utils.clip_grad_norm_(
                         self.policy.model.parameters(), self.max_grad_norm
                     )
