@@ -39,7 +39,10 @@ except FileNotFoundError:
 try:
     import sphinx
 
-    cmd_line = f"sphinx-apidoc --implicit-namespaces -f -o {output_dir} {module_dir}"
+    cmd_line = (
+        "sphinx-apidoc --implicit-namespaces -f -o"
+        f" {output_dir} {module_dir} {module_dir}/data.py {module_dir}/specs.py"
+    )
 
     args = cmd_line.split(" ")
     if tuple(sphinx.__version__.split(".")) >= ("1", "7"):
@@ -81,7 +84,16 @@ extensions = [
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "build", "Thumbs.db", ".DS_Store"]
 nitpicky = True
-nitpick_ignore = []
+nitpick_ignore = [
+    ("py:class", "typing_extensions.Self"),
+    ("py:obj", "rlstack.nn.modules.module._P"),
+    ("py:obj", "rlstack.nn.modules.module._T"),
+]
+nitpick_ignore_regex = [
+    (r"py:.*", r"rlstack.*\._.*"),
+    (r"py:.*", r"rlstack\.data.*"),
+    (r"py:.*", r"rlstack\.specs.*"),
+]
 
 # -- Autodoc options ---------------------------------------------------------
 
@@ -109,5 +121,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/" + python_version, None),
     "numpy": ("https://numpy.org/doc/stable", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
-    "sqlalchemy": ("https://docs.sqlalchemy.org/en/20/", None),
+    "tensordict": ("https://pytorch.org/rl/tensordict/", None),
+    "torch": ("https://pytorch.org/docs/stable/", None),
+    "typing_extensions": ("https://typing.readthedocs.io/en/latest/", None),
 }

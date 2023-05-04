@@ -10,15 +10,15 @@ from .data import TrainStatKey, TrainStats
 
 
 class Condition(Protocol):
-    """Condition callable that's called once per :meth:`Trainer.run`
-    iteration. If the condition returns ``True``, then the training
-    loop within :meth:`Trainer.run` is stopped.
+    """Condition callable that returns ``True`` if a condition is met.
+
+    This is the interface used for early-stopping training.
 
     """
 
     def __call__(self, train_stats: TrainStats, /) -> bool:
         """Method to implement that should return ``True`` for forcing training
-        within :meth:`Trainer.run` to stop.
+        within iterations to stop.
 
         """
 

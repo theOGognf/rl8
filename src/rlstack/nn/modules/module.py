@@ -17,7 +17,4 @@ class Module(ABC, Generic[_P, _T], nn.Module):
 
     @abstractmethod
     def forward(self, *args: _P.args, **kwargs: _P.kwargs) -> _T:
-        """Subclasses implement this method. This is called by
-        :meth:`Module.__call__`.
-
-        """
+        """Subclasses implement this method."""

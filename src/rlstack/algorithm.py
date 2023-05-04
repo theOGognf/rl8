@@ -190,7 +190,7 @@ class Algorithm:
     #: Number of times :meth:`Algorithm.collect` has been called.
     collect_calls: int
 
-    #: PPO hyperparameter that clips like :attr:`Algorithm.clip_param`` but when
+    #: PPO hyperparameter that clips like :attr:`Algorithm.clip_param` but when
     #: advantage estimations are negative. Helps prevent instability for
     #: continuous action spaces when policies are making large updates.
     dual_clip_param: float
@@ -398,7 +398,7 @@ class Algorithm:
         of :meth:`Algorithm.step` so it isn't called with dummy data.
 
         Args:
-            env_config: Optional config to pass to the :meth:`Env.reset`
+            env_config: Optional config to pass to the environment's reset
                 method. This isn't used if the environment isn't scheduled
                 to be reset according to :attr:`Algorithm.horizons_per_reset`.
             deterministic: Whether to sample from the policy deterministically.

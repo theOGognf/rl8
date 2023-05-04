@@ -75,10 +75,7 @@ class Env(Protocol):
                 :attr:`Env.action_spec`.
 
         Returns:
-            A tensordict containing keys and values:
-
-                - "obs": New environment observations.
-                - "rewards": New environment rewards.
+            A tensordict containing "obs" and "rewards" keys and values.
 
         """
 

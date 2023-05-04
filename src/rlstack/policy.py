@@ -262,7 +262,7 @@ class Model(
         """Helper for validating a model's view requirements.
 
         Raises:
-            RuntimeError if the model's view requirements result in an
+            RuntimeError: If the model's view requirements result in an
                 ambiguous batch size, making training and sampling impossible.
 
         """

@@ -52,7 +52,7 @@ class DataKeys:
     ADVANTAGES = "advantages"
 
 
-#: :class:`Algorithm` hyperparameters.
+#: PPO algorithm hyperparameters.
 AlgorithmParams = TypedDict(
     "AlgorithmParams",
     {
@@ -77,7 +77,7 @@ AlgorithmParams = TypedDict(
 )
 
 
-#: Stats updated and tracked within :meth:`Algorithm.collect`.
+#: Values returned when collecting environment transitions.
 CollectStats = TypedDict(
     "CollectStats",
     {
@@ -98,7 +98,7 @@ CollectStats = TypedDict(
 )
 
 
-#: Stats updated and tracked within :meth:`Algorithm.step`.
+#: Values returned when stepping/updating a policy.
 StepStats = TypedDict(
     "StepStats",
     {
@@ -115,8 +115,7 @@ StepStats = TypedDict(
     total=False,
 )
 
-
-#: :meth:`Algorithm.collect` and :meth:`Algorithm.step` stats together.
+#: Values returned during training.
 class TrainStats(CollectStats, StepStats):
     ...
 

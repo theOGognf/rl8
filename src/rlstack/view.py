@@ -335,7 +335,7 @@ class ViewRequirement:
     """
 
     #: Key to apply the view requirement to for a given batch. The key
-    #: can be any key that is compatible with a :class:`TensorDict` key.
+    #: can be any key that is compatible with a tensordict key.
     #: E.g., a key can be a tuple of strings such that the item in the
     #: batch is accessed like ``batch[("obs", "prices")]``.
     key: str | tuple[str, ...]
