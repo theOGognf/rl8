@@ -76,17 +76,15 @@ richness to reduce these drawbacks. However, each library still doesn't provide
 enough speed benefit to warrant the switch from a monolithic repo, or is still
 too complex to adapt to a specific use case.
 
-**rlstack** is a niche and opinionated RL library that finds a goldilox zone
-between the feature support and speed/complexity tradeoff by making some key
-assumptions:
+**rlstack** is a niche RL library that finds a goldilocks zone between the
+feature support and speed/complexity tradeoff by making some key assumptions:
 
 * Environments are highly parallelized and their parallelization is entirely
-  managed within the environment. This assumption allows **rlstack** to
-  ignore distributed computing design considerations.
+  managed within the environment. This allows **rlstack** to ignore distributed
+  computing design considerations.
 * Environments are infinite horizon (i.e., they have no terminal conditions).
-  This assumption allows **rlstack** to reset environments at the same,
-  fixed horizon intervals, greatly simplifying environment and algorithm
-  implementations.
+  This allows **rlstack** to reset environments at the same, fixed horizon
+  intervals, greatly simplifying environment and algorithm implementations.
 * The only supported ML framework is PyTorch and the only supported algorithm
   is PPO. This allows **rlstack** to ignore layers upon layers of abstraction,
   greatly simplifying the overall library implementation.
@@ -113,9 +111,9 @@ Related Projects
 
 * `RL Games`_: RL Games is a high performance RL library built around popular
   environment protocols.
-* `RLlib`_: Ray's RLlib is the industry standard RL library that supports all
-  the popular RL algorithms and variants, and can scale workloads from your
-  laptop all the way to the cloud.
+* `RLlib`_: Ray's RLlib is the industry standard RL library that supports many
+  popular RL algorithms. RLlib can scale RL workloads from your laptop all the
+  way to the cloud with little-to-no changes in your code.
 * `Sample Factory`_: Sample Factory provides an efficient and high quality
   implementation of PPO with a focus on accelerating training for a single machine
   with support for a wide variety of environment protocols.
