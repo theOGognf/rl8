@@ -324,13 +324,13 @@ class ViewRequirement:
             Options include:
 
                 - "rolling_window": Create a rolling window over a tensor's
-                    time or sequence dimension at the cost of dropping
-                    samples early into the sequence in order to force all
-                    sequences to be the same size.
+                  time or sequence dimension at the cost of dropping
+                  samples early into the sequence in order to force all
+                  sequences to be the same size.
                 - "padded_rolling_window": The same as "rolling_window" but
-                    pad the beginning of each sequence to avoid dropping
-                    samples and provide a mask indicating which element is
-                    padding.
+                  pad the beginning of each sequence to avoid dropping
+                  samples and provide a mask indicating which element is
+                  padding.
 
     """
 

@@ -56,7 +56,7 @@ class PointerNetwork(
             decoder_out: Sequence decoder output with shape ``[B, D, C]``.
             encoder_out: Sequence encoder output with shape ``[B, E, C]``.
             mask: Mask with shape ``[B, D, E]`` indicating the sequence element of
-                `encoder_out` that can be selected.
+                ``encoder_out`` that can be selected.
 
         Returns:
             Logits with shape ``[B, D, E]`` indicating the likelihood of selecting
