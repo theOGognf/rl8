@@ -122,8 +122,8 @@ def rolling_window(x: torch.Tensor, size: int, /, *, step: int = 1) -> torch.Ten
     additional dimensions that represent a rolling window of size ``size``
     and step ``step`` over the time or sequence dimension.
 
-    See https://pytorch.org/docs/stable/generated/torch.Tensor.unfold.html
-    for details on PyTorch's vanilla unfolding that does most of the work.
+    See PyTorch's `unfold`_ for details on PyTorch's vanilla unfolding that does
+    most of the work.
 
     Args:
         x: Tensor of size ``[B, T, ...]`` where ``B`` is the batch dimension, and
@@ -137,6 +137,8 @@ def rolling_window(x: torch.Tensor, size: int, /, *, step: int = 1) -> torch.Ten
 
     Returns:
         A new tensor of shape ``[B, (T - size) / step + 1, size, ...]``.
+
+    .. _`unfold`: https://pytorch.org/docs/stable/generated/torch.Tensor.unfold.html
 
     """
     dims = [i for i in range(x.dim())]

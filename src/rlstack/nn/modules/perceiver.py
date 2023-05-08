@@ -1,4 +1,4 @@
-"""Perceiver definitions as described by https://arxiv.org/pdf/2107.14795.pdf."""
+"""Perceiver definitions."""
 
 import torch
 import torch.nn as nn
@@ -13,7 +13,8 @@ class PerceiverLayer(
         torch.Tensor,
     ]
 ):
-    """Perciever layer as described by https://arxiv.org/pdf/2103.03206.pdf.
+    """An implementation of a `Perceiver`_ with cross-attention followed
+    by self-attention stacks.
 
     Useful for embedding several, variable-length sequences into a latent
     array for dimensionality reduction. Allows inputs of different feature
@@ -36,6 +37,8 @@ class PerceiverLayer(
         fan_in: Whether to apply downsampling within the skip connection
             when using a `skip_kind` that increases hidden feature
             dimensions.
+
+    .. _`Perceiver`: https://arxiv.org/pdf/2103.03206.pdf
 
     """
 
@@ -111,7 +114,9 @@ class PerceiverIOLayer(
         torch.Tensor,
     ]
 ):
-    """PercieverIO layer as described by https://arxiv.org/pdf/2107.14795.pdf.
+    """An implementation of `PerceiverIO`_ with cross-attention followed by
+    self-attention stacks followed by cross-attention with a fixed-sized
+    output array.
 
     In addition to the benefits of `PerceiverLayer`, this module attends a
     latent array to a final output dimensionality to effectively apply
@@ -138,6 +143,8 @@ class PerceiverIOLayer(
         fan_in: Whether to apply downsampling within the skip connection
             when using a ``skip_kind`` that increases hidden feature
             dimensions.
+
+    .. _`PerceiverIO`: https://arxiv.org/pdf/2107.14795.pdf
 
     """
 

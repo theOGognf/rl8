@@ -18,13 +18,15 @@ class PointerNetwork(
     next element from the encoder's sequence to be appended to the decoder's
     sequence.
 
-    An implementation of https://arxiv.org/pdf/1506.03134.pdf adapted from
-    https://towardsdatascience.com/pointer-networks-with-transformers-1a01d83f7543
-    which also adapted from
-    https://github.com/ast0414/pointer-networks-pytorch/blob/master/model.py.
+    An implementation of `Pointer Networks`_ adapted from this `blog post`_
+    which is adapted from this `repo`_.
 
     Args:
         embed_dim: Feature dimension of the encoders/decoders.
+
+    .. _`Pointer Networks`: https://arxiv.org/pdf/1506.03134.pdf
+    .. _`blog post`: https://towardsdatascience.com/pointer-networks-with-transformers-1a01d83f7543
+    .. _`repo`: https://github.com/ast0414/pointer-networks-pytorch/blob/master/model.py
 
     """
 
