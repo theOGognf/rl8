@@ -66,10 +66,9 @@ Naturely, this monolothic goal has some drawbacks:
 
 * The software becomes more dense with each supported feature, making the library
   all-the-more difficult to customize for a specific use case.
-* The software becomes less performant for a specific use case, eventually
-  requiring RL practitioners to wait weeks for experiment results, or to accept
-  the cost of transitioning to expensive and difficult-to-manage compute
-  clusters to get results faster.
+* The software becomes less performant for a specific use case. RL practitioners
+  typically end up accepting the cost of transitioning to expensive and
+  difficult-to-manage compute clusters to get results faster.
 
 There's a handful of high quality, open-sourced RL libraries that tradeoff feature
 richness to reduce these drawbacks. However, each library still doesn't provide
@@ -113,11 +112,11 @@ Related Projects
   environment protocols.
 * `RLlib`_: Ray's RLlib is the industry standard RL library that supports many
   popular RL algorithms. RLlib can scale RL workloads from your laptop all the
-  way to the cloud with little-to-no changes in your code.
+  way to the cloud with little-to-no changes to your code.
 * `Sample Factory`_: Sample Factory provides an efficient and high quality
   implementation of PPO with a focus on accelerating training for a single machine
   with support for a wide variety of environment protocols.
-* `SKRL`_: SKRL focuses on readability, splicity, and transparency of RL algorithm
+* `SKRL`_: SKRL focuses on readability, simplicity, and transparency of RL algorithm
   implementations with support for a wide variety of environment protocols.
 * `Stable Baselines 3`_: Stable Baselines 3 is a set of reliable and user-friendly
   RL algorithm implementations that integrate with a rich set of features desirable
