@@ -639,6 +639,32 @@ class Normal(
         )  # type: ignore[no-untyped-call]
 
 
+class SquashedNormal(Normal):
+    """Squashed normal distribution such that samples are always within [-1, 1]."""
+
+    def deterministic_sample(self) -> torch.Tensor:
+        return super().deterministic_sample().tanh()
+
+    def entropy(self) -> torch.Tensor:
+        raise NotImplementedError(
+            f"Entropy isn't defined for {self.__class__.__name__}. Be sure to set the"
+            " entropy coefficient to `0` to avoid this error during training."
+        )
+
+    def logp(self, samples: torch.Tensor) -> torch.Tensor:
+        eps = torch.finfo(samples.dtype).eps
+        clipped_samples = samples.clamp(min=-1 + eps, max=1 - eps)
+        inverted_samples = 0.5 * (clipped_samples.log1p() - (-clipped_samples).log1p())
+        logp = torch.clamp(self.dist.log_prob(inverted_samples), min=-100, max=100).sum(
+            -1, keepdim=True
+        )
+        logp -= torch.sum(torch.log(1 - samples**2 + eps), dim=-1, keepdim=True)
+        return logp
+
+    def sample(self) -> torch.Tensor:
+        return super().sample().tanh()
+
+
 class Policy:
     """The union of a model and an action distribution.
 
