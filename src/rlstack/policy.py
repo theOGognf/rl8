@@ -647,7 +647,7 @@ class SquashedNormal(Normal):
 
     def entropy(self) -> torch.Tensor:
         raise NotImplementedError(
-            f"Entropy isn't defined for {self.__class__.__name__}. Be sure to set the"
+            f"Entropy isn't defined for {self.__class__.__name__}. Set the"
             " entropy coefficient to `0` to avoid this error during training."
         )
 

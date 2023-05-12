@@ -649,13 +649,15 @@ class Algorithm:
                             surr1,
                             surr2,
                         ).mean()
-                    entropy_loss = curr_action_dist.entropy().mean()
 
                     # Maximize entropy, maximize policy actions associated with high advantages,
                     # minimize discounted return estimation error.
                     total_loss = self.vf_coeff * vf_loss - policy_loss
                     if self.entropy_scheduler.coeff != 0:
+                        entropy_loss = curr_action_dist.entropy().mean()
                         total_loss -= self.entropy_scheduler.coeff * entropy_loss
+                    else:
+                        entropy_loss = 0.0
 
                     # Calculate approximate KL divergence for debugging.
                     with torch.no_grad():
