@@ -657,7 +657,7 @@ class Algorithm:
                         entropy_loss = curr_action_dist.entropy().mean()
                         total_loss -= self.entropy_scheduler.coeff * entropy_loss
                     else:
-                        entropy_loss = 0.0
+                        entropy_loss = torch.tensor([0.0])
 
                     # Calculate approximate KL divergence for debugging.
                     with torch.no_grad():
