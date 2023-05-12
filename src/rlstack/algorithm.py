@@ -653,11 +653,9 @@ class Algorithm:
 
                     # Maximize entropy, maximize policy actions associated with high advantages,
                     # minimize discounted return estimation error.
-                    total_loss = (
-                        self.vf_coeff * vf_loss
-                        - policy_loss
-                        - self.entropy_scheduler.coeff * entropy_loss
-                    )
+                    total_loss = self.vf_coeff * vf_loss - policy_loss
+                    if self.entropy_scheduler.coeff != 0:
+                        total_loss -= self.entropy_scheduler.coeff * entropy_loss
 
                     # Calculate approximate KL divergence for debugging.
                     with torch.no_grad():
