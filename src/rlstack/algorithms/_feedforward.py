@@ -1,8 +1,6 @@
 """Definitions related to the RL algorithm (data collection and training)."""
 
-import time
-from contextlib import contextmanager
-from typing import Any, Callable, Generator
+from typing import Any
 
 import pandas as pd
 import torch
@@ -14,21 +12,14 @@ from tensordict import TensorDict
 from torch.utils.data import DataLoader
 from typing_extensions import Self
 
-from .data import AlgorithmParams, CollectStats, DataKeys, Device, StepStats
-from .env import Env
-from .policy import Distribution, Model, Policy
-from .scheduler import EntropyScheduler, LRScheduler, ScheduleKind
-from .specs import CompositeSpec, UnboundedContinuousTensorSpec
-
-
-@contextmanager
-def _profile_ms() -> Generator[Callable[[], float], None, None]:
-    """Profiling context manager that returns the time it took for the
-    code to execute within the context's scope in milliseconds.
-
-    """
-    start = time.perf_counter_ns()
-    yield lambda: (time.perf_counter_ns() - start) / 1e6
+from .._utils import profile_ms
+from ..data import CollectStats, DataKeys, Device, StepStats
+from ..distributions import Distribution
+from ..env import Env
+from ..models import Model
+from ..policies import Policy
+from ..schedulers import EntropyScheduler, LRScheduler, ScheduleKind
+from ..specs import CompositeSpec, UnboundedContinuousTensorSpec
 
 
 class Algorithm:
@@ -412,7 +403,7 @@ class Algorithm:
             policy samples.
 
         """
-        with _profile_ms() as collect_timer:
+        with profile_ms() as collect_timer:
             # Get number of environments and horizon. Remember, there's an extra
             # sample in the horizon because we store the final environment observation
             # for the next :meth:`Algorithm.collect` call and value function estimates
@@ -513,7 +504,7 @@ class Algorithm:
         return int(self.buffer.size(0))
 
     @property
-    def params(self) -> AlgorithmParams:
+    def params(self) -> dict[str, Any]:
         """Return algorithm parameters."""
         return {
             "env_cls": self.env.__class__.__name__,
@@ -549,7 +540,7 @@ class Algorithm:
                 "Call `collect` once prior to `step`."
             )
 
-        with _profile_ms() as step_timer:
+        with profile_ms() as step_timer:
             # Get number of environments and horizon. Remember, there's an extra
             # sample in the horizon because we store the final environment observation
             # for the next :meth:`Algorithm.collect` call and value function estimates

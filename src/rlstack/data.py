@@ -51,30 +51,9 @@ class DataKeys:
     #: value function).
     ADVANTAGES = "advantages"
 
+    HIDDEN_STATES = "hidden_states"
 
-#: PPO algorithm hyperparameters.
-AlgorithmParams = TypedDict(
-    "AlgorithmParams",
-    {
-        "env_cls": str,
-        "model_cls": str,
-        "dist_cls": str,
-        "horizon": int,
-        "horizons_per_reset": int,
-        "num_envs": int,
-        "optimizer_cls": str,
-        "entropy_coeff": float,
-        "gae_lambda": float,
-        "gamma": float,
-        "sgd_minibatch_size": int,
-        "num_sgd_iter": int,
-        "shuffle_minibatches": bool,
-        "clip_param": float,
-        "vf_clip_param": float,
-        "vf_coeff": float,
-        "max_grad_norm": float,
-    },
-)
+    CELL_STATES = "cell_states"
 
 
 #: Values returned when collecting environment transitions.

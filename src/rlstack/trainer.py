@@ -1,13 +1,35 @@
 """High-level training interfaces."""
 
-from typing import Any
+from typing import Any, Protocol
 
 import mlflow
 
-from .algorithm import Algorithm
+from .algorithms import Algorithm
 from .conditions import Condition
-from .data import TrainStats
+from .data import CollectStats, StepStats, TrainStats
 from .env import Env
+
+
+class AlgorithmProtocol(Protocol):
+    def __init__(
+        self,
+        env_cls: type[Env],
+        /,
+        **kwargs: Any,
+    ) -> None:
+        ...
+
+    def collect(
+        self, *, env_config: None | dict[str, Any] = None, deterministic: bool = False
+    ) -> CollectStats:
+        ...
+
+    @property
+    def params(self) -> dict[str, Any]:
+        ...
+
+    def step(self) -> StepStats:
+        ...
 
 
 class Trainer:
@@ -31,7 +53,7 @@ class Trainer:
 
     #: Underlying PPO algorithm, including the environment, model,
     #: action distribution, and hyperparameters.
-    algorithm: Algorithm
+    algorithm: AlgorithmProtocol
 
     #: Conditions evaluated each iteration within :meth:`Trainer.run`
     #: that determines whether to stop training. Only one condition
@@ -45,11 +67,12 @@ class Trainer:
         env_cls: type[Env],
         /,
         *,
+        algorithm_cls: type[AlgorithmProtocol] = Algorithm,
         algorithm_config: None | dict[str, Any] = None,
         stop_conditions: None | list[Condition] = None,
     ) -> None:
         algorithm_config = algorithm_config or {}
-        self.algorithm = Algorithm(env_cls, **algorithm_config)
+        self.algorithm = algorithm_cls(env_cls, **algorithm_config)
         self.stop_conditions = stop_conditions or []
         mlflow.log_params(self.algorithm.params)
 

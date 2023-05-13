@@ -2,9 +2,11 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
-from .algorithm import Algorithm
+from .algorithms import Algorithm
+from .distributions import Categorical, Distribution, Normal, SquashedNormal
 from .env import Env, GenericEnv
-from .policy import Distribution, GenericModel, Model, Policy
+from .models import DefaultContinuousModel, DefaultDiscreteModel, Model
+from .policies import Policy
 from .trainer import Trainer
 
 try:

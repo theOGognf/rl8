@@ -3,7 +3,7 @@ import torch
 from tensordict import TensorDict
 
 from rlstack.data import DataKeys
-from rlstack.view import (
+from rlstack.views import (
     PaddedRollingWindow,
     RollingWindow,
     ViewRequirement,
