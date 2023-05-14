@@ -121,15 +121,15 @@ class RecurrentModel(
         return next(self.parameters()).device
 
     @abstractmethod
-    def forward(self, batch: TensorDict, /) -> TensorDict:
+    def forward(
+        self, batch: TensorDict, states: TensorDict, /
+    ) -> tuple[TensorDict, TensorDict]:
         """Process a batch of tensors and return features to be fed into an
         action distribution.
 
         Args:
             batch: A tensordict expected to have at least an ``"obs"`` key with any
-                tensor spec. The policy that the model is a component of
-                processes the batch according to :attr:`Model.view_requirements`
-                prior to passing the batch to the forward pass.
+                tensor spec.
 
         Returns:
             Features that will be passed to an action distribution.
@@ -221,7 +221,8 @@ class DefaultContinuousRecurrentModel(
         self.state_spec = CompositeSpec(
             {
                 DataKeys.HIDDEN_STATES: UnboundedContinuousTensorSpec(
-                    shape=torch.Size([hidden_size]), device=action_spec.device
+                    shape=torch.Size([num_layers, hidden_size]),
+                    device=action_spec.device,
                 )
             }
         )
@@ -258,7 +259,10 @@ class DefaultContinuousRecurrentModel(
             batch_size=action_mean.size(0),
             device=obs.device,
         ), TensorDict(
-            {DataKeys.HIDDEN_STATES: h_n, DataKeys.CELL_STATES: c_n},
+            {
+                DataKeys.HIDDEN_STATES: h_n.permute(1, 0, 2),
+                DataKeys.CELL_STATES: c_n.permute(1, 0, 2),
+            },
             batch_size=batch.size(0),
         )
 
@@ -298,7 +302,8 @@ class DefaultDiscreteRecurrentModel(
         self.state_spec = CompositeSpec(
             {
                 DataKeys.HIDDEN_STATES: UnboundedContinuousTensorSpec(
-                    shape=torch.Size([hidden_size]), device=action_spec.device
+                    shape=torch.Size([num_layers, hidden_size]),
+                    device=action_spec.device,
                 )
             }
         )
@@ -333,7 +338,10 @@ class DefaultDiscreteRecurrentModel(
             batch_size=logits.size(0),
             device=obs.device,
         ), TensorDict(
-            {DataKeys.HIDDEN_STATES: h_n, DataKeys.CELL_STATES: c_n},
+            {
+                DataKeys.HIDDEN_STATES: h_n.permute(1, 0, 2),
+                DataKeys.CELL_STATES: c_n.permute(1, 0, 2),
+            },
             batch_size=batch.size(0),
         )
 

@@ -4,3 +4,9 @@ from ._feedforward import (
     GenericModel,
     Model,
 )
+from ._recurrent import (
+    DefaultContinuousRecurrentModel,
+    DefaultDiscreteRecurrentModel,
+    GenericRecurrentModel,
+    RecurrentModel,
+)

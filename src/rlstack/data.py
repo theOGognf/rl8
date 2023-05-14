@@ -51,6 +51,8 @@ class DataKeys:
     #: value function).
     ADVANTAGES = "advantages"
 
+    STATES = "states"
+
     HIDDEN_STATES = "hidden_states"
 
     CELL_STATES = "cell_states"
