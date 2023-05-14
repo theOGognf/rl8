@@ -37,7 +37,8 @@ class RecurrentModel(
     other PyTorch module) to get the inputs to the policy's action
     distribution. It's expected that the value function approximation
     is stored after each forward pass in some intermediate attribute
-    and can be accessed with a subsequent call to :meth:`Model.value_function`.
+    and can be accessed with a subsequent call to
+    :meth:`RecurrentModel.value_function`.
 
     Args:
         observation_spec: Spec defining the forward pass input.
@@ -130,9 +131,12 @@ class RecurrentModel(
         Args:
             batch: A tensordict expected to have at least an ``"obs"`` key with any
                 tensor spec.
+            states: A tensordict that contains the recurrent states for the
+                model and has spec equal to :attr:`RecurrentModel.state_spec`
 
         Returns:
-            Features that will be passed to an action distribution.
+            Features that will be passed to an action distribution and updated
+            recurrent states.
 
         """
 
@@ -158,8 +162,8 @@ class RecurrentModel(
     @abstractmethod
     def value_function(self) -> torch.Tensor:
         """Return the value function output for the most recent forward pass.
-        Note that a :meth`Model.forward` call has to be performed first before this
-        method can return anything.
+        Note that a :meth`RecurrentModel.forward` call has to be performed
+        first before this method can return anything.
 
         This helps prevent extra forward passes from being performed just to
         get a value function output in case the value function and action

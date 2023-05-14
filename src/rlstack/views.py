@@ -65,7 +65,7 @@ def pad_last_sequence(x: torch.Tensor, size: int, /) -> TensorDict:
         size: Minimum size of the sequence to select over ``x``'s ``T`` dimension.
 
     Returns:
-        A tensor dict with key ``"inputs"`` corresponding to the padded (or not
+        A tensordict with key ``"inputs"`` corresponding to the padded (or not
         padded) elements, and key ``"padding_mask"`` corresponding to booleans
         indicating which elements of ``"inputs"`` are padding.
 
@@ -99,7 +99,7 @@ def pad_whole_sequence(x: torch.Tensor, size: int, /) -> TensorDict:
         size: Required sequence size for each batch element in ``x``.
 
     Returns:
-        A tensor dict with key ``"inputs"`` corresponding to the padded (or not
+        A tensordict with key ``"inputs"`` corresponding to the padded (or not
         padded) elements, and key "padding_mask" corresponding to booleans
         indicating which elements of ``"inputs"`` are padding.
 
@@ -157,7 +157,7 @@ class RollingWindow(View):
     def apply_all(
         x: torch.Tensor | TensorDict, size: int, /
     ) -> torch.Tensor | TensorDict:
-        """Unfold the given tensor or tensor dict along the time or sequence
+        """Unfold the given tensor or tensordict along the time or sequence
         dimension such that the the time or sequence dimension becomes a
         rolling window of size ``size``. The new time or sequence dimension is
         also expanded into the batch dimension such that each new sequence
@@ -167,7 +167,7 @@ class RollingWindow(View):
         ``size - 1`` samples are required to make a sequence of size ``size``.
 
         Args:
-            x: Tensor or tensor dict of size ``[B, T, ...]`` where ``B`` is the
+            x: Tensor or tensordict of size ``[B, T, ...]`` where ``B`` is the
                 batch dimension, and ``T`` is the time or sequence dimension.
                 ``B`` is typically the number of parallel environments, and ``T``
                 is typically the number of time steps or observations sampled
@@ -176,7 +176,7 @@ class RollingWindow(View):
                 The new sequence dimension is placed in the 2nd dimension.
 
         Returns:
-            A new tensor or tensor dict of shape
+            A new tensor or tensordict of shape
             ``[B * (T - size + 1), size, ...]``.
 
         """
@@ -198,7 +198,7 @@ class RollingWindow(View):
         dimension.
 
         Args:
-            x: Tensor or tensor dict of size ``[B, T, ...]`` where ``B`` is the
+            x: Tensor or tensordict of size ``[B, T, ...]`` where ``B`` is the
                 batch dimension, and ``T`` is the time or sequence dimension.
                 ``B`` is typically the number of parallel environments, and ``T``
                 is typically the number of time steps or observations sampled
@@ -207,7 +207,7 @@ class RollingWindow(View):
                 dimension ``T``.
 
         Returns:
-            A new tensor or tensor dict of shape ``[B, size, ...]``.
+            A new tensor or tensordict of shape ``[B, size, ...]``.
 
         """
         if isinstance(x, torch.Tensor):
@@ -239,7 +239,7 @@ class PaddedRollingWindow(View):
 
     @staticmethod
     def apply_all(x: torch.Tensor | TensorDict, size: int, /) -> TensorDict:
-        """Unfold the given tensor or tensor dict along the time or sequence
+        """Unfold the given tensor or tensordict along the time or sequence
         dimension such that the the time or sequence dimension becomes a
         rolling window of size ``size``. The new time or sequence dimension is
         also expanded into the batch dimension such that each new sequence
@@ -249,7 +249,7 @@ class PaddedRollingWindow(View):
         pads and masks to enforce all seqeunce elements to be used.
 
         Args:
-            x: Tensor or tensor dict of size ``[B, T, ...]`` where B is the
+            x: Tensor or tensordict of size ``[B, T, ...]`` where B is the
                 batch dimension, and ``T`` is the time or sequence dimension.
                 ``B`` is typically the number of parallel environments, and ``T``
                 is typically the number of time steps or observations sampled
@@ -258,7 +258,7 @@ class PaddedRollingWindow(View):
                 The new sequence dimension is placed in the 2nd dimension.
 
         Returns:
-            A new tensor or tensor dict of shape
+            A new tensor or tensordict of shape
             ``[B * T, size, ...]``.
 
         """
@@ -280,7 +280,7 @@ class PaddedRollingWindow(View):
         dimension, and pad and mask to force the sequence to be of size ``size``.
 
         Args:
-            x: Tensor or tensor dict of size ``[B, T, ...]`` where ``B`` is the
+            x: Tensor or tensordict of size ``[B, T, ...]`` where ``B`` is the
                 batch dimension, and ``T`` is the time or sequence dimension.
                 ``B`` is typically the number of parallel environments, and ``T``
                 is typically the number of time steps or observations sampled
@@ -289,7 +289,7 @@ class PaddedRollingWindow(View):
                 dimension ``T``.
 
         Returns:
-            A new tensor or tensor dict of shape ``[B, size, ...]``.
+            A new tensor or tensordict of shape ``[B, size, ...]``.
 
         """
         if isinstance(x, torch.Tensor):
@@ -398,10 +398,10 @@ class ViewRequirement:
                 from each environment.
 
         Returns:
-            A tensor or tensor dict of size ``[B_NEW, self.shift, ...]``
+            A tensor or tensordict of size ``[B_NEW, self.shift, ...]``
             where ``B_NEW <= B * T``, depending on the view requirement method
             applied. In the case where :attr:`ViewRequirement.shift` is ``0``,
-            the return tensor or tensor dict has size ``[B * T, ...]``.
+            the return tensor or tensordict has size ``[B * T, ...]``.
 
         """
         item = batch[self.key]
@@ -429,9 +429,9 @@ class ViewRequirement:
                 from each environment.
 
         Returns:
-            A tensor or tensor dict of size ``[B, self.shift + 1, ...]``. In the
+            A tensor or tensordict of size ``[B, self.shift + 1, ...]``. In the
             case where :attr:`ViewRequirement.shift` is ``0``, the returned
-            tensor or tensor dict has size ``[B, ...]``.
+            tensor or tensordict has size ``[B, ...]``.
 
         """
         item = batch[self.key]

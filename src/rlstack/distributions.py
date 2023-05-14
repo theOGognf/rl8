@@ -40,8 +40,8 @@ class Distribution(ABC):
 
     #: Features from :attr:`Distribution.model` forward pass. Simple action
     #: distributions expect one field and corresponding tensor in the
-    #: tensor dict, but custom action distributions can return any kind of
-    #: tensor dict from :attr:`Distribution.model`.
+    #: tensordict, but custom action distributions can return any kind of
+    #: tensordict from :attr:`Distribution.model`.
     features: TensorDict
 
     #: Model from the parent policy also passed to the action distribution.

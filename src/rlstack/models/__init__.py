@@ -10,3 +10,14 @@ from ._recurrent import (
     GenericRecurrentModel,
     RecurrentModel,
 )
+
+__all__ = [
+    "DefaultContinuousModel",
+    "DefaultDiscreteModel",
+    "GenericModel",
+    "Model",
+    "DefaultContinuousRecurrentModel",
+    "DefaultDiscreteRecurrentModel",
+    "GenericRecurrentModel",
+    "RecurrentModel",
+]

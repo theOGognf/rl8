@@ -137,7 +137,7 @@ class Policy:
                 (the actions are always the same for the same inputs) or
                 stochastically (there is a randomness to the policy's actions).
             inplace: Whether to store policy outputs in the given ``batch``
-                tensor dict. Otherwise, create a separate tensor dict that
+                tensordict. Otherwise, create a separate tensordict that
                 will only contain policy outputs.
             requires_grad: Whether to enable gradients for the underlying
                 model during forward passes. This should only be enabled during
@@ -159,7 +159,7 @@ class Policy:
                 contain the original views).
 
         Returns:
-            A tensor dict containing AT LEAST actions sampled from the policy.
+            A tensordict containing AT LEAST actions sampled from the policy.
 
         """
         if DataKeys.VIEWS in batch.keys():

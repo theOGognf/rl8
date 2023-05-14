@@ -9,17 +9,11 @@ from typing_extensions import Self
 from ..data import DataKeys, Device
 from ..distributions import Distribution
 from ..models import RecurrentModel
-from ..specs import TensorSpec
+from ..specs import CompositeSpec, TensorSpec
 
 
 class RecurrentPolicy:
-    """The union of a model and an action distribution.
-
-    This is the main definition used by training algorithms for sampling
-    and other data aggregations. It's recommended to use this interface
-    when deploying a policy or model such that the action distribution
-    is always paired with the model and the model's view requirements are
-    always respected.
+    """The union of a recurrent model and an action distribution.
 
     Args:
         observation_spec: Spec defining observations from the environment
@@ -34,7 +28,7 @@ class RecurrentPolicy:
     """
 
     #: Underlying policy action distribution that's parameterized by
-    #: features produced by :attr:`Policy.model`.
+    #: features produced by :attr:`RecurrentPolicy.model`.
     dist_cls: type[Distribution]
 
     #: Underlying policy model that processes environment observations
@@ -106,27 +100,34 @@ class RecurrentPolicy:
         return_actions: bool = True,
         return_logp: bool = False,
         return_values: bool = False,
-    ) -> TensorDict:
-        """Use ``batch`` to sample from the policy, sampling actions from
-        the model and optionally sampling additional values often used for
-        training and analysis.
+    ) -> tuple[TensorDict, TensorDict]:
+        """Use ``batch`` and ``states`` to sample from the policy, sampling
+        actions from the model and optionally sampling additional values
+        often used for training and analysis.
 
         Args:
             batch: Batch to feed into the policy's underlying model. Expected
                 to be of size ``[B, T, ...]`` where ``B`` is the batch dimension,
                 and ``T`` is the time or sequence dimension. ``B`` is typically
                 the number of parallel environments being sampled for during
-                massively parallel training, and T is typically the number
+                massively parallel training, and ``T`` is typically the number
                 of time steps or observations sampled from the environments.
-                The ``B`` and ``T`` dimensions are typically combined into one dimension
-                during batch preprocessing according to the model's view
-                requirements.
+            states: States to feed into the policy's underlying model. Expected
+                to be of size ``[B, T, ...]`` where ``B`` is the batch dimension,
+                and ``T`` is the time or sequence dimension. ``B`` is typically
+                the number of parallel environments being sampled for during
+                massively parallel training, and ``T`` is typically the number
+                of time steps or observations sampled from the environments.
             deterministic: Whether to sample from the policy deterministically
                 (the actions are always the same for the same inputs) or
                 stochastically (there is a randomness to the policy's actions).
             inplace: Whether to store policy outputs in the given ``batch``
-                tensor dict. Otherwise, create a separate tensor dict that
+                tensordict. Otherwise, create a separate tensordict that
                 will only contain policy outputs.
+            keepdim: Whether to reshape the output tensordict to have the same
+                batch size as the input tensordict batch. If ``False`` (the
+                default), the time dimension of the output tensordict will
+                be flattened into the first dimension.
             requires_grad: Whether to enable gradients for the underlying
                 model during forward passes. This should only be enabled during
                 a training loop or when requiring gradients for explainability
@@ -141,7 +142,11 @@ class RecurrentPolicy:
                 loop for aggregating training data a bit more efficiently.
 
         Returns:
-            A tensor dict containing AT LEAST actions sampled from the policy.
+            A tensordict containing AT LEAST actions sampled from the policy
+            and a tensordict containing updated recurrent states. The returned
+            recurrent states will only have shape ``[B, ...]`` WITHOUT a
+            time dimension ``T`` since only the last recurrent state of the
+            series should be returned.
 
         """
         # This is the same mechanism within `torch.no_grad`
@@ -171,6 +176,14 @@ class RecurrentPolicy:
 
         torch.set_grad_enabled(prev)
         return out, out_states
+
+    @property
+    def state_spec(self) -> CompositeSpec:
+        """Return the policy's model's state spec for defining recurrent state
+        dimensions.
+
+        """
+        return self.model.state_spec
 
     def to(self, device: Device, /) -> Self:
         """Move the policy and its attributes to ``device``."""
