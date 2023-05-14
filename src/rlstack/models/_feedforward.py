@@ -329,7 +329,7 @@ class DefaultContinuousModel(
         self._value = None
 
     def forward(self, batch: TensorDict, /) -> TensorDict:
-        obs = batch["obs"]
+        obs = batch[DataKeys.OBS]
         latents = self.latent_model(obs)
         action_mean = self.action_mean(latents)
         action_log_std = self.action_log_std(latents)
@@ -398,7 +398,7 @@ class DefaultDiscreteModel(
         self._value = None
 
     def forward(self, batch: TensorDict, /) -> TensorDict:
-        obs = batch["obs"]
+        obs = batch[DataKeys.OBS]
         features = self.feature_model(obs).reshape(
             -1, self.action_spec.shape[0], self.action_spec.space.n
         )
