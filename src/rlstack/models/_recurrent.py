@@ -246,8 +246,8 @@ class DefaultContinuousRecurrentModel(
         self, batch: TensorDict, states: TensorDict, /
     ) -> tuple[TensorDict, TensorDict]:
         obs = batch[DataKeys.OBS]
-        h_0 = states[DataKeys.HIDDEN_STATES][:, 0, ...]
-        c_0 = states[DataKeys.CELL_STATES][:, 0, ...]
+        h_0 = states[DataKeys.HIDDEN_STATES][:, 0, ...].permute(1, 0, 2)
+        c_0 = states[DataKeys.CELL_STATES][:, 0, ...].permute(1, 0, 2)
         latents, (h_n, c_n) = self.lstm(obs, (h_0, c_0))
         action_mean = self.action_mean(latents).reshape(-1, self.action_spec.shape[0])
         action_log_std = self.action_log_std(latents).reshape(
@@ -326,8 +326,8 @@ class DefaultDiscreteRecurrentModel(
         self, batch: TensorDict, states: TensorDict, /
     ) -> tuple[TensorDict, TensorDict]:
         obs = batch[DataKeys.OBS]
-        h_0 = states[DataKeys.HIDDEN_STATES][:, 0, ...]
-        c_0 = states[DataKeys.CELL_STATES][:, 0, ...]
+        h_0 = states[DataKeys.HIDDEN_STATES][:, 0, ...].permute(1, 0, 2)
+        c_0 = states[DataKeys.CELL_STATES][:, 0, ...].permute(1, 0, 2)
         latents, (h_n, c_n) = self.lstm(obs, (h_0, c_0))
         logits = self.feature_head(latents).reshape(
             -1, self.action_spec.shape[0], self.action_spec.space.n
