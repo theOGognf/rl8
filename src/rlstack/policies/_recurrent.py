@@ -82,6 +82,10 @@ class RecurrentPolicy:
         """Return the feature spec defined in the model."""
         return self.model.feature_spec
 
+    def init_states(self, n: int, /) -> TensorDict:
+        """Return new recurrent states for the policy's model."""
+        return self.model.init_states(n)
+
     @property
     def observation_spec(self) -> TensorSpec:
         """Return the observation spec used for constructing the model."""

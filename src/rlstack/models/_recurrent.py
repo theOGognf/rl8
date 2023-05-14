@@ -140,6 +140,10 @@ class RecurrentModel(
 
         """
 
+    @abstractmethod
+    def init_states(self, n: int, /) -> TensorDict:
+        """Return initial recurrent states for the model."""
+
     def to(self, device: Device) -> Self:  # type: ignore[override]
         """Helper for changing the device the model is on.
 
@@ -189,6 +193,9 @@ class GenericRecurrentModel(RecurrentModel, Generic[_ObservationSpec, _ActionSpe
         **config: Any,
     ) -> None:
         super().__init__(observation_spec, action_spec, **config)
+
+    def init_states(self, n: int) -> TensorDict:
+        return self.state_spec.zero(n)
 
 
 class DefaultContinuousRecurrentModel(

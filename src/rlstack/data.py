@@ -1,5 +1,6 @@
 """Definitions related to data passed between algorithm modules."""
 
+from dataclasses import dataclass
 from typing import Literal, TypedDict
 
 import torch
@@ -56,6 +57,144 @@ class DataKeys:
     HIDDEN_STATES = "hidden_states"
 
     CELL_STATES = "cell_states"
+
+
+@dataclass(frozen=True, kw_only=True)
+class AlgorithmHparams:
+    #: PPO hyperparameter indicating the max distance the policy can
+    #: update away from previously collected policy sample data with
+    #: respect to likelihoods of taking actions conditioned on
+    #: observations. This is the main innovation of PPO.
+    clip_param: float
+
+    #: PPO hyperparameter that clips like :attr:`Algorithm.clip_param` but when
+    #: advantage estimations are negative. Helps prevent instability for
+    #: continuous action spaces when policies are making large updates.
+    dual_clip_param: None | float
+
+    #: Generalized Advantage Estimation (GAE) hyperparameter for controlling
+    #: the variance and bias tradeoff when estimating the state value
+    #: function from collected environment transitions. A higher value
+    #: allows higher variance while a lower value allows higher bias
+    #: estimation but lower variance.
+    gae_lambda: float
+
+    #: Discount reward factor often used in the Bellman operator for
+    #: controlling the variance and bias tradeoff in collected experienced
+    #: rewards. Note, this does not control the bias/variance of the
+    #: state value estimation and only controls the weight future rewards
+    #: have on the total discounted return.
+    gamma: float
+
+    #:
+    horizon: int
+
+    #: Number of times :meth:`Algorithm.collect` can be called before
+    #: resetting :attr:`Algorithm.env`. Set this to a higher number if you
+    #: want learning to occur across horizons. Leave this as the default
+    #: ``1`` if it doesn't matter that experiences and learning only occurs
+    #: within one horizon.
+    horizons_per_env_reset: int
+
+    #: Max gradient norm allowed when updating the policy's model within
+    #: :meth:`Algorithm.step`.
+    max_grad_norm: float
+
+    #: PPO hyperparameter indicating the number of gradient steps to take
+    #: with the whole :attr:`Algorithm.buffer` when calling `step`.
+    num_sgd_iter: int
+
+    #: PPO hyperparameter indicating the minibatc size :attr:`Algorithm.buffer`
+    #: is split into when updating the policy's model in :meth:`Algorithm.step`.
+    #: It's usually best to maximize the minibatch size to reduce the variance
+    #: associated with updating the policy's model, but also accelerate the
+    #: computations when learning (assuming a CUDA device is being used).
+    sgd_minibatch_size: int
+
+    #: Whether to shuffle minibatches within :meth:`Algorithm.step`.
+    #: Recommended, but not necessary if the minibatch size is large enough
+    #: (e.g., the buffer is the batch).
+    shuffle_minibatches: bool
+
+    #: PPO hyperparameter similar to :attr:`Algorithm.clip_param` but for
+    #: the value function estimate. A measure of max distance the model's
+    #: value function is allowed to update away from previous value
+    #: function samples.
+    vf_clip_param: float
+
+    #: Value function loss component weight. Only needs to be tuned
+    #: when the policy and value function share parameters.
+    vf_coeff: float
+
+    def __post_init__(self) -> None:
+        if not (0 < self.clip_param < 1):
+            raise ValueError("`clip_param` must be in (0, 1).")
+
+        if self.dual_clip_param is not None and not (self.dual_clip_param > 1):
+            raise ValueError("`dual_clip_param` must be `None` or > 1.")
+
+        if not (0 < self.gae_lambda <= 1):
+            raise ValueError("`gae_lambda` must be in (0, 1].")
+
+        if not (0 < self.gamma <= 1):
+            raise ValueError("`gamma` must be in (0, 1].")
+
+        if not (self.horizon > 0):
+            raise ValueError("`horizon` must be > 0.")
+
+        if self.horizons_per_env_reset == 0:
+            raise ValueError("`horizons_per_env_reset` must be nonzero.")
+
+        if not (self.max_grad_norm > 0):
+            raise ValueError("`max_grad_norm` must be > 0.")
+
+        if not (self.sgd_minibatch_size > 0):
+            raise ValueError("`sgd_minibatch_size` must be > 0.")
+
+        if not (self.vf_clip_param > 0):
+            raise ValueError("`vf_clip_param` must be > 0.")
+
+        if not (self.vf_coeff > 0):
+            raise ValueError("`vf_coeff` must be > 0.")
+
+
+@dataclass(frozen=True, kw_only=True)
+class RecurrentAlgorithmHparams(AlgorithmHparams):
+    seq_len: int
+
+    seqs_per_state_reset: int
+
+    def __post_init__(self) -> None:
+        if not (self.seq_len > 0):
+            raise ValueError("`seq_len` must be > 0.")
+
+
+@dataclass(kw_only=True)
+class AlgorithmState:
+    #: Flag indicating whether :meth:`Algorithm.collect` has been called
+    #: at least once prior to calling :meth:`Algorithm.step`. Ensures
+    #: dummy buffer data isn't used to update the policy.
+    buffered: bool = False
+
+    #: Number of times :meth:`Algorithm.collect` has been called.
+    collect_calls: int = 0
+
+    #: Running count of number of environment horizons sampled. This is
+    #: equivalent to :attr:`Algorithm.collect_calls`. Used for tracking
+    #: when to reset :attr:`Algorithm.env` based on
+    #: :attr:`Algorithm.horizons_per_env_reset`.
+    horizons: int = 0
+
+    #: Number of times :meth:`Algorithm.step` has been called.
+    step_calls: int = 0
+
+    #: Total number of environment steps made.
+    total_steps: int = 0
+
+
+@dataclass(kw_only=True)
+class RecurrentAlgorithmState(AlgorithmState):
+    seqs: int = 0
 
 
 #: Values returned when collecting environment transitions.

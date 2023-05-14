@@ -1,5 +1,6 @@
 """Definitions related to the RL algorithm (data collection and training)."""
 
+from dataclasses import asdict
 from typing import Any
 
 import pandas as pd
@@ -13,7 +14,14 @@ from torch.utils.data import DataLoader
 from typing_extensions import Self
 
 from .._utils import profile_ms
-from ..data import CollectStats, DataKeys, Device, StepStats
+from ..data import (
+    AlgorithmHparams,
+    AlgorithmState,
+    CollectStats,
+    DataKeys,
+    Device,
+    StepStats,
+)
 from ..distributions import Distribution
 from ..env import Env
 from ..models import Model
@@ -60,9 +68,9 @@ class Algorithm:
             supported for default action distributions.
         horizon: Number of environment transitions to collect during
             :meth:`Algorithm.collect`. The environment is reset based on
-            ``horizons_per_reset``. The buffer's size is ``[B, T]`` where ``T`` is
+            ``horizons_per_env_reset``. The buffer's size is ``[B, T]`` where ``T`` is
             ``horizon``.
-        horizons_per_reset: Number of times :meth:`Algorithm.collect` can be
+        horizons_per_env_reset: Number of times :meth:`Algorithm.collect` can be
             called before resetting :attr:`Algorithm.env`. Set this to a higher
             number if you want learning to occur across horizons. Leave this
             as the default ``1`` if it doesn't matter that experiences and
@@ -169,25 +177,6 @@ class Algorithm:
     #: call.
     buffer_spec: CompositeSpec
 
-    #: Flag indicating whether :meth:`Algorithm.collect` has been called
-    #: at least once prior to calling :meth:`Algorithm.step`. Ensures
-    #: dummy buffer data isn't used to update the policy.
-    buffered: bool
-
-    #: PPO hyperparameter indicating the max distance the policy can
-    #: update away from previously collected policy sample data with
-    #: respect to likelihoods of taking actions conditioned on
-    #: observations. This is the main innovation of PPO.
-    clip_param: float
-
-    #: Number of times :meth:`Algorithm.collect` has been called.
-    collect_calls: int
-
-    #: PPO hyperparameter that clips like :attr:`Algorithm.clip_param` but when
-    #: advantage estimations are negative. Helps prevent instability for
-    #: continuous action spaces when policies are making large updates.
-    dual_clip_param: None | float
-
     #: Entropy scheduler for updating the ``entropy_coeff`` after each
     #: :meth:`Algorithm.step` call based on the number environment transitions
     #: collected and learned on. By default, the entropy scheduler does not
@@ -201,32 +190,7 @@ class Algorithm:
     #: to make learning efficient by parallelizing simulations.
     env: Env
 
-    #: Generalized Advantage Estimation (GAE) hyperparameter for controlling
-    #: the variance and bias tradeoff when estimating the state value
-    #: function from collected environment transitions. A higher value
-    #: allows higher variance while a lower value allows higher bias
-    #: estimation but lower variance.
-    gae_lambda: float
-
-    #: Discount reward factor often used in the Bellman operator for
-    #: controlling the variance and bias tradeoff in collected experienced
-    #: rewards. Note, this does not control the bias/variance of the
-    #: state value estimation and only controls the weight future rewards
-    #: have on the total discounted return.
-    gamma: float
-
-    #: Running count of number of environment horizons sampled. This is
-    #: equivalent to :attr:`Algorithm.collect_calls`. Used for tracking
-    #: when to reset :attr:`Algorithm.env` based on
-    #: :attr:`Algorithm.horizons_per_reset`.
-    horizons: int
-
-    #: Number of times :meth:`Algorithm.collect` can be called before
-    #: resetting :attr:`Algorithm.env`. Set this to a higher number if you
-    #: want learning to occur across horizons. Leave this as the default
-    #: ``1`` if it doesn't matter that experiences and learning only occurs
-    #: within one horizon.
-    horizons_per_reset: int
+    hparams: AlgorithmHparams
 
     #: Learning rate scheduler for updating `optimizer` learning rate after
     #: each `step` call based on the number of environment transitions
@@ -235,14 +199,6 @@ class Algorithm:
     #: constant). The learning rate scheduler only alters the learning rate
     #: if a `learning_rate_schedule` is provided.
     lr_scheduler: LRScheduler
-
-    #: Max gradient norm allowed when updating the policy's model within
-    #: :meth:`Algorithm.step`.
-    max_grad_norm: float
-
-    #: PPO hyperparameter indicating the number of gradient steps to take
-    #: with the whole :attr:`Algorithm.buffer` when calling `step`.
-    num_sgd_iter: int
 
     #: Underlying optimizer for updating the policy's model. Constructed from
     #: ``optimizer_cls`` and ``optimizer_config``. Defaults to a generally
@@ -257,33 +213,7 @@ class Algorithm:
     #: :meth:`Algorithm.step`.
     policy: Policy
 
-    #: PPO hyperparameter indicating the minibatc size :attr:`Algorithm.buffer`
-    #: is split into when updating the policy's model in :meth:`Algorithm.step`.
-    #: It's usually best to maximize the minibatch size to reduce the variance
-    #: associated with updating the policy's model, but also accelerate the
-    #: computations when learning (assuming a CUDA device is being used).
-    sgd_minibatch_size: int
-
-    #: Whether to shuffle minibatches within :meth:`Algorithm.step`.
-    #: Recommended, but not necessary if the minibatch size is large enough
-    #: (e.g., the buffer is the batch).
-    shuffle_minibatches: bool
-
-    #: Number of times :meth:`Algorithm.step` has been called.
-    step_calls: int
-
-    #: Total number of environment steps made.
-    total_steps: int
-
-    #: PPO hyperparameter similar to :attr:`Algorithm.clip_param` but for
-    #: the value function estimate. A measure of max distance the model's
-    #: value function is allowed to update away from previous value
-    #: function samples.
-    vf_clip_param: float
-
-    #: Value function loss component weight. Only needs to be tuned
-    #: when the policy and value function share parameters.
-    vf_coeff: float
+    state: AlgorithmState
 
     def __init__(
         self,
@@ -296,7 +226,7 @@ class Algorithm:
         model_config: None | dict[str, Any] = None,
         dist_cls: None | type[Distribution] = None,
         horizon: None | int = 32,
-        horizons_per_reset: int = 1,
+        horizons_per_env_reset: int = 1,
         num_envs: int = 8192,
         optimizer_cls: type[optim.Optimizer] = DAdaptAdam,
         optimizer_config: None | dict[str, Any] = None,
@@ -354,24 +284,24 @@ class Algorithm:
             schedule=entropy_coeff_schedule,
             kind=entropy_coeff_schedule_kind,
         )
-        self.horizons = 0
-        self.horizons_per_reset = horizons_per_reset
-        self.gae_lambda = gae_lambda
-        self.gamma = gamma
-        self.sgd_minibatch_size = (
+        sgd_minibatch_size = (
             sgd_minibatch_size if sgd_minibatch_size else num_envs * horizon
         )
-        self.num_sgd_iter = num_sgd_iter
-        self.shuffle_minibatches = shuffle_minibatches
-        self.clip_param = clip_param
-        self.vf_clip_param = vf_clip_param
-        self.dual_clip_param = dual_clip_param
-        self.vf_coeff = vf_coeff
-        self.max_grad_norm = max_grad_norm
-        self.buffered = False
-        self.total_steps = 0
-        self.step_calls = 0
-        self.collect_calls = 0
+        self.hparams = AlgorithmHparams(
+            clip_param=clip_param,
+            dual_clip_param=dual_clip_param,
+            gae_lambda=gae_lambda,
+            gamma=gamma,
+            horizon=horizon,
+            horizons_per_env_reset=horizons_per_env_reset,
+            max_grad_norm=max_grad_norm,
+            num_sgd_iter=num_sgd_iter,
+            sgd_minibatch_size=sgd_minibatch_size,
+            shuffle_minibatches=shuffle_minibatches,
+            vf_clip_param=vf_clip_param,
+            vf_coeff=vf_coeff,
+        )
+        self.state = AlgorithmState()
 
     def collect(
         self, *, env_config: None | dict[str, Any] = None, deterministic: bool = False
@@ -383,7 +313,7 @@ class Algorithm:
         experiences used for learning.
 
         The environment is reset immediately prior to collecting
-        transitions according to :attr:`Algorithm.horizons_per_reset`. If
+        transitions according to :attr:`Algorithm.horizons_per_env_reset`. If
         the environment isn't reset, then the last observation is used as
         the initial observation.
 
@@ -393,7 +323,7 @@ class Algorithm:
         Args:
             env_config: Optional config to pass to the environment's reset
                 method. This isn't used if the environment isn't scheduled
-                to be reset according to :attr:`Algorithm.horizons_per_reset`.
+                to be reset according to :attr:`Algorithm.horizons_per_env_reset`.
             deterministic: Whether to sample from the policy deterministically.
                 This is usally ``False`` during learning and ``True`` during
                 evaluation.
@@ -409,10 +339,10 @@ class Algorithm:
             # for the next :meth:`Algorithm.collect` call and value function estimates
             # for bootstrapping.
             B = self.num_envs
-            T = self.horizon - 1
+            T = self.horizon
 
             # Gather initial observation.
-            if not (self.horizons % self.horizons_per_reset):
+            if not (self.state.horizons % self.hparams.horizons_per_env_reset):
                 self.buffer[DataKeys.OBS][:, 0, ...] = self.env.reset(config=env_config)
             else:
                 self.buffer[DataKeys.OBS][:, 0, ...] = self.buffer[DataKeys.OBS][
@@ -464,8 +394,8 @@ class Algorithm:
             self.buffer[DataKeys.FEATURES][:, -1, ...] = sample_batch[DataKeys.FEATURES]
             self.buffer[DataKeys.VALUES][:, -1, ...] = sample_batch[DataKeys.VALUES]
 
-            self.horizons += 1
-            self.buffered = True
+            self.state.horizons += 1
+            self.state.buffered = True
 
             # Aggregate some metrics.
             rewards = self.buffer[DataKeys.REWARDS][:, :-1, ...]
@@ -480,11 +410,11 @@ class Algorithm:
                 "rewards/mean": float(torch.mean(rewards)),
                 "rewards/std": float(torch.std(rewards)),
             }
-        self.collect_calls += 1
-        self.total_steps += B * T
-        collect_stats["counting/collect_calls"] = self.collect_calls
-        collect_stats["counting/horizons"] = self.horizons
-        collect_stats["counting/total_steps"] = self.total_steps
+        self.state.collect_calls += 1
+        self.state.total_steps += B * T
+        collect_stats["counting/collect_calls"] = self.state.collect_calls
+        collect_stats["counting/horizons"] = self.state.horizons
+        collect_stats["counting/total_steps"] = self.state.total_steps
         collect_stats["profiling/collect_ms"] = collect_timer()
         return collect_stats
 
@@ -496,7 +426,7 @@ class Algorithm:
     @property
     def horizon(self) -> int:
         """Max number of transitions to run for each environment."""
-        return int(self.buffer.size(1))
+        return int(self.buffer.size(1)) - 1
 
     @property
     def num_envs(self) -> int:
@@ -510,20 +440,9 @@ class Algorithm:
             "env_cls": self.env.__class__.__name__,
             "model_cls": self.policy.model.__class__.__name__,
             "dist_cls": self.policy.dist_cls.__name__,
-            "horizon": self.horizon,
-            "horizons_per_reset": self.horizons_per_reset,
-            "num_envs": self.num_envs,
             "optimizer_cls": self.optimizer.__class__.__name__,
             "entropy_coeff": self.entropy_scheduler.coeff,
-            "gae_lambda": self.gae_lambda,
-            "gamma": self.gamma,
-            "sgd_minibatch_size": self.sgd_minibatch_size,
-            "num_sgd_iter": self.num_sgd_iter,
-            "shuffle_minibatches": self.shuffle_minibatches,
-            "clip_param": self.clip_param,
-            "vf_clip_param": self.vf_clip_param,
-            "vf_coeff": self.vf_coeff,
-            "max_grad_norm": self.max_grad_norm,
+            **asdict(self.hparams),
         }
 
     def step(self) -> StepStats:
@@ -534,7 +453,7 @@ class Algorithm:
             Data associated with the step (losses, loss coefficients, etc.).
 
         """
-        if not self.buffered:
+        if not self.state.buffered:
             raise RuntimeError(
                 f"{self.__class__.__name__} is not buffered. "
                 "Call `collect` once prior to `step`."
@@ -546,17 +465,17 @@ class Algorithm:
             # for the next :meth:`Algorithm.collect` call and value function estimates
             # for bootstrapping.
             B = self.num_envs
-            T = self.horizon - 1
+            T = self.horizon
 
             # Generalized Advantage Estimation (GAE) and returns bootstrapping.
             prev_advantage = 0.0
             for t in reversed(range(T)):
                 delta = self.buffer[DataKeys.REWARDS][:, t, ...] + (
-                    self.gamma * self.buffer[DataKeys.VALUES][:, t + 1, ...]
+                    self.hparams.gamma * self.buffer[DataKeys.VALUES][:, t + 1, ...]
                     - self.buffer[DataKeys.VALUES][:, t, ...]
                 )
                 self.buffer[DataKeys.ADVANTAGES][:, t, ...] = prev_advantage = delta + (
-                    self.gamma * self.gae_lambda * prev_advantage
+                    self.hparams.gamma * self.hparams.gae_lambda * prev_advantage
                 )
             self.buffer[DataKeys.RETURNS] = (
                 self.buffer[DataKeys.ADVANTAGES] + self.buffer[DataKeys.VALUES]
@@ -584,11 +503,11 @@ class Algorithm:
             step_stats_per_batch: list[StepStats] = []
             loader = DataLoader(
                 self.buffer,
-                batch_size=self.sgd_minibatch_size,
-                shuffle=self.shuffle_minibatches,
+                batch_size=self.hparams.sgd_minibatch_size,
+                shuffle=self.hparams.shuffle_minibatches,
                 collate_fn=lambda x: x,
             )
-            for _ in range(self.num_sgd_iter):
+            for _ in range(self.hparams.num_sgd_iter):
                 for minibatch in loader:
                     sample_batch = self.policy.sample(
                         minibatch,
@@ -620,17 +539,19 @@ class Algorithm:
                                 reduction="none",
                             ),
                             0.0,
-                            self.vf_clip_param,
+                            self.hparams.vf_clip_param,
                         )
                     )
                     surr1 = minibatch[DataKeys.ADVANTAGES] * ratio
                     surr2 = minibatch[DataKeys.ADVANTAGES] * torch.clamp(
-                        ratio, 1 - self.clip_param, 1 + self.clip_param
+                        ratio, 1 - self.hparams.clip_param, 1 + self.hparams.clip_param
                     )
-                    if self.dual_clip_param:
+                    if self.hparams.dual_clip_param:
                         clip1 = torch.min(surr1, surr2)
                         clip2 = torch.max(
-                            clip1, self.dual_clip_param * minibatch[DataKeys.ADVANTAGES]
+                            clip1,
+                            self.hparams.dual_clip_param
+                            * minibatch[DataKeys.ADVANTAGES],
                         )
                         policy_loss = torch.where(
                             minibatch[DataKeys.ADVANTAGES] < 0, clip2, clip1
@@ -643,7 +564,7 @@ class Algorithm:
 
                     # Maximize entropy, maximize policy actions associated with high advantages,
                     # minimize discounted return estimation error.
-                    total_loss = self.vf_coeff * vf_loss - policy_loss
+                    total_loss = self.hparams.vf_coeff * vf_loss - policy_loss
                     if self.entropy_scheduler.coeff != 0:
                         entropy_loss = curr_action_dist.entropy().mean()
                         total_loss -= self.entropy_scheduler.coeff * entropy_loss
@@ -662,7 +583,7 @@ class Algorithm:
                     self.optimizer.zero_grad()
                     total_loss.backward()  # type: ignore[no-untyped-call]
                     nn.utils.clip_grad_norm_(
-                        self.policy.model.parameters(), self.max_grad_norm
+                        self.policy.model.parameters(), self.hparams.max_grad_norm
                     )
                     self.optimizer.step()
 
@@ -670,7 +591,7 @@ class Algorithm:
                     step_stats_per_batch.append(
                         {
                             "coefficients/entropy": self.entropy_scheduler.coeff,
-                            "coefficients/vf": self.vf_coeff,
+                            "coefficients/vf": self.hparams.vf_coeff,
                             "losses/entropy": float(entropy_loss),
                             "losses/policy": float(policy_loss),
                             "losses/vf": float(vf_loss),
@@ -691,12 +612,12 @@ class Algorithm:
                 ]
             )
             self.buffer[DataKeys.OBS][:, -1, ...] = final_obs
-            self.buffered = False
+            self.state.buffered = False
 
             # Update algo stats.
             step_stats = pd.DataFrame(step_stats_per_batch).mean(axis=0).to_dict()
-        self.step_calls += 1
-        step_stats["counting/step_calls"] = self.step_calls
+        self.state.step_calls += 1
+        step_stats["counting/step_calls"] = self.state.step_calls
         step_stats["profiling/step_ms"] = step_timer()
         return step_stats  # type: ignore[no-any-return]
 
