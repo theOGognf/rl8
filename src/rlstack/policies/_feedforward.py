@@ -15,12 +15,6 @@ from ..views import ViewKind
 class Policy:
     """The union of a feedforward model and an action distribution.
 
-    This is the main definition used by training algorithms for sampling
-    and other data aggregations. It's recommended to use this interface
-    when deploying a policy or model such that the action distribution
-    is always paired with the model and the model's view requirements are
-    always respected.
-
     Args:
         observation_spec: Spec defining observations from the environment
             and inputs to the model's forward pass.

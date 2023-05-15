@@ -6,11 +6,11 @@ conditions. These assumptions allow the learning procedure to occur
 extremely fast even for complex, sequence-based models because:
 
     - Environments occur in parallel and are batched into a contingous
-        buffer.
+      buffer.
     - All environments are reset in parallel after a predetermined
-        horizon is reached.
+      horizon is reached.
     - All operations occur on the same device, removing overhead
-        associated with data transfers between devices.
+      associated with data transfers between devices.
 
 .. _`IsaacGym environments`: https://arxiv.org/pdf/2108.10470.pdf
 
