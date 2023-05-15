@@ -21,7 +21,7 @@ Install with pip for the latest (stable) version.
 
 .. code:: console
 
-  pip install rlstack
+    pip install rlstack
 
 Install from GitHub for the latest (unstable) version.
 
