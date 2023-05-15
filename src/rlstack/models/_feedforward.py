@@ -1,5 +1,3 @@
-"""Feedforward parameterizations of RL policies."""
-
 from abc import abstractmethod
 from typing import Any, Generic, Sequence, TypeVar
 
@@ -27,25 +25,15 @@ class Model(
         TensorDict,
     ]
 ):
-    """Policy component that processes environment observations into
+    """Feedforward policy component that processes environment observations into
     a value function approximation and features to be consumed by an
     action distribution for action sampling.
-
-    This definition is largely inspired by RLlib's `model concept`_.
-
-    The model is intended to be called with the forward pass (like any
-    other PyTorch module) to get the inputs to the policy's action
-    distribution. It's expected that the value function approximation
-    is stored after each forward pass in some intermediate attribute
-    and can be accessed with a subsequent call to :meth:`Model.value_function`.
 
     Args:
         observation_spec: Spec defining the forward pass input.
         action_spec: Spec defining the outputs of the policy's action
             distribution that this model is a component of.
         config: Model-specific configuration.
-
-    .. _`model concept`: https://github.com/ray-project/ray/blob/master/rllib/models/modelv2.py
 
     """
 

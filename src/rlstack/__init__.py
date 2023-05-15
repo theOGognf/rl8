@@ -10,6 +10,8 @@ from .models import (
     DefaultContinuousRecurrentModel,
     DefaultDiscreteModel,
     DefaultDiscreteRecurrentModel,
+    GenericModel,
+    GenericRecurrentModel,
     Model,
     RecurrentModel,
 )

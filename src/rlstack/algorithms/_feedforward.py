@@ -1,8 +1,3 @@
-"""Definitions related to a feedforward PPO algorithm (specifically focused
-on data collection and training on many environments in parallel).
-
-"""
-
 from dataclasses import asdict
 from typing import Any
 
@@ -36,18 +31,6 @@ from ..specs import CompositeSpec, UnboundedContinuousTensorSpec
 class Algorithm:
     """An optimized feedforward `PPO`_ algorithm with common tricks for
     stabilizing and accelerating learning.
-
-    This algorithm assumes environments are parallelized much like
-    `IsaacGym environments`_ and are infinite horizon with no terminal
-    conditions. These assumptions allow the learning procedure to occur
-    extremely fast even for complex, sequence-based models because:
-
-        - Environments occur in parallel and are batched into a contingous
-          buffer.
-        - All environments are reset in parallel after a predetermined
-          horizon is reached.
-        - All operations occur on the same device, removing overhead
-          associated with data transfers between devices.
 
     Args:
         env_cls: Highly parallelized environment for sampling experiences.
@@ -164,7 +147,6 @@ class Algorithm:
         >>> algo.step()  # doctest: +SKIP
 
     .. _`PPO`: https://arxiv.org/pdf/1707.06347.pdf
-    .. _`IsaacGym environments`: https://arxiv.org/pdf/2108.10470.pdf
 
     """
 

@@ -1,5 +1,3 @@
-"""Recurrent parameterizations of RL policies."""
-
 from abc import abstractmethod
 from typing import Any, Generic, TypeVar
 
@@ -29,33 +27,16 @@ class RecurrentModel(
         tuple[TensorDict, TensorDict],
     ]
 ):
-    """Policy component that processes environment observations and
+    """Recurrent policy component that processes environment observations and
     recurrent model states into a value function approximation, features
     to be consumed by an action distribution for action sampling, and
     updated recurrent model states to be used for subsequent calls.
-
-    This definition is largely inspired by RLlib's `model concept`_.
-
-    The model is intended to be called with the forward pass (like any
-    other PyTorch module) to get the inputs to the policy's action
-    distribution. It's expected that the value function approximation
-    is stored after each forward pass in some intermediate attribute
-    and can be accessed with a subsequent call to
-    :meth:`RecurrentModel.value_function`.
-
-    This model is the recurrent variant of :class:`Model`. Instead
-    of taking observations as input and outputting features to action
-    distributions, this variant takes observations and recurrent model
-    states as input and outputs features to action distributions and
-    updated recurrent model states.
 
     Args:
         observation_spec: Spec defining the forward pass input.
         action_spec: Spec defining the outputs of the policy's action
             distribution that this model is a component of.
         config: Model-specific configuration.
-
-    .. _`model concept`: https://github.com/ray-project/ray/blob/master/rllib/models/modelv2.py
 
     """
 

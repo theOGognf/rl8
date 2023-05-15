@@ -1,5 +1,3 @@
-"""Definitions regarding the union of a model and an action distribution."""
-
 from typing import Any
 
 import torch

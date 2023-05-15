@@ -11,6 +11,8 @@ from .env import Env
 
 
 class AlgorithmProtocol(Protocol):
+    """Protocol for algorithms used by the trainer for training policies."""
+
     def __init__(
         self,
         env_cls: type[Env],

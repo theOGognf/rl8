@@ -146,7 +146,7 @@ def rolling_window(x: torch.Tensor, size: int, /, *, step: int = 1) -> torch.Ten
     return x.unfold(1, size, step).permute(*dims)
 
 
-class RollingWindow(View):
+class RollingWindow:
     """A view that creates a rolling window of an item's time or sequence
     dimension without masking (at the expense of losing some samples at
     the beginning of each sequence).
@@ -227,7 +227,7 @@ class RollingWindow(View):
         return size - 1
 
 
-class PaddedRollingWindow(View):
+class PaddedRollingWindow:
     """A view that creates a rolling window of an item's time or sequence
     dimension with padding and masking to make all batch elements the same
     size.

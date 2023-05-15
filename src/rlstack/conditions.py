@@ -23,7 +23,7 @@ class Condition(Protocol):
         """
 
 
-class And(Condition):
+class And:
     """Convenience for joining results from multiple conditions with an ``AND``.
 
     Args:
@@ -41,7 +41,7 @@ class And(Condition):
         return all([condition.__call__(train_stats) for condition in self.conditions])
 
 
-class Plateaus(Condition):
+class Plateaus:
     """Condition that returns ``True`` if the value being monitored plateaus
     for ``patience`` number of times.
 
@@ -95,7 +95,7 @@ class Plateaus(Condition):
         return self.losses >= self.patience
 
 
-class HitsLowerBound(Condition):
+class HitsLowerBound:
     """Condition that returns ``True`` if the value being monitored hits a
     lower bound value.
 
@@ -121,7 +121,7 @@ class HitsLowerBound(Condition):
         return train_stats[self.key] <= self.lower_bound
 
 
-class HitsUpperBound(Condition):
+class HitsUpperBound:
     """Condition that returns ``True`` if the value being monitored hits an
     upper bound value.
 

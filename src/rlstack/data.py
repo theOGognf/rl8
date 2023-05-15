@@ -1,4 +1,4 @@
-"""Definitions related to data passed between algorithm modules."""
+"""Definitions related to data passed between modules."""
 
 from dataclasses import dataclass
 from typing import Literal, TypedDict
@@ -202,6 +202,9 @@ class RecurrentAlgorithmHparams(AlgorithmHparams):
     def __post_init__(self) -> None:
         if not (self.seq_len > 0):
             raise ValueError("`seq_len` must be > 0.")
+
+        if self.horizon % self.seq_len:
+            raise ValueError("`seq_len` must be a factor of `horizon`.")
 
         if self.seqs_per_state_reset == 0:
             raise ValueError("`seqs_per_state_reset` must be nonzero.")

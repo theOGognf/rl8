@@ -1,5 +1,3 @@
-"""Definitions regarding the union of a model and an action distribution."""
-
 from typing import Any
 
 import torch
@@ -15,7 +13,7 @@ from ..views import ViewKind
 
 
 class Policy:
-    """The union of a model and an action distribution.
+    """The union of a feedforward model and an action distribution.
 
     This is the main definition used by training algorithms for sampling
     and other data aggregations. It's recommended to use this interface

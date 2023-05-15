@@ -21,7 +21,7 @@ class Scheduler(Protocol):
         """
 
 
-class ConstantScheduler(Scheduler):
+class ConstantScheduler:
     """Scheduler that outputs a constant value.
 
     This is the default scheduler when a schedule type is not provided.
@@ -42,7 +42,7 @@ class ConstantScheduler(Scheduler):
         return self.value
 
 
-class InterpScheduler(Scheduler):
+class InterpScheduler:
     """Scheduler that interpolates between steps to new values when the
     number of environment samples exceeds a threshold.
 
@@ -80,7 +80,7 @@ class InterpScheduler(Scheduler):
         return float(np.interp(count, self.x, self.y))
 
 
-class StepScheduler(Scheduler):
+class StepScheduler:
     """Scheduler that steps to a new value when the number of environment
     samples exceeds a threshold.
 
