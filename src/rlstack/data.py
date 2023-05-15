@@ -168,6 +168,9 @@ class RecurrentAlgorithmHparams(AlgorithmHparams):
         if not (self.seq_len > 0):
             raise ValueError("`seq_len` must be > 0.")
 
+        if self.seqs_per_state_reset == 0:
+            raise ValueError("`seqs_per_state_reset` must be nonzero.")
+
 
 @dataclass(kw_only=True)
 class AlgorithmState:

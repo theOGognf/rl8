@@ -195,7 +195,7 @@ class GenericRecurrentModel(RecurrentModel, Generic[_ObservationSpec, _ActionSpe
         super().__init__(observation_spec, action_spec, **config)
 
     def init_states(self, n: int) -> TensorDict:
-        return self.state_spec.zero(n)
+        return self.state_spec.zero([n])
 
 
 class DefaultContinuousRecurrentModel(
@@ -234,7 +234,11 @@ class DefaultContinuousRecurrentModel(
                 DataKeys.HIDDEN_STATES: UnboundedContinuousTensorSpec(
                     shape=torch.Size([num_layers, hidden_size]),
                     device=action_spec.device,
-                )
+                ),
+                DataKeys.CELL_STATES: UnboundedContinuousTensorSpec(
+                    shape=torch.Size([num_layers, hidden_size]),
+                    device=action_spec.device,
+                ),
             }
         )
         self.lstm = nn.LSTM(
@@ -257,14 +261,14 @@ class DefaultContinuousRecurrentModel(
         self, batch: TensorDict, states: TensorDict, /
     ) -> tuple[TensorDict, TensorDict]:
         obs = batch[DataKeys.OBS]
-        h_0 = states[DataKeys.HIDDEN_STATES][:, 0, ...].permute(1, 0, 2)
-        c_0 = states[DataKeys.CELL_STATES][:, 0, ...].permute(1, 0, 2)
+        h_0 = states[DataKeys.HIDDEN_STATES][:, 0, ...].permute(1, 0, 2).contiguous()
+        c_0 = states[DataKeys.CELL_STATES][:, 0, ...].permute(1, 0, 2).contiguous()
         latents, (h_n, c_n) = self.lstm(obs, (h_0, c_0))
         action_mean = self.action_mean(latents).reshape(-1, self.action_spec.shape[0])
         action_log_std = self.action_log_std(latents).reshape(
             -1, self.action_spec.shape[0]
         )
-        self._value = self.vf_model(obs).reshape(-1, 1)
+        self._value = self.vf_model(latents).reshape(-1, 1)
         return TensorDict(
             {"mean": action_mean, "log_std": torch.tanh(action_log_std)},
             batch_size=action_mean.size(0),
@@ -315,7 +319,11 @@ class DefaultDiscreteRecurrentModel(
                 DataKeys.HIDDEN_STATES: UnboundedContinuousTensorSpec(
                     shape=torch.Size([num_layers, hidden_size]),
                     device=action_spec.device,
-                )
+                ),
+                DataKeys.CELL_STATES: UnboundedContinuousTensorSpec(
+                    shape=torch.Size([num_layers, hidden_size]),
+                    device=action_spec.device,
+                ),
             }
         )
         self.lstm = nn.LSTM(
@@ -337,13 +345,13 @@ class DefaultDiscreteRecurrentModel(
         self, batch: TensorDict, states: TensorDict, /
     ) -> tuple[TensorDict, TensorDict]:
         obs = batch[DataKeys.OBS]
-        h_0 = states[DataKeys.HIDDEN_STATES][:, 0, ...].permute(1, 0, 2)
-        c_0 = states[DataKeys.CELL_STATES][:, 0, ...].permute(1, 0, 2)
+        h_0 = states[DataKeys.HIDDEN_STATES][:, 0, ...].permute(1, 0, 2).contiguous()
+        c_0 = states[DataKeys.CELL_STATES][:, 0, ...].permute(1, 0, 2).contiguous()
         latents, (h_n, c_n) = self.lstm(obs, (h_0, c_0))
         logits = self.feature_head(latents).reshape(
             -1, self.action_spec.shape[0], self.action_spec.space.n
         )
-        self._value = self.vf_head(obs).reshape(-1, 1)
+        self._value = self.vf_head(latents).reshape(-1, 1)
         return TensorDict(
             {"logits": logits},
             batch_size=logits.size(0),

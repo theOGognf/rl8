@@ -265,16 +265,16 @@ class RecurrentAlgorithm:
             {
                 DataKeys.OBS: self.env.observation_spec,
                 DataKeys.STATES: self.policy.state_spec,
-                DataKeys.REWARDS: UnboundedContinuousTensorSpec(1),
+                DataKeys.REWARDS: UnboundedContinuousTensorSpec(1, device=device),
                 DataKeys.FEATURES: self.policy.feature_spec,
                 DataKeys.ACTIONS: self.env.action_spec,
-                DataKeys.LOGP: UnboundedContinuousTensorSpec(1),
-                DataKeys.VALUES: UnboundedContinuousTensorSpec(1),
-                DataKeys.ADVANTAGES: UnboundedContinuousTensorSpec(1),
-                DataKeys.RETURNS: UnboundedContinuousTensorSpec(1),
+                DataKeys.LOGP: UnboundedContinuousTensorSpec(1, device=device),
+                DataKeys.VALUES: UnboundedContinuousTensorSpec(1, device=device),
+                DataKeys.ADVANTAGES: UnboundedContinuousTensorSpec(1, device=device),
+                DataKeys.RETURNS: UnboundedContinuousTensorSpec(1, device=device),
             },
         ).to(device)
-        self.buffer = self.buffer_spec.zero([num_envs, horizon + 2])
+        self.buffer = self.buffer_spec.zero([num_envs, horizon + 1])
         optimizer_config = optimizer_config or {}
         self.optimizer = optimizer_cls(
             self.policy.model.parameters(), **optimizer_config
@@ -363,9 +363,7 @@ class RecurrentAlgorithm:
                 elif not (t % self.hparams.seq_len) and not (
                     self.state.seqs % self.hparams.seqs_per_state_reset
                 ):
-                    self.buffer[DataKeys.STATES][
-                        :, t : (t + 1), ...
-                    ] = self.policy.init_states(B)
+                    self.buffer[DataKeys.STATES][:, t, ...] = self.policy.init_states(B)
 
                 # Sample the policy and step the environment.
                 in_batch = self.buffer[:, t : (t + 1), ...]

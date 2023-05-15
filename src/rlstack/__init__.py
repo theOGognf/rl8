@@ -2,7 +2,7 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
-from .algorithms import Algorithm
+from .algorithms import Algorithm, RecurrentAlgorithm
 from .distributions import Categorical, Distribution, Normal, SquashedNormal
 from .env import Env, GenericEnv
 from .models import (

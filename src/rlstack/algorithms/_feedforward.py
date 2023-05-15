@@ -262,13 +262,13 @@ class Algorithm:
         self.buffer_spec = CompositeSpec(  # type: ignore[no-untyped-call]
             {
                 DataKeys.OBS: self.env.observation_spec,
-                DataKeys.REWARDS: UnboundedContinuousTensorSpec(1),
+                DataKeys.REWARDS: UnboundedContinuousTensorSpec(1, device=device),
                 DataKeys.FEATURES: self.policy.feature_spec,
                 DataKeys.ACTIONS: self.env.action_spec,
-                DataKeys.LOGP: UnboundedContinuousTensorSpec(1),
-                DataKeys.VALUES: UnboundedContinuousTensorSpec(1),
-                DataKeys.ADVANTAGES: UnboundedContinuousTensorSpec(1),
-                DataKeys.RETURNS: UnboundedContinuousTensorSpec(1),
+                DataKeys.LOGP: UnboundedContinuousTensorSpec(1, device=device),
+                DataKeys.VALUES: UnboundedContinuousTensorSpec(1, device=device),
+                DataKeys.ADVANTAGES: UnboundedContinuousTensorSpec(1, device=device),
+                DataKeys.RETURNS: UnboundedContinuousTensorSpec(1, device=device),
             },
         ).to(device)
         self.buffer = self.buffer_spec.zero([num_envs, horizon + 1])
