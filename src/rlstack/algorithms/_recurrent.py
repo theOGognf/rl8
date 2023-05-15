@@ -1,4 +1,7 @@
-"""Definitions related to the RL algorithm (data collection and training)."""
+"""Definitions related to a recurrent PPO algorithm (specifically focused
+on data collection and training on many environments in parallel).
+
+"""
 
 from dataclasses import asdict
 from typing import Any
@@ -31,7 +34,7 @@ from ..specs import CompositeSpec, UnboundedContinuousTensorSpec
 
 
 class RecurrentAlgorithm:
-    """An optimized `PPO`_ algorithm with common tricks for stabilizing
+    """An optimized recurrent `PPO`_ algorithm with common tricks for stabilizing
     and accelerating learning.
 
     This algorithm assumes environments are parallelized much like
@@ -190,6 +193,8 @@ class RecurrentAlgorithm:
     #: to make learning efficient by parallelizing simulations.
     env: Env
 
+    #: Recurrent PPO hyperparameters that're constant throughout training
+    #: and can drastically affect training performance.
     hparams: RecurrentAlgorithmHparams
 
     #: Learning rate scheduler for updating `optimizer` learning rate after
@@ -213,6 +218,9 @@ class RecurrentAlgorithm:
     #: :meth:`RecurrentAlgorithm.step`.
     policy: RecurrentPolicy
 
+    #: Algorithm state for determining when to reset the environment,
+    #: when to reset recurrent model states, when the policy can be updated,
+    #: and for tracking additional algorithm metrics like method call counts.
     state: RecurrentAlgorithmState
 
     def __init__(

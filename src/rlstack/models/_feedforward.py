@@ -1,3 +1,5 @@
+"""Feedforward parameterizations of RL policies."""
+
 from abc import abstractmethod
 from typing import Any, Generic, Sequence, TypeVar
 

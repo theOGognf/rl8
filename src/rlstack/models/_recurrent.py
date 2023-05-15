@@ -1,3 +1,5 @@
+"""Recurrent parameterizations of RL policies."""
+
 from abc import abstractmethod
 from typing import Any, Generic, TypeVar
 
@@ -27,9 +29,10 @@ class RecurrentModel(
         tuple[TensorDict, TensorDict],
     ]
 ):
-    """Policy component that processes environment observations into
-    a value function approximation and features to be consumed by an
-    action distribution for action sampling.
+    """Policy component that processes environment observations and
+    recurrent model states into a value function approximation, features
+    to be consumed by an action distribution for action sampling, and
+    updated recurrent model states to be used for subsequent calls.
 
     This definition is largely inspired by RLlib's `model concept`_.
 
@@ -39,6 +42,12 @@ class RecurrentModel(
     is stored after each forward pass in some intermediate attribute
     and can be accessed with a subsequent call to
     :meth:`RecurrentModel.value_function`.
+
+    This model is the recurrent variant of :class:`rlstack.Model`. Instead
+    of taking observations as input and outputting features to action
+    distributions, this variant takes observations and recurrent model
+    states as input and outputs features to action distributions and
+    updated recurrent model states.
 
     Args:
         observation_spec: Spec defining the forward pass input.
@@ -64,10 +73,13 @@ class RecurrentModel(
     #: for models that feed into custom action distributions .
     feature_spec: TensorSpec
 
-    #: Spec defining the forward pass input. Useful for validating the forward
-    #: pass and for defining the model as a function of the observation spec.
+    #: Spec defining observations part of the forward pass input. Useful for
+    #: validating the forward pass and for defining the model as a function of
+    #: the observation spec.
     observation_spec: TensorSpec
 
+    #: Spec defining recurrent model states part of the forward pass input
+    #: and output. This is expected to be defined in a model's ``__init__``.
     state_spec: CompositeSpec
 
     def __init__(
@@ -142,7 +154,18 @@ class RecurrentModel(
 
     @abstractmethod
     def init_states(self, n: int, /) -> TensorDict:
-        """Return initial recurrent states for the model."""
+        """Return initial recurrent states for the model.
+
+        Args:
+            n: Batch size to generate initial recurrent states for.
+                This is typically the number of environments being
+                stepped in parallel.
+
+        Returns:
+            Recurrent model states that initialize a recurrent
+            sequence.
+
+        """
 
     def to(self, device: Device) -> Self:  # type: ignore[override]
         """Helper for changing the device the model is on.

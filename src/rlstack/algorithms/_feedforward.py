@@ -1,4 +1,7 @@
-"""Definitions related to the RL algorithm (data collection and training)."""
+"""Definitions related to a feedforward PPO algorithm (specifically focused
+on data collection and training on many environments in parallel).
+
+"""
 
 from dataclasses import asdict
 from typing import Any
@@ -31,8 +34,8 @@ from ..specs import CompositeSpec, UnboundedContinuousTensorSpec
 
 
 class Algorithm:
-    """An optimized `PPO`_ algorithm with common tricks for stabilizing
-    and accelerating learning.
+    """An optimized feedforward `PPO`_ algorithm with common tricks for
+    stabilizing and accelerating learning.
 
     This algorithm assumes environments are parallelized much like
     `IsaacGym environments`_ and are infinite horizon with no terminal
@@ -190,6 +193,8 @@ class Algorithm:
     #: to make learning efficient by parallelizing simulations.
     env: Env
 
+    #: Feedforward PPO hyperparameters that're constant throughout training
+    #: and can drastically affect training performance.
     hparams: AlgorithmHparams
 
     #: Learning rate scheduler for updating `optimizer` learning rate after
@@ -213,6 +218,9 @@ class Algorithm:
     #: :meth:`Algorithm.step`.
     policy: Policy
 
+    #: Algorithm state for determining when to reset the environment, when
+    #: the policy can be updated, and for tracking additional algorithm
+    #: metrics like method call counts.
     state: AlgorithmState
 
     def __init__(
