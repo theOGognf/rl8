@@ -9,6 +9,8 @@ Device = str | torch.device
 
 
 class DataKeys:
+    """Collection of common identifiers for elements within batches of data."""
+
     #: Key denoting observations from the environment.
     #: Typically processed by a policy model.
     OBS = "obs"
@@ -52,15 +54,31 @@ class DataKeys:
     #: value function).
     ADVANTAGES = "advantages"
 
+    #: Key denoting recurrent model states. This key is usually coupled with
+    #: the ``"hidden_states"`` and/or ``"cell_states"`` keys. This key is
+    #: used as recurrent model inputs and recurrent model outputs.
     STATES = "states"
 
+    #: Key denoting recurrent model states. This key is usually coupled with
+    #: ``"cell_states"`` and is usually nested under ``"states"``. This key is
+    #: used as recurrent model inputs and recurrent model outputs.
     HIDDEN_STATES = "hidden_states"
 
+    #: Key denoting recurrent model states. This key is usually coupled with
+    #: ``"hidden_states"`` and is usually nested under ``"states"``. This key is
+    #: used as recurrent model inputs and recurrent model outputs.
     CELL_STATES = "cell_states"
 
 
 @dataclass(frozen=True, kw_only=True)
 class AlgorithmHparams:
+    """Feedforward PPO hyperparameters that're held constant throughout
+    training and can drastically impact training performance.
+
+    Also does some basic hyperparameter validation for convenience.
+
+    """
+
     #: PPO hyperparameter indicating the max distance the policy can
     #: update away from previously collected policy sample data with
     #: respect to likelihoods of taking actions conditioned on
@@ -86,7 +104,12 @@ class AlgorithmHparams:
     #: have on the total discounted return.
     gamma: float
 
-    #:
+    #: Number of transitions for each environment for each
+    #: :meth:`Algorithm.collect` call prior to calling
+    #: :meth:`Algorithm.step`. This hyperparemeter coupled with
+    #: :attr:`AlgorithmHparams.horizons_per_env_reset` controls
+    #: how many environment transitions are made per environment
+    #: before each environment is reset.
     horizon: int
 
     #: Number of times :meth:`Algorithm.collect` can be called before
@@ -160,8 +183,20 @@ class AlgorithmHparams:
 
 @dataclass(frozen=True, kw_only=True)
 class RecurrentAlgorithmHparams(AlgorithmHparams):
+    """Recurrent PPO hyperparameters."""
+
+    #: Truncated backpropagation through time sequence length.
+    #: Not necessarily the sequence length the recurrent states
+    #: are propagated for prior to being reset. This parameter
+    #: coupled with :attr:`RecurrentAlgorithmHparams.seqs_per_state_reset`
+    #: controls how many environment transitions are made before
+    #: recurrent model states are reset or reinitialized.
     seq_len: int
 
+    #: Number of sequences made within :meth:`RecurrentAlgorithmHparams.collect`
+    #: before recurrent model states are reset or reinitialized. Recurrent
+    #: model states are never reset or reinitialized if this parameter is
+    #: negative.
     seqs_per_state_reset: int
 
     def __post_init__(self) -> None:
@@ -174,6 +209,8 @@ class RecurrentAlgorithmHparams(AlgorithmHparams):
 
 @dataclass(kw_only=True)
 class AlgorithmState:
+    """Feedforward PPO state during training."""
+
     #: Flag indicating whether :meth:`Algorithm.collect` has been called
     #: at least once prior to calling :meth:`Algorithm.step`. Ensures
     #: dummy buffer data isn't used to update the policy.
@@ -197,6 +234,9 @@ class AlgorithmState:
 
 @dataclass(kw_only=True)
 class RecurrentAlgorithmState(AlgorithmState):
+    """Recurrent PPO state during training."""
+
+    #: Number of recurrent sequences transitioned during training.
     seqs: int = 0
 
 

@@ -82,6 +82,15 @@ class RecurrentAlgorithm:
             environment instance. Passed during the environment's
             instantiation. The buffer's size is ``[B, T]`` where ``B`` is
             ``num_envs``.
+        seq_len: Truncated backpropagation through time sequence length.
+            Not necessarily the sequence length the recurrent states
+            are propagated for prior to being reset. This parameter
+            coupled with ``seqs_per_state_reset`` controls how many environment transitions
+            are made before recurrent model states are reset or reinitialized.
+        seqs_per_state_reset: Number of sequences made within
+            :meth:`RecurrentAlgorithmHparams.collect` before recurrent model states
+            are reset or reinitialized. Recurrent model states are never reset or
+            reinitialized if this parameter is negative.
         optimizer_cls: Custom optimizer class. Defaults to an optimizer
             that doesn't require much tuning.
         optimizer_config: Custom optimizer config unpacked into ``optimizer_cls``

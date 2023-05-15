@@ -43,7 +43,7 @@ class RecurrentModel(
     and can be accessed with a subsequent call to
     :meth:`RecurrentModel.value_function`.
 
-    This model is the recurrent variant of :class:`rlstack.Model`. Instead
+    This model is the recurrent variant of :class:`Model`. Instead
     of taking observations as input and outputting features to action
     distributions, this variant takes observations and recurrent model
     states as input and outputs features to action distributions and
@@ -140,6 +140,10 @@ class RecurrentModel(
         """Process a batch of tensors and return features to be fed into an
         action distribution.
 
+        Both input arguments are expected to have a 2D batch shape like
+        ``[B, T, ...]`` where ``B`` is the batch number (or typically the
+        number of parallel environments) and ``T`` is the sequence length.
+
         Args:
             batch: A tensordict expected to have at least an ``"obs"`` key with any
                 tensor spec.
@@ -148,7 +152,13 @@ class RecurrentModel(
 
         Returns:
             Features that will be passed to an action distribution and updated
-            recurrent states.
+            recurrent states. The features are expected to have batch shape
+            like ``[B * T, ...]`` while the updated recurrent states are
+            expected to have batch shape like ``[B, ...]``. In other words,
+            the batch and sequence dimension of the input arguments are
+            flattened together for the output features while the returned
+            recurrent states maintain the original batch dimension but don't
+            have a sequence dimension.
 
         """
 

@@ -191,10 +191,12 @@ class Model(
             batch: A tensordict expected to have at least an ``"obs"`` key with any
                 tensor spec. The policy that the model is a component of
                 processes the batch according to :attr:`Model.view_requirements`
-                prior to passing the batch to the forward pass.
+                prior to passing the batch to the forward pass. The tensordict
+                must have a 1D batch shape like ``[B, ...]``.
 
         Returns:
-            Features that will be passed to an action distribution.
+            Features that will be passed to an action distribution with batch
+            shape like ``[B, ...]``.
 
         """
 
