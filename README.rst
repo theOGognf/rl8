@@ -88,9 +88,8 @@ feature support and speed/complexity tradeoff by making some key assumptions:
   is PPO. This allows **rlstack** to ignore layers upon layers of abstraction,
   greatly simplifying the overall library implementation.
 
-The end result is a simple and high throughput library that can train policies
-to solve complex tasks on a single, off-the-shelf computing device within
-minutes.
+The end result is a high throughput library that can train policies to solve
+complex tasks on a single, off-the-shelf computing device within minutes.
 
 Unfortunately, this means **rlstack** doesn't support as many use cases as
 a monolithic RL library might. In fact, **rlstack** is probably a bad fit for
