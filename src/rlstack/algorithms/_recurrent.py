@@ -88,7 +88,7 @@ class RecurrentAlgorithm:
             coupled with ``seqs_per_state_reset`` controls how many environment transitions
             are made before recurrent model states are reset or reinitialized.
         seqs_per_state_reset: Number of sequences made within
-            :meth:`RecurrentAlgorithmHparams.collect` before recurrent model states
+            :meth:`RecurrentAlgorithm.collect` before recurrent model states
             are reset or reinitialized. Recurrent model states are never reset or
             reinitialized if this parameter is negative.
         optimizer_cls: Custom optimizer class. Defaults to an optimizer
@@ -335,17 +335,17 @@ class RecurrentAlgorithm:
         experiences used for learning.
 
         The environment is reset immediately prior to collecting
-        transitions according to :attr:`RecurrentAlgorithm.horizons_per_env_reset`. If
+        transitions according to ``horizons_per_env_reset``. If
         the environment isn't reset, then the last observation is used as
         the initial observation.
 
-        This method sets the :attr:`RecurrentAlgorithm.buffered` flag to enable calling
+        This method sets the ``buffered`` flag to enable calling
         of :meth:`RecurrentAlgorithm.step` so it isn't called with dummy data.
 
         Args:
             env_config: Optional config to pass to the environment's reset
                 method. This isn't used if the environment isn't scheduled
-                to be reset according to :attr:`RecurrentAlgorithm.horizons_per_env_reset`.
+                to be reset according to ``horizons_per_env_reset``.
             deterministic: Whether to sample from the policy deterministically.
                 This is usally ``False`` during learning and ``True`` during
                 evaluation.

@@ -1,3 +1,5 @@
+"""Definitions related to parameterizations of policies."""
+
 from ._feedforward import (
     DefaultContinuousModel,
     DefaultDiscreteModel,

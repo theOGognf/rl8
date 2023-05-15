@@ -321,17 +321,17 @@ class Algorithm:
         experiences used for learning.
 
         The environment is reset immediately prior to collecting
-        transitions according to :attr:`Algorithm.horizons_per_env_reset`. If
+        transitions according to ``horizons_per_env_reset``. If
         the environment isn't reset, then the last observation is used as
         the initial observation.
 
-        This method sets the :attr:`Algorithm.buffered` flag to enable calling
+        This method sets the ``buffered`` flag to enable calling
         of :meth:`Algorithm.step` so it isn't called with dummy data.
 
         Args:
             env_config: Optional config to pass to the environment's reset
                 method. This isn't used if the environment isn't scheduled
-                to be reset according to :attr:`Algorithm.horizons_per_env_reset`.
+                to be reset according to ``horizons_per_env_reset``.
             deterministic: Whether to sample from the policy deterministically.
                 This is usally ``False`` during learning and ``True`` during
                 evaluation.
