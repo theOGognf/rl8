@@ -240,14 +240,14 @@ class DefaultContinuousRecurrentModel(
                     device=action_spec.device,
                 ),
             }
-        )
+        )  # type: ignore[no-untyped-call]
         self.lstm = nn.LSTM(
             observation_spec.shape[0],
             hidden_size,
             num_layers=num_layers,
             bias=bias,
             batch_first=True,
-        )
+        )  # type: ignore[no-untyped-call]
         self.action_mean = nn.Linear(hidden_size, action_spec.shape[0], bias=True)
         nn.init.uniform_(self.action_mean.weight, a=-1e-3, b=1e-3)
         nn.init.zeros_(self.action_mean.bias)
@@ -325,14 +325,14 @@ class DefaultDiscreteRecurrentModel(
                     device=action_spec.device,
                 ),
             }
-        )
+        )  # type: ignore[no-untyped-call]
         self.lstm = nn.LSTM(
             observation_spec.shape[0],
             hidden_size,
             num_layers=num_layers,
             bias=bias,
             batch_first=True,
-        )
+        )  # type: ignore[no-untyped-call]
         self.feature_head = nn.Linear(
             hidden_size, action_spec.shape[0] * action_spec.space.n, bias=True
         )
