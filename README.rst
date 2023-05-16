@@ -1,5 +1,5 @@
-rlstack: An RL Toolkit for the Sane
-===================================
+rlstack: A Minimal RL Toolkit
+=============================
 
 **rlstack** is a high throughput, infinite horizon RL library that can
 simulate highly parallelized environments, and can train a PPO policy using
@@ -33,19 +33,8 @@ Install from GitHub for the latest (unstable) version.
 Basic Usage
 -----------
 
-Train a policy with PPO and log training progress with MLFlow using the
-high-level trainer interface.
-
-.. code:: python
-
-    from rlstack import Trainer
-    from rlstack.env import DiscreteDummyEnv
-
-    trainer = Trainer(DiscreteDummyEnv)
-    trainer.run()
-
 Collect environment transitions and update a policy directly using the
-low-level algorithm interface.
+low-level algorithm interface (this updates the policy once).
 
 .. code:: python
 
@@ -55,6 +44,86 @@ low-level algorithm interface.
     algo = Algorithm(DiscreteDummyEnv)
     algo.collect()
     algo.step()
+
+Train a policy with PPO and log training progress with MLFlow using the
+high-level trainer interface (this updates the policy infinitely).
+
+.. code:: python
+
+    from rlstack import Trainer
+    from rlstack.env import DiscreteDummyEnv
+
+    trainer = Trainer(DiscreteDummyEnv)
+    trainer.run()
+
+Quick Examples
+==============
+
+Customizing Training Runs
+-------------------------
+
+Use a custom distribution and custom hyperparameter values with the low-level
+algorithm interface. Default feedforward models are used depending on the
+environment's action spec.
+
+.. code:: python
+
+    from rlstack import Algorithm, SquashedNormal
+    from rlstack.env import ContinuousDummyEnv
+
+    algo = Algorithm(
+        ContinuousDummyEnv,
+        dist_cls=SquashedNormal,
+        gamma=0.99,
+        gae_lambda=0.99
+    )
+    algo.collect()
+    algo.step()
+
+Use the same custom distribution and custom hyperparameter values with the
+high-level trainer interface.
+
+.. code:: python
+
+    from rlstack import SquashedNormal, Trainer
+    from rlstack.env import ContinuousDummyEnv
+
+    trainer = Trainer(
+        ContinuousDummyEnv,
+        algorithm_config={
+            "dist_cls": SquashedNormal,
+            "gamma": 0.99,
+            "gae_lambda": 0.99,
+        }
+    )
+    trainer.run()
+
+Training a Recurrent Policy
+---------------------------
+
+Use the low-level algorihtm interface to seamlessly switch between feedforward
+and recurrent algorithms. Default recurrent models are used depending on the
+environment's action spec.
+
+.. code:: python
+
+    from rlstack import RecurrentAlgorithm
+    from rlstack.env import DiscreteDummyEnv
+
+    algo = RecurrentAlgorithm(DiscreteDummyEnv)
+    algo.collect()
+    algo.step()
+
+Specify the algorithm type using the high-level trainer interface (it defaults
+to a feedforward algorithm).
+
+.. code:: python
+
+    from rlstack import RecurrentAlgorithm, Trainer
+    from rlstack.env import DiscreteDummyEnv
+
+    trainer = Trainer(DiscreteDummyEnv, algorithm_cls=RecurrentAlgorithm)
+    trainer.run()
 
 Why rlstack?
 ============
