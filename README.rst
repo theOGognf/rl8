@@ -153,8 +153,7 @@ Specifying Training Stop Conditions
 -----------------------------------
 
 Use the high-level trainer interface to specify training stop conditions based
-on training statistics. Useful for responding to performance plateaus during
-training or scheduling environment or algorithm config updates during training.
+on training statistics.
 
 .. code:: python
 
