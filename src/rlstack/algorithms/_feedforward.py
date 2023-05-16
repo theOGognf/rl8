@@ -46,7 +46,7 @@ class Algorithm:
             neural network.
         model_config: Optional policy model config unpacked into the model
             during instantiation.
-        dist_cls: Custom policy action distribution class. An action
+        distribution_cls: Custom policy action distribution class. An action
             distribution class is provided for you based on the environment
             instance's specs if you don't provide one. Defaults to a categorical
             action distribution for discrete actions and a normal action
@@ -193,7 +193,7 @@ class Algorithm:
     optimizer: optim.Optimizer
 
     #: Policy constructed from the ``model_cls``, ``model_config``, and
-    #: ``dist_cls`` kwargs. A default policy is constructed according to
+    #: ``distribution_cls`` kwargs. A default policy is constructed according to
     #: the environment's observation and action specs if these policy args
     #: aren't provided. The policy is what does all the action sampling
     #: within :meth:`Algorithm.collect` and is what is updated within
@@ -214,7 +214,7 @@ class Algorithm:
         model: None | Model = None,
         model_cls: None | type[Model] = None,
         model_config: None | dict[str, Any] = None,
-        dist_cls: None | type[Distribution] = None,
+        distribution_cls: None | type[Distribution] = None,
         horizon: None | int = 32,
         horizons_per_env_reset: int = 1,
         num_envs: int = 8192,
@@ -244,7 +244,7 @@ class Algorithm:
             model=model,
             model_cls=model_cls,
             model_config=model_config,
-            dist_cls=dist_cls,
+            distribution_cls=distribution_cls,
             device=device,
         )
         max_horizon = self.env.max_horizon if hasattr(self.env, "max_horizon") else 32
@@ -429,7 +429,7 @@ class Algorithm:
         return {
             "env_cls": self.env.__class__.__name__,
             "model_cls": self.policy.model.__class__.__name__,
-            "dist_cls": self.policy.dist_cls.__name__,
+            "distribution_cls": self.policy.distribution_cls.__name__,
             "optimizer_cls": self.optimizer.__class__.__name__,
             "entropy_coeff": self.entropy_scheduler.coeff,
             **asdict(self.hparams),
@@ -512,7 +512,7 @@ class Algorithm:
                     )
 
                     # Get action distributions and their log probability ratios.
-                    curr_action_dist = self.policy.dist_cls(
+                    curr_action_dist = self.policy.distribution_cls(
                         sample_batch[DataKeys.FEATURES], self.policy.model
                     )
                     ratio = torch.exp(

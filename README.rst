@@ -63,8 +63,8 @@ Customizing Training Runs
 -------------------------
 
 Use a custom distribution and custom hyperparameter values with the low-level
-algorithm interface. Default feedforward models are used depending on the
-environment's action spec.
+algorithm interface. The feedforward algorithm uses default feedforward models
+for different environment action specs.
 
 .. code:: python
 
@@ -73,9 +73,9 @@ environment's action spec.
 
     algo = Algorithm(
         ContinuousDummyEnv,
-        dist_cls=SquashedNormal,
+        distribution_cls=SquashedNormal,
+        gae_lambda=0.99,
         gamma=0.99,
-        gae_lambda=0.99
     )
     algo.collect()
     algo.step()
@@ -91,9 +91,9 @@ high-level trainer interface.
     trainer = Trainer(
         ContinuousDummyEnv,
         algorithm_config={
-            "dist_cls": SquashedNormal,
-            "gamma": 0.99,
+            "distribution_cls": SquashedNormal,
             "gae_lambda": 0.99,
+            "gamma": 0.99,
         }
     )
     trainer.run()
@@ -101,9 +101,9 @@ high-level trainer interface.
 Training a Recurrent Policy
 ---------------------------
 
-Use the low-level algorihtm interface to seamlessly switch between feedforward
-and recurrent algorithms. Default recurrent models are used depending on the
-environment's action spec.
+Use the low-level algorithm interface to seamlessly switch between feedforward
+and recurrent algorithms. The recurrent algorithm uses default recurrent models
+for different environment action specs.
 
 .. code:: python
 
@@ -123,6 +123,49 @@ to a feedforward algorithm).
     from rlstack.env import DiscreteDummyEnv
 
     trainer = Trainer(DiscreteDummyEnv, algorithm_cls=RecurrentAlgorithm)
+    trainer.run()
+
+Training on a GPU
+-----------------
+
+Use the low-level algorithm interface to specify training on a GPU.
+
+.. code:: python
+
+    from rlstack import Algorithm
+    from rlstack.env import DiscreteDummyEnv
+
+    algo = Algorithm(DiscreteDummyEnv, device="cuda")
+    algo.collect()
+    algo.step()
+
+Use the high-level trainer interface to specify training on a GPU.
+
+.. code:: python
+
+    from rlstack import Trainer
+    from rlstack.env import DiscreteDummyEnv
+
+    trainer = Trainer(DiscreteDummyEnv, algorithm_config={"device": "cuda"})
+    trainer.run()
+
+Specifying Training Stop Conditions
+-----------------------------------
+
+Use the high-level trainer interface to specify training stop conditions based
+on training statistics. Useful for responding to performance plateaus during
+training or scheduling environment or algorithm config updates during training.
+
+.. code:: python
+
+    from rlstack import Trainer
+    from rlstack.conditions import Plateaus
+    from rlstack.env import DiscreteDummyEnv
+
+    trainer = Trainer(
+        DiscreteDummyEnv,
+        stop_conditions=Plateaus("returns/mean", rtol=0.05),
+    )
     trainer.run()
 
 Why rlstack?

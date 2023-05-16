@@ -21,13 +21,13 @@ class RecurrentPolicy:
         model: Model instance to use. Mutually exclusive with ``model_cls``.
         model_cls: Model class to use.
         model_config: Model class args.
-        dist_cls: Action distribution class.
+        distribution_cls: Action distribution class.
 
     """
 
     #: Underlying policy action distribution that's parameterized by
     #: features produced by :attr:`RecurrentPolicy.model`.
-    dist_cls: type[Distribution]
+    distribution_cls: type[Distribution]
 
     #: Underlying policy model that processes environment observations
     #: into a value function approximation and into features to be
@@ -46,7 +46,7 @@ class RecurrentPolicy:
         model: None | RecurrentModel = None,
         model_cls: None | type[RecurrentModel] = None,
         model_config: None | dict[str, Any] = None,
-        dist_cls: None | type[Distribution] = None,
+        distribution_cls: None | type[Distribution] = None,
         device: Device = "cpu",
     ) -> None:
         self.model_config = model_config or {}
@@ -63,7 +63,9 @@ class RecurrentPolicy:
         else:
             self.model = model
         self.model = self.model.to(device)
-        self.dist_cls = dist_cls or Distribution.default_dist_cls(action_spec)
+        self.distribution_cls = distribution_cls or Distribution.default_dist_cls(
+            action_spec
+        )
 
     @property
     def action_spec(self) -> TensorSpec:
@@ -166,7 +168,7 @@ class RecurrentPolicy:
         )
         out[DataKeys.FEATURES] = features
         if return_actions:
-            dist = self.dist_cls(features, self.model)
+            dist = self.distribution_cls(features, self.model)
             actions = dist.deterministic_sample() if deterministic else dist.sample()
             out[DataKeys.ACTIONS] = actions
             if return_logp:
