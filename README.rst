@@ -4,8 +4,7 @@ rlstack: A Minimal RL Toolkit
 **rlstack** is a high throughput, infinite horizon RL library that can
 simulate highly parallelized environments, and can train a PPO policy using
 those highly parallelized environments, achieving around 500k environment
-transitions (and one policy update) per second using a single, off-the-shelf
-computing device.
+transitions (and one policy update) per second using a single NVIDIA RTX 2080.
 
 * **Documentation**: https://theogognf.github.io/rlstack/
 * **PyPI**: https://pypi.org/project/rlstack/
@@ -93,7 +92,7 @@ feature support and speed/complexity tradeoff by making some key assumptions:
   greatly simplifying the overall library implementation.
 
 The end result is a high throughput library that can train policies to solve
-complex tasks on a single, off-the-shelf computing device within minutes.
+complex tasks on a single NVIDIA RTX 2080 within minutes.
 
 Unfortunately, this means **rlstack** doesn't support as many use cases as
 a monolithic RL library might. In fact, **rlstack** is probably a bad fit for
@@ -129,7 +128,7 @@ distributions.
   conditioned on environment observations and model outputs. Environment
   actions are ultimately sampled from the action distribution.
   The action distribution is *sometimes user-defined* (default action
-  distributions usually are sufficient depending on the environment's
+  distributions are usually sufficient depending on the environment's
   observation and action specs).
 * **The policy**: The union of the model and the action distribution that
   actually calls and samples from the model and action distribution,
