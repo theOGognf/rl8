@@ -94,8 +94,8 @@ class RecurrentPolicy:
     def sample(
         self,
         batch: TensorDict,
-        states: TensorDict,
         /,
+        states: None | TensorDict = None,
         *,
         deterministic: bool = False,
         inplace: bool = False,
@@ -122,6 +122,7 @@ class RecurrentPolicy:
                 the number of parallel environments being sampled for during
                 massively parallel training, and ``T`` is typically the number
                 of time steps or observations sampled from the environments.
+
             deterministic: Whether to sample from the policy deterministically
                 (the actions are always the same for the same inputs) or
                 stochastically (there is a randomness to the policy's actions).
@@ -158,13 +159,13 @@ class RecurrentPolicy:
         prev = torch.is_grad_enabled()
         torch.set_grad_enabled(requires_grad)
 
+        B, T = batch.batch_size
+        states = self.model.init_states(B).reshape(B, 1) if states is None else states
         features, out_states = self.model(batch, states)
 
         # Store required outputs and get/store optional outputs.
         out = (
-            batch
-            if inplace
-            else TensorDict({}, batch_size=features.batch_size, device=batch.device)
+            batch if inplace else TensorDict({}, batch_size=B * T, device=batch.device)
         )
         out[DataKeys.FEATURES] = features
         if return_actions:
@@ -176,7 +177,7 @@ class RecurrentPolicy:
         if return_values:
             out[DataKeys.VALUES] = self.model.value_function()
         if keepdim:
-            out = out.reshape(*batch.batch_size)
+            out = out.reshape(B, T)
 
         torch.set_grad_enabled(prev)
         return out, out_states

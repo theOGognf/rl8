@@ -46,7 +46,7 @@ low-level algorithm interface (this updates the policy once).
     algo.step()
 
 Train a policy with PPO and log training progress with MLFlow using the
-high-level trainer interface (this updates the policy infinitely).
+high-level trainer interface (this updates the policy indefinitely).
 
 .. code:: python
 
@@ -56,13 +56,102 @@ high-level trainer interface (this updates the policy infinitely).
     trainer = Trainer(DiscreteDummyEnv)
     trainer.run()
 
+Why rlstack?
+============
+
+**TL;DR: rlstack focuses on a niche subset of RL that simplifies the overall
+library while allowing blazingly fast and fully customizable environments,
+models, and action distributions.**
+
+There are many high quality, open-sourced RL libraries. Most of them take on the
+daunting task of being a monolithic, one-stop-shop for everything RL, attempting to
+support as many algorithms, environments, models, and compute capabilities as possible.
+Naturely, this monolothic goal has some drawbacks:
+
+* The software becomes more dense with each supported feature, making the library
+  all-the-more difficult to customize for a specific use case.
+* The software becomes less performant for a specific use case. RL practitioners
+  typically end up accepting the cost of transitioning to expensive and
+  difficult-to-manage compute clusters to get results faster.
+
+There's a handful of high quality, open-sourced RL libraries that tradeoff feature
+richness to reduce these drawbacks. However, each library still doesn't provide
+enough speed benefit to warrant the switch from a monolithic repo, or is still
+too complex to adapt to a specific use case.
+
+**rlstack** is a niche RL library that finds a goldilocks zone between the
+feature support and speed/complexity tradeoff by making some key assumptions:
+
+* Environments are highly parallelized and their parallelization is entirely
+  managed within the environment. This allows **rlstack** to ignore distributed
+  computing design considerations.
+* Environments are infinite horizon (i.e., they have no terminal conditions).
+  This allows **rlstack** to reset environments at the same, fixed horizon
+  intervals, greatly simplifying environment and algorithm implementations.
+* The only supported ML framework is PyTorch and the only supported algorithm
+  is PPO. This allows **rlstack** to ignore layers upon layers of abstraction,
+  greatly simplifying the overall library implementation.
+
+The end result is a high throughput library that can train policies to solve
+complex tasks on a single, off-the-shelf computing device within minutes.
+
+Unfortunately, this means **rlstack** doesn't support as many use cases as
+a monolithic RL library might. In fact, **rlstack** is probably a bad fit for
+your use case if:
+
+* Your environment isn't parallelizable.
+* Your environment must contain terminal conditions and can't be reformulated
+  as an infinite horizon task.
+* You want to use an ML framework that isn't PyTorch or you want to use an
+  algorithm that isn't a variant of PPO.
+
+However, if **rlstack** does fit your use case, it can do wonders for your
+RL workflow.
+
+Concepts
+========
+
+**rlstack** is minimal in that it limits the number of interfaces required for
+training a policy with PPO, even for customized policies, without restrictions
+on observation and action specs, custom models, and custom action
+distributions.
+
+**rlstack** is built around six key concepts:
+
+* **The environment**: The simulation that the policy learns to interact with.
+  The environment is *always user-defined*.
+* **The model**: The policy parameterization that determines how the policy
+  processes environment observations and how parameters for the action
+  distribution are generated. The model is *usually user-defined*
+  (default models are sometimes sufficient depending on the environment's
+  observation and action specs).
+* **The action distribution**: The mechanism for representing actions
+  conditioned on environment observations and model outputs. Environment
+  actions are ultimately sampled from the action distribution.
+  The action distribution is *sometimes user-defined* (default action
+  distributions usually are sufficient depending on the environment's
+  observation and action specs).
+* **The policy**: The union of the model and the action distribution that
+  actually calls and samples from the model and action distribution,
+  respectively. The policy handles some pre/post -processing on its I/O
+  to make it more convenient to sample from the model and action distribution
+  together. The policy is *almost never user-defined*.
+* **The algorithm**: The PPO implementation that uses the environment to train
+  the policy (i.e., update the model's parameters). All hyperparameters and
+  customizations are set with the algorithm. The algorithm is *almost never
+  user-defined*.
+* **The trainer**: The high-level interface for using the algorithm to train
+  indefinitely or until some condition is met. The trainer directly integrates
+  with MLFlow to track experiments and training progress. The trainer is *never
+  user-defined*.
+
 Quick Examples
 ==============
 
 Customizing Training Runs
 -------------------------
 
-Use a custom distribution and custom hyperparameter values with the low-level
+Use a custom distribution and custom hyperparameters with the low-level
 algorithm interface. The feedforward algorithm uses default feedforward models
 for different environment action specs.
 
@@ -80,7 +169,7 @@ for different environment action specs.
     algo.collect()
     algo.step()
 
-Use the same custom distribution and custom hyperparameter values with the
+Use the same custom distribution and custom hyperparameter with the
 high-level trainer interface.
 
 .. code:: python
@@ -166,54 +255,6 @@ on training statistics.
         stop_conditions=[Plateaus("returns/mean", rtol=0.05)],
     )
     trainer.run()
-
-Why rlstack?
-============
-
-There are many high quality, open-sourced RL libraries. Most of them take on the
-daunting task of being a monolithic, one-stop-shop for everything RL, attempting to
-support as many algorithms, environments, models, and compute capabilities as possible.
-Naturely, this monolothic goal has some drawbacks:
-
-* The software becomes more dense with each supported feature, making the library
-  all-the-more difficult to customize for a specific use case.
-* The software becomes less performant for a specific use case. RL practitioners
-  typically end up accepting the cost of transitioning to expensive and
-  difficult-to-manage compute clusters to get results faster.
-
-There's a handful of high quality, open-sourced RL libraries that tradeoff feature
-richness to reduce these drawbacks. However, each library still doesn't provide
-enough speed benefit to warrant the switch from a monolithic repo, or is still
-too complex to adapt to a specific use case.
-
-**rlstack** is a niche RL library that finds a goldilocks zone between the
-feature support and speed/complexity tradeoff by making some key assumptions:
-
-* Environments are highly parallelized and their parallelization is entirely
-  managed within the environment. This allows **rlstack** to ignore distributed
-  computing design considerations.
-* Environments are infinite horizon (i.e., they have no terminal conditions).
-  This allows **rlstack** to reset environments at the same, fixed horizon
-  intervals, greatly simplifying environment and algorithm implementations.
-* The only supported ML framework is PyTorch and the only supported algorithm
-  is PPO. This allows **rlstack** to ignore layers upon layers of abstraction,
-  greatly simplifying the overall library implementation.
-
-The end result is a high throughput library that can train policies to solve
-complex tasks on a single, off-the-shelf computing device within minutes.
-
-Unfortunately, this means **rlstack** doesn't support as many use cases as
-a monolithic RL library might. In fact, **rlstack** is probably a bad fit for
-your use case if:
-
-* Your environment isn't parallelizable.
-* Your environment must contain terminal conditions and can't be reformulated
-  as an infinite horizon task.
-* You want to use an ML framework that isn't PyTorch or you want to use an
-  algorithm that isn't a variant of PPO.
-
-However, if **rlstack** does fit your use case, it can do wonders for your
-RL workflow.
 
 Related Projects
 ================
