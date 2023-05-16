@@ -137,7 +137,7 @@ class Algorithm:
             :attr:`Algorithm.policy` all reside on.
 
     Examples:
-        Instantiate an algorithm for a dummy environment and update underlying
+        Instantiate an algorithm for a dummy environment and update the underlying
         policy once.
 
         >>> from rlstack import Algorithm

@@ -146,7 +146,7 @@ class RecurrentAlgorithm:
             :attr:`RecurrentAlgorithm.policy` all reside on.
 
     Examples:
-        Instantiate an algorithm for a dummy environment and update underlying
+        Instantiate an algorithm for a dummy environment and update tne underlying
         policy once.
 
         >>> from rlstack import RecurrentAlgorithm
