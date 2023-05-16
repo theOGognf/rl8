@@ -164,7 +164,7 @@ training or scheduling environment or algorithm config updates during training.
 
     trainer = Trainer(
         DiscreteDummyEnv,
-        stop_conditions=Plateaus("returns/mean", rtol=0.05),
+        stop_conditions=[Plateaus("returns/mean", rtol=0.05)],
     )
     trainer.run()
 
