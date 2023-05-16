@@ -114,8 +114,8 @@ for different environment action specs.
     algo.collect()
     algo.step()
 
-Specify the algorithm type using the high-level trainer interface (it defaults
-to a feedforward algorithm).
+Specify the algorithm type using the high-level trainer interface (which
+defaults to a feedforward algorithm).
 
 .. code:: python
 
