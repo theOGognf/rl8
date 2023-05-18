@@ -268,7 +268,8 @@ class RecurrentAlgorithmHparams(AlgorithmHparams):
         """Extra validation that can't go in the post init."""
         if (self.num_envs * (self.horizon // self.seq_len)) % self.sgd_minibatch_size:
             raise ValueError(
-                "`sgd_minibatch_size` must be a factor of `num_envs * seq_len`."
+                "`sgd_minibatch_size` must be a factor of `num_envs * (horizon //"
+                " seq_len)`."
             )
         return self
 
