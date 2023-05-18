@@ -374,3 +374,35 @@ TrainStatKey = Literal[
     "monitors/kl_div",
     "profiling/step_ms",
 ]
+
+
+class CumulativeAverage:
+    def __init__(self) -> None:
+        self.value = 0.0
+        self.n = 0
+
+    def update(self, value: float, /) -> float:
+        self.value = (value + self.n * self.value) / (self.n + 1)
+        return self.value
+
+
+class StatTracker:
+    def __init__(self, keys: list[str], *, sum_keys: None | list[str] = None) -> None:
+        sum_keys = sum_keys or []
+        self.cumulative_averages = {k: CumulativeAverage() for k in keys}
+        self.sums = {k: 0 for k in sum_keys}
+
+    def items(self) -> dict[str, float]:
+        return {k: ca.value for k, ca in self.cumulative_averages.items()}
+
+    def update(self, data: dict[str, float], /, *, reduce: bool = False) -> None:
+        for k in self.sums.keys():
+            self.sums[k] += data[k]
+
+        for k in set(self.cumulative_averages.keys()) - set(self.sums.keys()):
+            self.cumulative_averages[k].update(data[k])
+
+        if reduce:
+            for k in self.sums.keys():
+                self.cumulative_averages[k].update(self.sums[k])
+                self.sums[k] = 0.0

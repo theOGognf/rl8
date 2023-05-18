@@ -1,7 +1,6 @@
 from dataclasses import asdict
 from typing import Any
 
-import pandas as pd
 import torch
 import torch.amp as amp
 import torch.optim as optim
@@ -16,13 +15,14 @@ from ..data import (
     Device,
     RecurrentAlgorithmHparams,
     RecurrentAlgorithmState,
+    StatTracker,
     StepStats,
 )
 from ..distributions import Distribution
 from ..env import Env
 from ..models import RecurrentModel
 from ..nn import generalized_advantage_estimate, ppo_losses
-from ..optimizers import OptimizerWrapper
+from ..optimizer import OptimizerWrapper
 from ..policies import RecurrentPolicy
 from ..schedulers import EntropyScheduler, LRScheduler, ScheduleKind
 from ..specs import CompositeSpec, UnboundedContinuousTensorSpec
@@ -507,7 +507,24 @@ class RecurrentAlgorithm:
             grad_accumulation_steps = (
                 self.hparams.num_minibatches if self.hparams.accumulate_grads else 1
             )
-            step_stats_per_batch: list[StepStats] = []
+            stat_tracker = StatTracker(
+                [
+                    "coefficients/entropy",
+                    "coefficients/vf",
+                    "losses/entropy",
+                    "losses/policy",
+                    "losses/vf",
+                    "losses/total",
+                    "monitors/kl_div",
+                ],
+                sum_keys=[
+                    "losses/entropy",
+                    "losses/policy",
+                    "losses/vf",
+                    "losses/total",
+                    "monitors/kl_div",
+                ],
+            )
             loader = DataLoader(
                 self.buffer,
                 batch_size=self.hparams.sgd_minibatch_size,
@@ -555,17 +572,20 @@ class RecurrentAlgorithm:
                             curr_action_dist.logp(minibatch[DataKeys.ACTIONS])
                             - minibatch[DataKeys.LOGP]
                         )
-                        kl_div = torch.mean((torch.exp(logp_ratio) - 1) - logp_ratio)
+                        kl_div = (
+                            torch.mean((torch.exp(logp_ratio) - 1) - logp_ratio)
+                            / grad_accumulation_steps
+                        )
 
                     # Optimize.
-                    self.optimizer.step(
+                    stepped = self.optimizer.step(
                         losses["total"],
                         self.policy.model.parameters(),
                         max_grad_norm=self.hparams.max_grad_norm,
                     )
 
                     # Update step data.
-                    step_stats_per_batch.append(
+                    stat_tracker.update(
                         {
                             "coefficients/entropy": self.entropy_scheduler.coeff,
                             "coefficients/vf": self.hparams.vf_coeff,
@@ -574,7 +594,8 @@ class RecurrentAlgorithm:
                             "losses/vf": float(losses["vf"]),
                             "losses/total": float(losses["total"]),
                             "monitors/kl_div": float(kl_div),
-                        }
+                        },
+                        reduce=stepped,
                     )
 
             # Update schedulers.
@@ -593,11 +614,7 @@ class RecurrentAlgorithm:
             self.state.buffered = False
 
             # Update algo stats.
-            step_stats_df = pd.DataFrame(step_stats_per_batch)
-            if self.hparams.accumulate_grads:
-                step_stats = step_stats_df.sum(axis=0).to_dict()
-            else:
-                step_stats = step_stats_df.mean(axis=0).to_dict()
+            step_stats = stat_tracker.items()
         self.state.step_calls += 1
         step_stats["counting/step_calls"] = self.state.step_calls
         step_stats["profiling/step_ms"] = step_timer()

@@ -56,7 +56,22 @@ class OptimizerWrapper:
         /,
         *,
         max_grad_norm: float = 5.0,
-    ) -> None:
+    ) -> bool:
+        """Accumulate gradients using ``loss`` and step ``params`` after
+        clipping gradients by ``max_grad_norm`` if the number of gradient
+        accumulation steps has been reached.
+
+        Args:
+            loss: Loss to call backward on.
+            params: Model parameters whose gradients are clipped.
+            max_grad_norm: Max gradient magnitude allowed.
+
+        Returned:
+            A flag indicating if the optimizer was stepped and the model's
+            parameters were updated.
+
+        """
+        stepped = False
         self.scaler.scale(loss).backward()  # type: ignore[no-untyped-call]
         if self.step_calls % self.grad_accumulation_steps == 0:
             self.scaler.unscale_(self.optimizer)  # type: ignore[no-untyped-call]
@@ -64,4 +79,6 @@ class OptimizerWrapper:
             self.scaler.step(self.optimizer)  # type: ignore[no-untyped-call]
             self.scaler.update()  # type: ignore[no-untyped-call]
             self.optimizer.zero_grad()
+            stepped = True
         self.step_calls += 1
+        return stepped
