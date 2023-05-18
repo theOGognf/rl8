@@ -3,11 +3,11 @@ from typing import Any
 
 import pandas as pd
 import torch
+import torch.amp as amp
 import torch.optim as optim
 from dadaptation import DAdaptAdam
 from tensordict import TensorDict
 from torch.utils.data import DataLoader
-from typing_extensions import Self
 
 from .._utils import profile_ms
 from ..data import (
@@ -72,6 +72,8 @@ class Algorithm:
         accumulate_grads: Whether to accumulate gradients using minibatches for each
             epoch prior to stepping the optimizer. Useful for increasing
             the effective batch size while minimizing memory usage.
+        enable_amp: Whether to enable Automatic Mixed Precision (AMP) to reduce
+            accelerate training and reduce training memory usage.
         lr_schedule: Optional schedule that overrides the optimizer's learning rate.
             This deternmines the value of the learning rate according to the
             number of environment transitions experienced during learning.
@@ -226,6 +228,7 @@ class Algorithm:
         optimizer_cls: type[optim.Optimizer] = DAdaptAdam,
         optimizer_config: None | dict[str, Any] = None,
         accumulate_grads: bool = False,
+        enable_amp: bool = False,
         lr_schedule: None | list[tuple[int, float]] = None,
         lr_schedule_kind: ScheduleKind = "step",
         entropy_coeff: float = 0.0,
@@ -284,7 +287,9 @@ class Algorithm:
         self.hparams = AlgorithmHparams(
             accumulate_grads=accumulate_grads,
             clip_param=clip_param,
+            device=str(device),
             dual_clip_param=dual_clip_param,
+            enable_amp=enable_amp,
             gae_lambda=gae_lambda,
             gamma=gamma,
             horizon=horizon,
@@ -300,6 +305,8 @@ class Algorithm:
         self.state = AlgorithmState()
         self.optimizer = OptimizerWrapper(
             optimizer,
+            device=device,
+            enable_amp=enable_amp,
             grad_accumulation_steps=self.hparams.num_minibatches
             if accumulate_grads
             else 1,
@@ -414,7 +421,7 @@ class Algorithm:
         return collect_stats
 
     @property
-    def device(self) -> Device:
+    def device(self) -> str:
         """Return the device the policy is residing on."""
         return self.policy.device
 
@@ -480,33 +487,37 @@ class Algorithm:
             )
             for _ in range(self.hparams.num_sgd_iters):
                 for minibatch in loader:
-                    sample_batch = self.policy.sample(
-                        minibatch,
-                        kind="all",
-                        deterministic=False,
-                        inplace=False,
-                        requires_grad=True,
-                        return_actions=False,
-                        return_logp=False,
-                        return_values=True,
-                        return_views=False,
-                    )
+                    with amp.autocast(
+                        "cuda" if self.device != "cpu" else "cpu",
+                        enabled=self.hparams.enable_amp,
+                    ):
+                        sample_batch = self.policy.sample(
+                            minibatch,
+                            kind="all",
+                            deterministic=False,
+                            inplace=False,
+                            requires_grad=True,
+                            return_actions=False,
+                            return_logp=False,
+                            return_values=True,
+                            return_views=False,
+                        )
 
-                    # Get action distributions and their log probability ratios.
-                    curr_action_dist = self.policy.distribution_cls(
-                        sample_batch[DataKeys.FEATURES], self.policy.model
-                    )
-                    losses = ppo_losses(
-                        minibatch,
-                        sample_batch,
-                        curr_action_dist,
-                        clip_param=self.hparams.clip_param,
-                        dual_clip_param=self.hparams.dual_clip_param,
-                        entropy_coeff=self.entropy_scheduler.coeff,
-                        vf_clip_param=self.hparams.vf_clip_param,
-                        vf_coeff=self.hparams.vf_coeff,
-                    )
-                    losses = losses.apply(lambda x: x / loss_scale)
+                        # Get action distributions and their log probability ratios.
+                        curr_action_dist = self.policy.distribution_cls(
+                            sample_batch[DataKeys.FEATURES], self.policy.model
+                        )
+                        losses = ppo_losses(
+                            minibatch,
+                            sample_batch,
+                            curr_action_dist,
+                            clip_param=self.hparams.clip_param,
+                            dual_clip_param=self.hparams.dual_clip_param,
+                            entropy_coeff=self.entropy_scheduler.coeff,
+                            vf_clip_param=self.hparams.vf_clip_param,
+                            vf_coeff=self.hparams.vf_coeff,
+                        )
+                        losses = losses.apply(lambda x: x / loss_scale)
 
                     # Calculate approximate KL divergence for debugging.
                     with torch.no_grad():
@@ -560,11 +571,3 @@ class Algorithm:
         step_stats["counting/step_calls"] = self.state.step_calls
         step_stats["profiling/step_ms"] = step_timer()
         return step_stats  # type: ignore[no-any-return]
-
-    def to(self, device: Device, /) -> Self:
-        """Move the algorithm and its attributes to ``device``."""
-        self.buffer_spec = self.buffer_spec.to(device)
-        self.buffer = self.buffer.to(device)
-        self.env = self.env.to(device)
-        self.policy = self.policy.to(device)
-        return self

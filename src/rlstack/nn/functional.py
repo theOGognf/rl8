@@ -57,7 +57,42 @@ def generalized_advantage_estimate(
     normalize: bool = True,
     return_returns: bool = True,
 ) -> TensorDict:
-    """"""
+    """Compute a Generalized Advantage Estimate (GAE) and, optionally,
+    returns using value function estimates and rewards.
+
+    GAE is most commonly used with PPO for computing a policy loss that
+    incentivizes "good" actions.
+
+    Args:
+        batch: Tensordict that contains the following keys:
+
+            - "rewards": Environment transition rewards.
+            - "values": Policy value function estimates.
+
+        gae_lambda: Generalized Advantage Estimation (GAE) hyperparameter for
+            controlling the variance and bias tradeoff when estimating the
+            state value function from collected environment transitions. A
+            higher value allows higher variance while a lower value allows
+            higher bias estimation but lower variance.
+        gamma: Discount reward factor often used in the Bellman operator for
+            controlling the variance and bias tradeoff in collected experienced
+            rewards. Note, this does not control the bias/variance of the
+            state value estimation and only controls the weight future rewards
+            have on the total discounted return.
+        inplace: Whether to store advantage and, optionally, return estimates
+            in the given tensordict or whether to allocate a separate tensordict
+            for the returned values.
+        normalize: Whether to normalize advantages using the mean and standard
+            deviation of the advantage batch before storing in the returned
+            tensordict.
+        return_returns: Whether to compute and return Monte Carlo return
+            estimates with GAE.
+
+    Returns:
+        A tensordict with at least an "advantages" key and, optionally, a
+        "returns" key.
+
+    """
     out = (
         batch
         if inplace

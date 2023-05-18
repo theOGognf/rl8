@@ -4,7 +4,6 @@ from typing import Any, Generic, Protocol, TypeVar
 
 import torch
 from tensordict import TensorDict
-from typing_extensions import Self
 
 from .data import DataKeys, Device
 from .specs import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTensorSpec
@@ -79,9 +78,6 @@ class Env(Protocol):
 
         """
 
-    def to(self, device: Device, /) -> Self:
-        """Move the environment and its attributes to ``device``."""
-
 
 class GenericEnv(Env, Generic[_ObservationSpec, _ActionSpec]):
     """Generic version of `Env` for environments with constant specs."""
@@ -140,11 +136,6 @@ class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
             + self.bounds
         )
         return self.state
-
-    def to(self, device: Device, /) -> Self:
-        self.observation_spec = self.observation_spec.to(device)  # type: ignore[assignment]
-        self.state = self.state.to(device=device)
-        return self
 
 
 class ContinuousDummyEnv(DummyEnv[UnboundedContinuousTensorSpec]):

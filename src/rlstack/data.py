@@ -91,10 +91,20 @@ class AlgorithmHparams:
     #: observations. This is the main innovation of PPO.
     clip_param: float
 
+    #: Device training was done on. Not necessarily a performance-affecting
+    #: hyperparameter, but it does affect training speeds with respect to
+    #: wall time.
+    device: str
+
     #: PPO hyperparameter that clips like :attr:`Algorithm.clip_param` but when
     #: advantage estimations are negative. Helps prevent instability for
     #: continuous action spaces when policies are making large updates.
     dual_clip_param: None | float
+
+    #: Whether to enable Automatic Mixed Precision (AMP) when computing losses
+    #: within the algorithm. Useful for speeding up training and reducing
+    #: memory costs. No noteworthy downsides to enabling.
+    enable_amp: bool
 
     #: Generalized Advantage Estimation (GAE) hyperparameter for controlling
     #: the variance and bias tradeoff when estimating the state value
@@ -166,6 +176,9 @@ class AlgorithmHparams:
 
         if self.dual_clip_param is not None and not (self.dual_clip_param > 1):
             raise ValueError("`dual_clip_param` must be `None` or > 1.")
+
+        if self.device == "cpu" and self.enable_amp:
+            raise ValueError("`enable_amp` may only be used with CUDA devices.")
 
         if not (0 < self.gae_lambda <= 1):
             raise ValueError("`gae_lambda` must be in (0, 1].")

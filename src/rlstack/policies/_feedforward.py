@@ -75,9 +75,9 @@ class Policy:
         return self.model.action_spec
 
     @property
-    def device(self) -> Device:
+    def device(self) -> str:
         """Return the device the policy's model is on."""
-        return next(self.model.parameters()).device
+        return str(next(self.model.parameters()).device)
 
     @property
     def feature_spec(self) -> TensorSpec:
