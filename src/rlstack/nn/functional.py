@@ -64,8 +64,7 @@ def generalized_advantage_estimate(
         else TensorDict({}, batch_size=batch.batch_size, device=batch.device)
     )
     prev_advantage = 0.0
-    T = batch.size(1) - 1
-    for t in reversed(range(T)):
+    for t in reversed(range(batch.size(1) - 1)):
         delta = batch[DataKeys.REWARDS][:, t, ...] + (
             gamma * batch[DataKeys.VALUES][:, t + 1, ...]
             - batch[DataKeys.VALUES][:, t, ...]
@@ -76,9 +75,9 @@ def generalized_advantage_estimate(
     if return_returns:
         out[DataKeys.RETURNS] = out[DataKeys.ADVANTAGES] + batch[DataKeys.VALUES]
     if normalize:
-        std, mean = torch.std_mean(out[DataKeys.ADVANTAGES][:, : (T + 1), ...])
-        out[DataKeys.ADVANTAGES][:, : (T + 1), ...] = (
-            out[DataKeys.ADVANTAGES][:, : (T + 1), ...] - mean
+        std, mean = torch.std_mean(out[DataKeys.ADVANTAGES][:, :-1, ...])
+        out[DataKeys.ADVANTAGES][:, :-1, ...] = (
+            out[DataKeys.ADVANTAGES][:, :-1, ...] - mean
         ) / (std + 1e-8)
     return out
 
