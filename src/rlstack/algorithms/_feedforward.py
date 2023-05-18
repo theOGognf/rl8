@@ -305,7 +305,6 @@ class Algorithm:
         self.state = AlgorithmState()
         self.optimizer = OptimizerWrapper(
             optimizer,
-            device=device,
             enable_amp=enable_amp,
             grad_accumulation_steps=self.hparams.num_minibatches
             if accumulate_grads

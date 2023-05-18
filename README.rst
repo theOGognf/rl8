@@ -1,10 +1,10 @@
 rlstack: A Minimal RL Toolkit
 =============================
 
-**rlstack** is a high throughput, infinite horizon RL library that can
-simulate highly parallelized environments, and can train a PPO policy using
-those highly parallelized environments, achieving around 500k environment
-transitions (and one policy update) per second using a single NVIDIA RTX 2080.
+**rlstack** is an infinite horizon RL library that can simulate highly
+parallelized environments, and can train a PPO policy using those highly
+parallelized environments, achieving up to 500k environment transitions
+(and one policy update) per second using a single NVIDIA RTX 2080.
 
 * **Documentation**: https://theogognf.github.io/rlstack/
 * **PyPI**: https://pypi.org/project/rlstack/
@@ -237,6 +237,44 @@ Use the high-level trainer interface to specify training on a GPU.
     trainer = Trainer(DiscreteDummyEnv, algorithm_config={"device": "cuda"})
     trainer.run()
 
+Minimizing GPU Memory Usage
+---------------------------
+
+Use the low-level algorithm interface to enable policy updates via gradient
+accumulation and `Automatic Mixed Precision (AMP)`_ to minimize GPU memory
+usage so you can simulate more environments or used larger models.
+
+.. code:: python
+
+    from rlstack import Algorithm
+    from rlstack.env import DiscreteDummyEnv
+
+    algo = Algorithm(
+        DiscreteDummyEnv,
+        accumulate_grads=True,
+        enable_amp=True,
+        device="cuda"
+    )
+    algo.collect()
+    algo.step()
+
+Use the high-level trainer interface to enable similar memory-minimization
+settings.
+
+.. code:: python
+
+    from rlstack import Trainer
+    from rlstack.env import DiscreteDummyEnv
+
+    trainer = Trainer(DiscreteDummyEnv,
+        algorithm_config={
+            "accumulate_grads": True,
+            "enable_amp": True,
+            "device": "cuda"
+        }
+    )
+    trainer.run()
+
 Specifying Training Stop Conditions
 -----------------------------------
 
@@ -275,6 +313,7 @@ Related Projects
   documented, and tested RL building blocks and algorithm implementations aimed
   at supporting research in RL.
 
+.. _`Automatic Mixed Precision (AMP)`: https://pytorch.org/docs/stable/amp.html
 .. _`RL Games`: https://github.com/Denys88/rl_games
 .. _`RLlib`: https://docs.ray.io/en/latest/rllib/index.html
 .. _`Sample Factory`: https://github.com/alex-petrenko/sample-factory
