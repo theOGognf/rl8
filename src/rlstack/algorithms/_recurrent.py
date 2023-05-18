@@ -3,8 +3,6 @@ from typing import Any
 
 import pandas as pd
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 from dadaptation import DAdaptAdam
 from tensordict import TensorDict
@@ -23,6 +21,8 @@ from ..data import (
 from ..distributions import Distribution
 from ..env import Env
 from ..models import RecurrentModel
+from ..nn import generalized_advantage_estimate, ppo_losses
+from ..optimizers import OptimizerWrapper
 from ..policies import RecurrentPolicy
 from ..schedulers import EntropyScheduler, LRScheduler, ScheduleKind
 from ..specs import CompositeSpec, UnboundedContinuousTensorSpec
@@ -78,6 +78,9 @@ class RecurrentAlgorithm:
             that doesn't require much tuning.
         optimizer_config: Custom optimizer config unpacked into ``optimizer_cls``
             during optimizer instantiation.
+        accumulate_grads: Whether to accumulate gradients using minibatches for each
+            epoch prior to stepping the optimizer. Useful for increasing
+            the effective batch size while minimizing memory usage.
         lr_schedule: Optional schedule that overrides the optimizer's learning rate.
             This deternmines the value of the learning rate according to the
             number of environment transitions experienced during learning.
@@ -120,7 +123,7 @@ class RecurrentAlgorithm:
             and also to accelerate the computations when learning (assuming a CUDA
             device is being used). If ``None``, the whole buffer is treated as one giant
             batch.
-        num_sgd_iter: PPO hyperparameter indicating the number of gradient steps to take
+        num_sgd_iters: PPO hyperparameter indicating the number of gradient steps to take
             with the whole :attr:`RecurrentAlgorithm.buffer` when calling :meth:`RecurrentAlgorithm.step`.
         shuffle_minibatches: Whether to shuffle minibatches within :meth:`RecurrentAlgorithm.step`.
             Recommended, but not necessary if the minibatch size is large enough
@@ -196,10 +199,12 @@ class RecurrentAlgorithm:
     #: if a `learning_rate_schedule` is provided.
     lr_scheduler: LRScheduler
 
-    #: Underlying optimizer for updating the policy's model. Constructed from
-    #: ``optimizer_cls`` and ``optimizer_config``. Defaults to a generally
-    #: robust optimizer that doesn't require much hyperparameter tuning.
-    optimizer: optim.Optimizer
+    #: Wrapper around the underlying optimizer for updating the policy's model.
+    #: that was constructed from  #: ``optimizer_cls`` and ``optimizer_config``.
+    #: Handles gradient accumulation and automatic mixed precision model
+    #: updates. ``optimizer_cls`` defaults to a generally robust optimizer that
+    #: doesn't require much hyperparameter tuning.
+    optimizer: OptimizerWrapper
 
     #: Policy constructed from the ``model_cls``, ``model_config``, and
     #: ``distribution_cls`` kwargs. A default policy is constructed according to
@@ -231,6 +236,7 @@ class RecurrentAlgorithm:
         seqs_per_state_reset: int = 4,
         optimizer_cls: type[optim.Optimizer] = DAdaptAdam,
         optimizer_config: None | dict[str, Any] = None,
+        accumulate_grads: bool = False,
         lr_schedule: None | list[tuple[int, float]] = None,
         lr_schedule_kind: ScheduleKind = "step",
         entropy_coeff: float = 0.0,
@@ -239,7 +245,7 @@ class RecurrentAlgorithm:
         gae_lambda: float = 0.95,
         gamma: float = 0.95,
         sgd_minibatch_size: None | int = None,
-        num_sgd_iter: int = 4,
+        num_sgd_iters: int = 4,
         shuffle_minibatches: bool = True,
         clip_param: float = 0.2,
         vf_clip_param: float = 5.0,
@@ -275,11 +281,9 @@ class RecurrentAlgorithm:
         ).to(device)
         self.buffer = self.buffer_spec.zero([num_envs, horizon + 1])
         optimizer_config = optimizer_config or {}
-        self.optimizer = optimizer_cls(
-            self.policy.model.parameters(), **optimizer_config
-        )
+        optimizer = optimizer_cls(self.policy.model.parameters(), **optimizer_config)
         self.lr_scheduler = LRScheduler(
-            self.optimizer, schedule=lr_schedule, kind=lr_schedule_kind
+            optimizer, schedule=lr_schedule, kind=lr_schedule_kind
         )
         self.entropy_scheduler = EntropyScheduler(
             entropy_coeff,
@@ -290,6 +294,7 @@ class RecurrentAlgorithm:
             sgd_minibatch_size if sgd_minibatch_size else num_envs * horizon
         )
         self.hparams = RecurrentAlgorithmHparams(
+            accumulate_grads=accumulate_grads,
             clip_param=clip_param,
             dual_clip_param=dual_clip_param,
             gae_lambda=gae_lambda,
@@ -297,15 +302,22 @@ class RecurrentAlgorithm:
             horizon=horizon,
             horizons_per_env_reset=horizons_per_env_reset,
             max_grad_norm=max_grad_norm,
-            num_sgd_iter=num_sgd_iter,
+            num_envs=num_envs,
+            num_sgd_iters=num_sgd_iters,
             seq_len=seq_len,
             seqs_per_state_reset=seqs_per_state_reset,
             sgd_minibatch_size=sgd_minibatch_size,
             shuffle_minibatches=shuffle_minibatches,
             vf_clip_param=vf_clip_param,
             vf_coeff=vf_coeff,
-        )
+        ).validate()
         self.state = RecurrentAlgorithmState()
+        self.optimizer = OptimizerWrapper(
+            optimizer,
+            grad_accumulation_steps=self.hparams.num_minibatches
+            if accumulate_grads
+            else 1,
+        )
 
     def collect(
         self, *, env_config: None | dict[str, Any] = None, deterministic: bool = False
@@ -338,13 +350,6 @@ class RecurrentAlgorithm:
 
         """
         with profile_ms() as collect_timer:
-            # Get number of environments and horizon. Remember, there's an extra
-            # sample in the horizon because we store the final environment observation
-            # for the next :meth:`RecurrentAlgorithm.collect` call and value function estimates
-            # for bootstrapping.
-            B = self.num_envs
-            T = self.horizon
-
             # Gather initial observation and states.
             if not (self.state.horizons % self.hparams.horizons_per_env_reset):
                 self.buffer[DataKeys.OBS][:, 0, ...] = self.env.reset(config=env_config)
@@ -356,13 +361,15 @@ class RecurrentAlgorithm:
                 :, -1, ...
             ]
 
-            for t in range(T):
+            for t in range(self.hparams.horizon):
                 if self.state.seqs and self.hparams.seqs_per_state_reset <= 0:
                     pass
                 elif not (t % self.hparams.seq_len) and not (
                     self.state.seqs % self.hparams.seqs_per_state_reset
                 ):
-                    self.buffer[DataKeys.STATES][:, t, ...] = self.policy.init_states(B)
+                    self.buffer[DataKeys.STATES][:, t, ...] = self.policy.init_states(
+                        self.hparams.num_envs
+                    )
 
                 # Sample the policy and step the environment.
                 in_batch = self.buffer[:, t : (t + 1), ...]
@@ -431,7 +438,7 @@ class RecurrentAlgorithm:
                 "rewards/std": float(torch.std(rewards)),
             }
         self.state.collect_calls += 1
-        self.state.total_steps += B * T
+        self.state.total_steps += self.hparams.num_envs * self.hparams.horizon
         collect_stats["counting/collect_calls"] = self.state.collect_calls
         collect_stats["counting/horizons"] = self.state.horizons
         collect_stats["counting/total_steps"] = self.state.total_steps
@@ -444,23 +451,13 @@ class RecurrentAlgorithm:
         return self.policy.device
 
     @property
-    def horizon(self) -> int:
-        """Max number of transitions to run for each environment."""
-        return int(self.buffer.size(1)) - 1
-
-    @property
-    def num_envs(self) -> int:
-        """Number of environments ran in parallel."""
-        return int(self.buffer.size(0))
-
-    @property
     def params(self) -> dict[str, Any]:
         """Return algorithm parameters."""
         return {
             "env_cls": self.env.__class__.__name__,
             "model_cls": self.policy.model.__class__.__name__,
             "distribution_cls": self.policy.distribution_cls.__name__,
-            "optimizer_cls": self.optimizer.__class__.__name__,
+            "optimizer_cls": self.optimizer.optimizer.__class__.__name__,
             "entropy_coeff": self.entropy_scheduler.coeff,
             **asdict(self.hparams),
         }
@@ -480,30 +477,16 @@ class RecurrentAlgorithm:
             )
 
         with profile_ms() as step_timer:
-            # Get number of environments and horizon. Remember, there's an extra
-            # sample in the horizon because we store the final environment observation
-            # for the next :meth:`RecurrentAlgorithm.collect` call and value function estimates
-            # for bootstrapping.
-            B = self.num_envs
-            T = self.horizon
-
             # Generalized Advantage Estimation (GAE) and returns bootstrapping.
-            prev_advantage = 0.0
-            for t in reversed(range(T)):
-                delta = self.buffer[DataKeys.REWARDS][:, t, ...] + (
-                    self.hparams.gamma * self.buffer[DataKeys.VALUES][:, t + 1, ...]
-                    - self.buffer[DataKeys.VALUES][:, t, ...]
-                )
-                self.buffer[DataKeys.ADVANTAGES][:, t, ...] = prev_advantage = delta + (
-                    self.hparams.gamma * self.hparams.gae_lambda * prev_advantage
-                )
-            self.buffer[DataKeys.RETURNS] = (
-                self.buffer[DataKeys.ADVANTAGES] + self.buffer[DataKeys.VALUES]
+            self.buffer = generalized_advantage_estimate(
+                self.buffer,
+                gae_lambda=self.hparams.gae_lambda,
+                gamma=self.hparams.gamma,
+                inplace=True,
+                normalize=True,
+                return_returns=True,
+                size=self.hparams.horizon,
             )
-            std, mean = torch.std_mean(self.buffer[DataKeys.ADVANTAGES])
-            self.buffer[DataKeys.ADVANTAGES] = (
-                self.buffer[DataKeys.ADVANTAGES] - mean
-            ) / (std + 1e-8)
 
             # Batchify the buffer. Save the last sample for adding it back to the
             # buffer. Remove the last sample afterwards since it contains dummy
@@ -518,6 +501,7 @@ class RecurrentAlgorithm:
             del self.buffer[DataKeys.VALUES]
 
             # Main PPO loop.
+            loss_scale = len(self.buffer) if self.hparams.accumulate_grads else 1
             step_stats_per_batch: list[StepStats] = []
             loader = DataLoader(
                 self.buffer,
@@ -525,7 +509,7 @@ class RecurrentAlgorithm:
                 shuffle=self.hparams.shuffle_minibatches,
                 collate_fn=lambda x: x,
             )
-            for _ in range(self.hparams.num_sgd_iter):
+            for _ in range(self.hparams.num_sgd_iters):
                 for minibatch in loader:
                     sample_batch, _ = self.policy.sample(
                         minibatch,
@@ -544,51 +528,17 @@ class RecurrentAlgorithm:
                     curr_action_dist = self.policy.distribution_cls(
                         sample_batch[DataKeys.FEATURES], self.policy.model
                     )
-                    ratio = torch.exp(
-                        curr_action_dist.logp(minibatch[DataKeys.ACTIONS])
-                        - minibatch[DataKeys.LOGP]
+                    losses = ppo_losses(
+                        minibatch,
+                        sample_batch,
+                        curr_action_dist,
+                        clip_param=self.hparams.clip_param,
+                        dual_clip_param=self.hparams.dual_clip_param,
+                        entropy_coeff=self.entropy_scheduler.coeff,
+                        vf_clip_param=self.hparams.vf_clip_param,
+                        vf_coeff=self.hparams.vf_coeff,
                     )
-
-                    # Compute main, required losses.
-                    vf_loss = torch.mean(
-                        torch.clamp(
-                            F.smooth_l1_loss(
-                                sample_batch[DataKeys.VALUES],
-                                minibatch[DataKeys.RETURNS],
-                                reduction="none",
-                            ),
-                            0.0,
-                            self.hparams.vf_clip_param,
-                        )
-                    )
-                    surr1 = minibatch[DataKeys.ADVANTAGES] * ratio
-                    surr2 = minibatch[DataKeys.ADVANTAGES] * torch.clamp(
-                        ratio, 1 - self.hparams.clip_param, 1 + self.hparams.clip_param
-                    )
-                    if self.hparams.dual_clip_param:
-                        clip1 = torch.min(surr1, surr2)
-                        clip2 = torch.max(
-                            clip1,
-                            self.hparams.dual_clip_param
-                            * minibatch[DataKeys.ADVANTAGES],
-                        )
-                        policy_loss = torch.where(
-                            minibatch[DataKeys.ADVANTAGES] < 0, clip2, clip1
-                        ).mean()
-                    else:
-                        policy_loss = torch.min(
-                            surr1,
-                            surr2,
-                        ).mean()
-
-                    # Maximize entropy, maximize policy actions associated with high advantages,
-                    # minimize discounted return estimation error.
-                    total_loss = self.hparams.vf_coeff * vf_loss - policy_loss
-                    if self.entropy_scheduler.coeff != 0:
-                        entropy_loss = curr_action_dist.entropy().mean()
-                        total_loss -= self.entropy_scheduler.coeff * entropy_loss
-                    else:
-                        entropy_loss = torch.tensor([0.0])
+                    losses = losses.apply(lambda x: x / loss_scale)
 
                     # Calculate approximate KL divergence for debugging.
                     with torch.no_grad():
@@ -599,35 +549,34 @@ class RecurrentAlgorithm:
                         kl_div = torch.mean((torch.exp(logp_ratio) - 1) - logp_ratio)
 
                     # Optimize.
-                    self.optimizer.zero_grad()
-                    total_loss.backward()  # type: ignore[no-untyped-call]
-                    nn.utils.clip_grad_norm_(
-                        self.policy.model.parameters(), self.hparams.max_grad_norm
+                    self.optimizer.step(
+                        losses["total"],
+                        self.policy.model.parameters(),
+                        max_grad_norm=self.hparams.max_grad_norm,
                     )
-                    self.optimizer.step()
 
                     # Update step data.
                     step_stats_per_batch.append(
                         {
                             "coefficients/entropy": self.entropy_scheduler.coeff,
                             "coefficients/vf": self.hparams.vf_coeff,
-                            "losses/entropy": float(entropy_loss),
-                            "losses/policy": float(policy_loss),
-                            "losses/vf": float(vf_loss),
-                            "losses/total": float(total_loss),
+                            "losses/entropy": float(losses["entropy"]),
+                            "losses/policy": float(losses["policy"]),
+                            "losses/vf": float(losses["vf"]),
+                            "losses/total": float(losses["total"]),
                             "monitors/kl_div": float(kl_div),
                         }
                     )
 
             # Update schedulers.
-            self.lr_scheduler.step(B * T)
-            self.entropy_scheduler.step(B * T)
+            self.lr_scheduler.step(self.hparams.num_envs * self.hparams.horizon)
+            self.entropy_scheduler.step(self.hparams.num_envs * self.hparams.horizon)
 
             # Reset the buffer and buffered flag.
             self.buffer = self.buffer_spec.zero(
                 [
-                    B,
-                    T + 1,
+                    self.hparams.num_envs,
+                    self.hparams.horizon + 1,
                 ]
             )
             self.buffer[DataKeys.OBS][:, -1, ...] = final_obs
@@ -635,7 +584,11 @@ class RecurrentAlgorithm:
             self.state.buffered = False
 
             # Update algo stats.
-            step_stats = pd.DataFrame(step_stats_per_batch).mean(axis=0).to_dict()
+            step_stats_df = pd.DataFrame(step_stats_per_batch)
+            if self.hparams.accumulate_grads:
+                step_stats = step_stats_df.sum(axis=0).to_dict()
+            else:
+                step_stats = step_stats_df.mean(axis=0).to_dict()
         self.state.step_calls += 1
         step_stats["counting/step_calls"] = self.state.step_calls
         step_stats["profiling/step_ms"] = step_timer()

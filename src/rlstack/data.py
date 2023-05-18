@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Literal, TypedDict
 
 import torch
+from typing_extensions import Self
 
 Device = str | torch.device
 
@@ -79,6 +80,11 @@ class AlgorithmHparams:
 
     """
 
+    #: Whether to accumulate gradients using minibatches for each
+    #: epoch prior to stepping the optimizer. Useful for increasing
+    #: the effective batch size while minimizing memory usage.
+    accumulate_grads: bool
+
     #: PPO hyperparameter indicating the max distance the policy can
     #: update away from previously collected policy sample data with
     #: respect to likelihoods of taking actions conditioned on
@@ -123,9 +129,14 @@ class AlgorithmHparams:
     #: :meth:`Algorithm.step`.
     max_grad_norm: float
 
+    #: Number of environments being simulated in parallel. This should
+    #: typically be maximized, but there are eventually diminishing
+    #: returns when increasing it.
+    num_envs: int
+
     #: PPO hyperparameter indicating the number of gradient steps to take
     #: with the whole :attr:`Algorithm.buffer` when calling `step`.
-    num_sgd_iter: int
+    num_sgd_iters: int
 
     #: PPO hyperparameter indicating the minibatc size :attr:`Algorithm.buffer`
     #: is split into when updating the policy's model in :meth:`Algorithm.step`.
@@ -171,6 +182,9 @@ class AlgorithmHparams:
         if not (self.max_grad_norm > 0):
             raise ValueError("`max_grad_norm` must be > 0.")
 
+        if not (self.num_sgd_iters > 0):
+            raise ValueError("`num_sgd_iters` must be > 0.")
+
         if not (self.sgd_minibatch_size > 0):
             raise ValueError("`sgd_minibatch_size` must be > 0.")
 
@@ -179,6 +193,19 @@ class AlgorithmHparams:
 
         if not (self.vf_coeff > 0):
             raise ValueError("`vf_coeff` must be > 0.")
+
+    @property
+    def num_minibatches(self) -> int:
+        """Return the number of minibatches for convenience."""
+        return (self.num_envs * self.horizon) // self.sgd_minibatch_size
+
+    def validate(self) -> Self:
+        """Extra validation that can't go in the post init."""
+        if (self.num_envs * self.horizon) % self.sgd_minibatch_size:
+            raise ValueError(
+                "`sgd_minibatch_size` must be a factor of `num_envs * horizon`."
+            )
+        return self
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -200,6 +227,7 @@ class RecurrentAlgorithmHparams(AlgorithmHparams):
     seqs_per_state_reset: int
 
     def __post_init__(self) -> None:
+        super().__post_init__()
         if not (self.seq_len > 0):
             raise ValueError("`seq_len` must be > 0.")
 
@@ -208,6 +236,19 @@ class RecurrentAlgorithmHparams(AlgorithmHparams):
 
         if self.seqs_per_state_reset == 0:
             raise ValueError("`seqs_per_state_reset` must be nonzero.")
+
+    @property
+    def num_minibatches(self) -> int:
+        """Return the number of minibatches for convenience."""
+        return (self.num_envs * self.seq_len) // self.sgd_minibatch_size
+
+    def validate(self) -> Self:
+        """Extra validation that can't go in the post init."""
+        if (self.num_envs * self.seq_len) % self.sgd_minibatch_size:
+            raise ValueError(
+                "`sgd_minibatch_size` must be a factor of `num_envs * seq_len`."
+            )
+        return self
 
 
 @dataclass(kw_only=True)

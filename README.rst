@@ -59,8 +59,8 @@ Why rlstack?
 ============
 
 **TL;DR: rlstack focuses on a niche subset of RL that simplifies the overall
-library while allowing blazingly fast and fully customizable environments,
-models, and action distributions.**
+library while allowing fast and fully customizable environments, models, and
+action distributions.**
 
 There are many high quality, open-sourced RL libraries. Most of them take on the
 daunting task of being a monolithic, one-stop-shop for everything RL, attempting to
