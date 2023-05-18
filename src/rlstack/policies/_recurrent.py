@@ -73,9 +73,9 @@ class RecurrentPolicy:
         return self.model.action_spec
 
     @property
-    def device(self) -> str:
+    def device(self) -> Device:
         """Return the device the policy's model is on."""
-        return str(next(self.model.parameters()).device)
+        return next(self.model.parameters()).device
 
     @property
     def feature_spec(self) -> TensorSpec:

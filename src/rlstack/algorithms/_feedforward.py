@@ -192,9 +192,9 @@ class Algorithm:
     #: if a `learning_rate_schedule` is provided.
     lr_scheduler: LRScheduler
 
-    #: Wrapper around the underlying optimizer for updating the policy's model.
-    #: that was constructed from  #: ``optimizer_cls`` and ``optimizer_config``.
-    #: Handles gradient accumulation and automatic mixed precision model
+    #: Wrapper around the underlying optimizer for updating the policy's model
+    #: that was constructed from ``optimizer_cls`` and ``optimizer_config``.
+    #: Handles gradient accumulation and Automatic Mixed Precision (AMP) model
     #: updates. ``optimizer_cls`` defaults to a generally robust optimizer that
     #: doesn't require much hyperparameter tuning.
     optimizer: OptimizerWrapper
@@ -421,11 +421,6 @@ class Algorithm:
         return collect_stats
 
     @property
-    def device(self) -> str:
-        """Return the device the policy is residing on."""
-        return self.policy.device
-
-    @property
     def params(self) -> dict[str, Any]:
         """Return algorithm parameters."""
         return {
@@ -477,7 +472,10 @@ class Algorithm:
             del self.buffer[DataKeys.VALUES]
 
             # Main PPO loop.
-            loss_scale = len(self.buffer) if self.hparams.accumulate_grads else 1
+            device_type = "cuda" if str(self.hparams.device) != "cpu" else "cpu"
+            grad_accumulation_steps = (
+                self.hparams.num_minibatches if self.hparams.accumulate_grads else 1
+            )
             step_stats_per_batch: list[StepStats] = []
             loader = DataLoader(
                 self.buffer,
@@ -488,7 +486,7 @@ class Algorithm:
             for _ in range(self.hparams.num_sgd_iters):
                 for minibatch in loader:
                     with amp.autocast(
-                        "cuda" if self.device != "cpu" else "cpu",
+                        device_type,
                         enabled=self.hparams.enable_amp,
                     ):
                         sample_batch = self.policy.sample(
@@ -517,7 +515,7 @@ class Algorithm:
                             vf_clip_param=self.hparams.vf_clip_param,
                             vf_coeff=self.hparams.vf_coeff,
                         )
-                        losses = losses.apply(lambda x: x / loss_scale)
+                        losses = losses.apply(lambda x: x / grad_accumulation_steps)
 
                     # Calculate approximate KL divergence for debugging.
                     with torch.no_grad():

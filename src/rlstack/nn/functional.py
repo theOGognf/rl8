@@ -64,7 +64,8 @@ def generalized_advantage_estimate(
     incentivizes "good" actions.
 
     Args:
-        batch: Tensordict that contains the following keys:
+        batch: Tensordict of batch size ``[B, T + 1, ...]`` that contains the
+        following keys:
 
             - "rewards": Environment transition rewards.
             - "values": Policy value function estimates.
@@ -268,15 +269,16 @@ def ppo_losses(
     total loss and reduced with a mean operation.
 
     Args:
-        buffer_batch: Tensordict full of the following keys:
+        buffer_batch: Tensordict of batch size ``[B, ...]`` full of the
+            following keys:
 
             - "actions": Policy action samples during environment transitions.
             - "advantages": Advantages from :meth:`generalized_advantage_estimate`.
             - "logp": Log probabilities of taking ``"actions"``.
             - "returns": Monte carlo return estimates.
 
-        sample_batch: Tensordict from sampling a policy full of the following
-            keys:
+        sample_batch: Tensordict from sampling a policy of batch size ``[B, ...]``
+            full of the following keys:
 
             - "values": Policy value function estimates.
 

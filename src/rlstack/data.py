@@ -94,7 +94,7 @@ class AlgorithmHparams:
     #: Device training was done on. Not necessarily a performance-affecting
     #: hyperparameter, but it does affect training speeds with respect to
     #: wall time.
-    device: str
+    device: Device
 
     #: PPO hyperparameter that clips like :attr:`Algorithm.clip_param` but when
     #: advantage estimations are negative. Helps prevent instability for
@@ -177,7 +177,7 @@ class AlgorithmHparams:
         if self.dual_clip_param is not None and not (self.dual_clip_param > 1):
             raise ValueError("`dual_clip_param` must be `None` or > 1.")
 
-        if self.device == "cpu" and self.enable_amp:
+        if str(self.device) == "cpu" and self.enable_amp:
             raise ValueError("`enable_amp` may only be used with CUDA devices.")
 
         if not (0 < self.gae_lambda <= 1):
@@ -206,6 +206,13 @@ class AlgorithmHparams:
 
         if not (self.vf_coeff > 0):
             raise ValueError("`vf_coeff` must be > 0.")
+
+        if self.accumulate_grads and (self.num_minibatches == 1):
+            raise ValueError(
+                "`accumulate_grads` is `True` but there's only one minibatch during"
+                " training, making gradient accumulation irrelevant. Update"
+                " `sgd_minibatch_size` or disable `accumulate_grads`."
+            )
 
     @property
     def num_minibatches(self) -> int:
@@ -253,11 +260,13 @@ class RecurrentAlgorithmHparams(AlgorithmHparams):
     @property
     def num_minibatches(self) -> int:
         """Return the number of minibatches for convenience."""
-        return (self.num_envs * self.seq_len) // self.sgd_minibatch_size
+        return (
+            self.num_envs * (self.horizon // self.seq_len)
+        ) // self.sgd_minibatch_size
 
     def validate(self) -> Self:
         """Extra validation that can't go in the post init."""
-        if (self.num_envs * self.seq_len) % self.sgd_minibatch_size:
+        if (self.num_envs * (self.horizon // self.seq_len)) % self.sgd_minibatch_size:
             raise ValueError(
                 "`sgd_minibatch_size` must be a factor of `num_envs * seq_len`."
             )
