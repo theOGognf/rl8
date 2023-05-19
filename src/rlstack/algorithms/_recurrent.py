@@ -8,14 +8,13 @@ from dadaptation import DAdaptAdam
 from tensordict import TensorDict
 from torch.utils.data import DataLoader
 
-from .._utils import profile_ms
+from .._utils import StatTracker, profile_ms
 from ..data import (
     CollectStats,
     DataKeys,
     Device,
     RecurrentAlgorithmHparams,
     RecurrentAlgorithmState,
-    StatTracker,
     StepStats,
 )
 from ..distributions import Distribution
