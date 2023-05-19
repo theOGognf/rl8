@@ -151,8 +151,8 @@ Customizing Training Runs
 -------------------------
 
 Use a custom distribution and custom hyperparameters with the low-level
-algorithm interface. The feedforward algorithm uses default feedforward models
-for different environment action specs.
+algorithm interface. The algorithm uses default feedforward models depending
+on the environment's action spec.
 
 .. code:: python
 
@@ -168,8 +168,7 @@ for different environment action specs.
     algo.collect()
     algo.step()
 
-Use the same custom distribution and custom hyperparameter with the
-high-level trainer interface.
+Specify the same settings using the high-level trainer interface.
 
 .. code:: python
 
@@ -191,7 +190,7 @@ Training a Recurrent Policy
 
 Use the low-level algorithm interface to seamlessly switch between feedforward
 and recurrent algorithms. The recurrent algorithm uses default recurrent models
-for different environment action specs.
+depending on the environment's action spec.
 
 .. code:: python
 
@@ -203,7 +202,7 @@ for different environment action specs.
     algo.step()
 
 Specify the algorithm type using the high-level trainer interface (which
-defaults to a feedforward algorithm).
+usually defaults to a feedforward version of the algorithm).
 
 .. code:: python
 
@@ -227,7 +226,7 @@ Use the low-level algorithm interface to specify training on a GPU.
     algo.collect()
     algo.step()
 
-Use the high-level trainer interface to specify training on a GPU.
+Specify training on a GPU using the high-level trainer interface.
 
 .. code:: python
 
@@ -258,8 +257,7 @@ usage so you can simulate more environments or used larger models.
     algo.collect()
     algo.step()
 
-Use the high-level trainer interface to enable similar memory-minimization
-settings.
+Enable memory-minimization settings using the high-level trainer interface.
 
 .. code:: python
 
@@ -279,8 +277,8 @@ settings.
 Specifying Training Stop Conditions
 -----------------------------------
 
-Use the high-level trainer interface to specify training stop conditions based
-on training statistics.
+Specify training stop conditions based on training statistics using the
+high-level trainer interface.
 
 .. code:: python
 
