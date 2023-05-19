@@ -239,9 +239,9 @@ Specify training on a GPU using the high-level trainer interface.
 Minimizing GPU Memory Usage
 ---------------------------
 
-Use the low-level algorithm interface to enable policy updates via gradient
-accumulation and `Automatic Mixed Precision (AMP)`_ to minimize GPU memory
-usage so you can simulate more environments or used larger models.
+Use the low-level algorithm interface to enable policy updates with gradient
+accumulation and/or `Automatic Mixed Precision (AMP)`_ to minimize GPU memory
+usage so you can simulate more environments or use larger models.
 
 .. code:: python
 
