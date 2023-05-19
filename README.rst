@@ -252,6 +252,7 @@ usage so you can simulate more environments or used larger models.
         DiscreteDummyEnv,
         accumulate_grads=True,
         enable_amp=True,
+        sgd_minibatch_size=8192,
         device="cuda",
     )
     algo.collect()
