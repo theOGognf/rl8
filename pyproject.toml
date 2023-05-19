@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rlstack"
-description = "A high throughput RL library for infinite horizon tasks."
+description = "A minimal RL library for infinite horizon tasks."
 authors = [{name = "Andrew B."}]
 classifiers = [
     "Development Status :: 3 - Alpha",

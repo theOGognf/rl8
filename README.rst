@@ -1,10 +1,10 @@
 rlstack: A Minimal RL Toolkit
 =============================
 
-**rlstack** is an infinite horizon RL library that can simulate highly
-parallelized environments, and can train a PPO policy using those highly
-parallelized environments, achieving up to 500k environment transitions
-(and one policy update) per second using a single NVIDIA RTX 2080.
+**rlstack** is a minimal RL library that can simulate highly parallelized,
+infinite horizon environments, and can train a PPO policy using those
+environments, achieving up to 500k environment transitions (and one policy
+update) per second using a single NVIDIA RTX 2080.
 
 * **Documentation**: https://theogognf.github.io/rlstack/
 * **PyPI**: https://pypi.org/project/rlstack/
@@ -91,8 +91,8 @@ feature support and speed/complexity tradeoff by making some key assumptions:
   is PPO. This allows **rlstack** to ignore layers upon layers of abstraction,
   greatly simplifying the overall library implementation.
 
-The end result is a high throughput library that can train policies to solve
-complex tasks on a single NVIDIA RTX 2080 within minutes.
+The end result is a minimal and high throughput library that can train policies
+to solve complex tasks on a single NVIDIA RTX 2080 within minutes.
 
 Unfortunately, this means **rlstack** doesn't support as many use cases as
 a monolithic RL library might. In fact, **rlstack** is probably a bad fit for
