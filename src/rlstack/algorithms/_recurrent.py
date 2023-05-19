@@ -618,4 +618,4 @@ class RecurrentAlgorithm:
         self.state.step_calls += 1
         step_stats["counting/step_calls"] = self.state.step_calls
         step_stats["profiling/step_ms"] = step_timer()
-        return step_stats  # type: ignore[no-any-return]
+        return step_stats  # type: ignore[return-value]

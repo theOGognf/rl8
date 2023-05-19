@@ -42,8 +42,6 @@ class Trainer:
 
     Args:
         env_cls: Environment to train on.
-        algorithm: Algorithm instance to use. An alternative to and mutually
-            exclusive with ``algorithm_cls``.
         algorithm_cls: Algorithm class to use that ``algorithm_config`` is
             unpacked into.
         algorithm_config: Algorithm hyperparameters used to instantiate
@@ -73,22 +71,13 @@ class Trainer:
         env_cls: type[Env],
         /,
         *,
-        algorithm: None | AlgorithmProtocol = None,
         algorithm_cls: None | type[AlgorithmProtocol] = None,
         algorithm_config: None | dict[str, Any] = None,
         stop_conditions: None | list[Condition] = None,
     ) -> None:
-        if algorithm and algorithm_cls:
-            raise ValueError(
-                "`algorithm` and `algorithm_cls` args are mutually exclusive."
-                "Provide one or the other, but not both."
-            )
-        if algorithm is None:
-            algorithm_config = algorithm_config or {}
-            algorithm_cls = algorithm_cls or Algorithm
-            self.algorithm = algorithm_cls(env_cls, **algorithm_config)
-        else:
-            self.algorithm = algorithm
+        algorithm_config = algorithm_config or {}
+        algorithm_cls = algorithm_cls or Algorithm
+        self.algorithm = algorithm_cls(env_cls, **algorithm_config)
         self.stop_conditions = stop_conditions or []
         mlflow.log_params(self.algorithm.params)
 
