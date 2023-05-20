@@ -94,11 +94,12 @@ def generalized_advantage_estimate(
         "returns" key.
 
     """
-    out = (
-        batch
-        if inplace
-        else TensorDict({}, batch_size=batch.batch_size, device=batch.device)
-    )
+    if inplace:
+        out = batch
+    else:
+        out = TensorDict({}, batch_size=batch.batch_size, device=batch.device)
+    if DataKeys.ADVANTAGES not in out.keys():
+        out[DataKeys.ADVANTAGES] = torch.zeros_like(batch[DataKeys.REWARDS])
     prev_advantage = 0.0
     for t in reversed(range(batch.size(1) - 1)):
         delta = batch[DataKeys.REWARDS][:, t, ...] + (
