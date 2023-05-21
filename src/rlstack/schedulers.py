@@ -164,10 +164,11 @@ class EntropyScheduler:
                     raise ValueError(
                         f"Entropy scheduler only supports kinds `interp` and `step`."
                     )
-        self.step(0)
+        self.coeff = self.step(0)
 
-    def step(self, count: int, /) -> None:
+    def step(self, count: int, /) -> float:
         self.coeff = self.scheduler.step(count)
+        return self.coeff
 
 
 class LRScheduler:
@@ -221,10 +222,11 @@ class LRScheduler:
                         f"Learning rate scheduler only supports "
                         f"kinds `interp` and `step`."
                     )
-        self.step(0)
+        self.coeff = self.step(0)
 
-    def step(self, count: int, /) -> None:
+    def step(self, count: int, /) -> float:
         if not isinstance(self.scheduler, ConstantScheduler):
             self.coeff = self.scheduler.step(count)
             for pg in self.optimizer.param_groups:
                 pg["lr"] = self.coeff
+        return self.coeff
