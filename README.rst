@@ -1,4 +1,4 @@
-rlstack: A Minimal RL Toolkit
+rlstack: A Minimal RL Library
 =============================
 
 **rlstack** is a minimal RL library that can simulate highly parallelized,
