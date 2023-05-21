@@ -125,7 +125,8 @@ def mask_from_lengths(x: torch.Tensor, lengths: torch.Tensor, /) -> torch.Tensor
 
     Args:
         x: Tensor with shape ``[B, T, ...]``.
-        lengths: Lengths of the ``T`` sequence for each B element in ``x``.
+        lengths: Tensor with shape ``[B]`` that indicates lengths of the
+            ``T`` sequence for each B element in ``x``.
 
     Returns:
         Sequence mask of shape ``[B, T]``.
@@ -179,7 +180,7 @@ def masked_categorical_sample(
 ) -> tuple[torch.Tensor, torch.Tensor]:
     """Masked categorical sampling of ``x``.
 
-    Typically used for sampling from outputs of `masked_log_softmax`.
+    Typically used for sampling from outputs of :meth:`masked_log_softmax`.
 
     Args:
         x: Logits with shape ``[B, T, ...]`` to sample from.
@@ -205,7 +206,7 @@ def masked_log_softmax(
     """Apply a masked log softmax to ``x`` along ``dim``.
 
     Typically used for getting logits from a model that predicts a sequence.
-    The output of this function is typically passed to `masked_categorical_sample`.
+    The output of this function is typically passed to :meth:`masked_categorical_sample`.
 
     Args:
         x: Tensor with shape ``[B, T, ...]``.

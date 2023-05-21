@@ -71,6 +71,7 @@ class OptimizerWrapper:
             parameters were updated.
 
         """
+        self.step_calls += 1
         stepped = False
         self.scaler.scale(loss).backward()  # type: ignore[no-untyped-call]
         if self.step_calls % self.grad_accumulation_steps == 0:
@@ -80,5 +81,4 @@ class OptimizerWrapper:
             self.scaler.update()  # type: ignore[no-untyped-call]
             self.optimizer.zero_grad()
             stepped = True
-        self.step_calls += 1
         return stepped

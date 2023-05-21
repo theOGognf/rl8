@@ -225,8 +225,8 @@ class LRScheduler:
         self.coeff = self.step(0)
 
     def step(self, count: int, /) -> float:
+        self.coeff = self.scheduler.step(count)
         if not isinstance(self.scheduler, ConstantScheduler):
-            self.coeff = self.scheduler.step(count)
             for pg in self.optimizer.param_groups:
                 pg["lr"] = self.coeff
         return self.coeff
