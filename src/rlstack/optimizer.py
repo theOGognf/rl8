@@ -23,7 +23,7 @@ class OptimizerWrapper:
 
     """
 
-    #: Number of times :meth:`Accumulator.step` must be called before stepping
+    #: Number of times :meth:`OptimizerWrapper.step` must be called before stepping
     #: the optimizer and zeroing its gradients.
     grad_accumulation_steps: int
 
@@ -33,7 +33,7 @@ class OptimizerWrapper:
     #: CUDA AMP gradient scaler. Does nothing if ``enable_amp`` is ``False``.
     scaler: GradScaler
 
-    #: Counter for number of times :meth:`Accumulator.step` has been called.
+    #: Counter for number of times :meth:`OptimizerWrapper.step` has been called.
     step_calls: int
 
     def __init__(

@@ -14,6 +14,7 @@ def test_algorithm(algorithm_cls: type[Algorithm], env_cls: type[Env]) -> None:
     NUM_ENVS = 64
     HORIZON = 8
     ENTROPY_COEFF = 1e-2
+    RTOL = 1e-3
     torch.manual_seed(SEED)
     algo = algorithm_cls(
         env_cls, num_envs=NUM_ENVS, horizon=HORIZON, entropy_coeff=ENTROPY_COEFF
@@ -36,25 +37,25 @@ def test_algorithm(algorithm_cls: type[Algorithm], env_cls: type[Env]) -> None:
     assert math.isclose(
         step_stats_non_accumulated["losses/entropy"],
         step_stats_accumulated["losses/entropy"],
-        rel_tol=1e-3,
+        rel_tol=RTOL,
     )
     assert math.isclose(
         step_stats_non_accumulated["losses/policy"],
         step_stats_accumulated["losses/policy"],
-        rel_tol=1e-3,
+        rel_tol=RTOL,
     )
     assert math.isclose(
         step_stats_non_accumulated["losses/total"],
         step_stats_accumulated["losses/total"],
-        rel_tol=1e-3,
+        rel_tol=RTOL,
     )
     assert math.isclose(
         step_stats_non_accumulated["losses/vf"],
         step_stats_accumulated["losses/vf"],
-        rel_tol=1e-3,
+        rel_tol=RTOL,
     )
     assert math.isclose(
         step_stats_non_accumulated["monitors/kl_div"],
         step_stats_accumulated["monitors/kl_div"],
-        rel_tol=1e-3,
+        rel_tol=RTOL,
     )
