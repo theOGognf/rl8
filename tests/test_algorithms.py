@@ -9,9 +9,7 @@ from rlstack.env import ContinuousDummyEnv, DiscreteDummyEnv, Env
 
 @pytest.mark.parametrize("algorithm_cls", [Algorithm, RecurrentAlgorithm])
 @pytest.mark.parametrize("env_cls", [ContinuousDummyEnv, DiscreteDummyEnv])
-def test_feedforward_algorithm(
-    algorithm_cls: type[Algorithm], env_cls: type[Env]
-) -> None:
+def test_algorithm(algorithm_cls: type[Algorithm], env_cls: type[Env]) -> None:
     SEED = 42
     NUM_ENVS = 64
     HORIZON = 8
