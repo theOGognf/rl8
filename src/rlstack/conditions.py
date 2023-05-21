@@ -86,12 +86,11 @@ class Plateaus:
 
     def __call__(self, train_stats: TrainStats, /) -> bool:
         new_value = train_stats[self.key]
-        if self.old_value and (
-            abs(new_value - self.old_value) <= self.rtol * abs(self.old_value)
-        ):
+        if abs(new_value - self.old_value) <= self.rtol * abs(self.old_value):
             self.losses += 1
         else:
             self.losses = 0
+        self.old_value = new_value
         return self.losses >= self.patience
 
 
