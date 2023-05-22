@@ -245,11 +245,14 @@ usage so you can simulate more environments or use larger models.
 
 .. code:: python
 
+    import torch.optim as optim
+
     from rlstack import Algorithm
     from rlstack.env import DiscreteDummyEnv
 
     algo = Algorithm(
         DiscreteDummyEnv,
+        optimizer_cls=optim.SGD,
         accumulate_grads=True,
         enable_amp=True,
         sgd_minibatch_size=8192,
@@ -262,11 +265,14 @@ Enable memory-minimization settings using the high-level trainer interface.
 
 .. code:: python
 
+    import torch.optim as optim
+
     from rlstack import Trainer
     from rlstack.env import DiscreteDummyEnv
 
     trainer = Trainer(DiscreteDummyEnv,
         algorithm_config={
+            "optimizer_cls": optim.SGD,
             "accumulate_grads": True,
             "enable_amp": True,
             "sgd_minibatch_size": 8192,
