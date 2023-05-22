@@ -97,12 +97,12 @@ class Trainer:
             to a stop condition being satisfied.
 
         """
-        train_stats = self.train(env_config=env_config)
+        train_stats = self.step(env_config=env_config)
         while not any([condition(train_stats) for condition in self.stop_conditions]):
-            train_stats = self.train(env_config=env_config)
+            train_stats = self.step(env_config=env_config)
         return train_stats
 
-    def train(self, *, env_config: None | dict[str, Any] = None) -> TrainStats:
+    def step(self, *, env_config: None | dict[str, Any] = None) -> TrainStats:
         """Run a single training step, collecting environment transitions
         and updating the policy with those transitions.
 
