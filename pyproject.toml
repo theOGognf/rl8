@@ -23,7 +23,6 @@ classifiers = [
     "Typing :: Typed"
 ]
 dependencies = [
-    "dadaptation",
     "mlflow-skinny",
     "tensordict",
     "torch",

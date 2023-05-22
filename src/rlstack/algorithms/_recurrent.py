@@ -4,7 +4,6 @@ from typing import Any
 import torch
 import torch.amp as amp
 import torch.optim as optim
-from dadaptation import DAdaptAdam
 from tensordict import TensorDict
 from torch.utils.data import DataLoader
 
@@ -203,8 +202,7 @@ class RecurrentAlgorithm:
     #: Wrapper around the underlying optimizer for updating the policy's model
     #: that was constructed from ``optimizer_cls`` and ``optimizer_config``.
     #: Handles gradient accumulation and Automatic Mixed Precision (AMP) model
-    #: updates. ``optimizer_cls`` defaults to a generally robust optimizer that
-    #: doesn't require much hyperparameter tuning.
+    #: updates. ``optimizer_cls`` defaults to the Adam optimizer.
     optimizer: OptimizerWrapper
 
     #: Policy constructed from the ``model_cls``, ``model_config``, and
@@ -235,7 +233,7 @@ class RecurrentAlgorithm:
         num_envs: int = 8192,
         seq_len: int = 4,
         seqs_per_state_reset: int = 4,
-        optimizer_cls: type[optim.Optimizer] = DAdaptAdam,
+        optimizer_cls: type[optim.Optimizer] = optim.Adam,
         optimizer_config: None | dict[str, Any] = None,
         accumulate_grads: bool = False,
         enable_amp: bool = False,
@@ -282,7 +280,7 @@ class RecurrentAlgorithm:
             },
         ).to(device)
         self.buffer = self.buffer_spec.zero([num_envs, horizon + 1])
-        optimizer_config = optimizer_config or {}
+        optimizer_config = optimizer_config or {"lr": 1e-3}
         optimizer = optimizer_cls(self.policy.model.parameters(), **optimizer_config)
         self.lr_scheduler = LRScheduler(
             optimizer, schedule=lr_schedule, kind=lr_schedule_kind
