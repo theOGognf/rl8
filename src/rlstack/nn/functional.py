@@ -65,7 +65,7 @@ def generalized_advantage_estimate(
 
     Args:
         batch: Tensordict of batch size ``[B, T + 1, ...]`` that contains the
-        following keys:
+            following keys:
 
             - "rewards": Environment transition rewards.
             - "values": Policy value function estimates.
@@ -90,8 +90,8 @@ def generalized_advantage_estimate(
             estimates with GAE.
 
     Returns:
-        A tensordict with at least an "advantages" key and, optionally, a
-        "returns" key.
+        A tensordict with at least advantages and, optionally, discounted
+        returns.
 
     """
     if inplace:
