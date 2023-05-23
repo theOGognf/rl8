@@ -161,6 +161,9 @@ class Policy:
         else:
             in_batch = self.model.apply_view_requirements(batch, kind=kind)
 
+        if deterministic:
+            self.model.eval()
+
         # This is the same mechanism within `torch.no_grad`
         # for enabling/disabling gradients.
         prev = torch.is_grad_enabled()
@@ -187,6 +190,10 @@ class Policy:
             out[DataKeys.VIEWS] = in_batch
 
         torch.set_grad_enabled(prev)
+
+        if deterministic:
+            self.model.train()
+
         return out
 
     def to(self, device: Device, /) -> Self:

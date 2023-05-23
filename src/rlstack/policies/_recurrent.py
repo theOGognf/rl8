@@ -154,6 +154,9 @@ class RecurrentPolicy:
             series should be returned.
 
         """
+        if deterministic:
+            self.model.eval()
+
         # This is the same mechanism within `torch.no_grad`
         # for enabling/disabling gradients.
         prev = torch.is_grad_enabled()
@@ -180,6 +183,10 @@ class RecurrentPolicy:
             out = out.reshape(B, T)
 
         torch.set_grad_enabled(prev)
+
+        if deterministic:
+            self.model.train()
+
         return out, out_states
 
     @property
