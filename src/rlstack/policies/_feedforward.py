@@ -161,7 +161,8 @@ class Policy:
         else:
             in_batch = self.model.apply_view_requirements(batch, kind=kind)
 
-        if deterministic:
+        training = self.model.training
+        if deterministic and training:
             self.model.eval()
 
         # This is the same mechanism within `torch.no_grad`
@@ -191,7 +192,7 @@ class Policy:
 
         torch.set_grad_enabled(prev)
 
-        if deterministic:
+        if deterministic and training:
             self.model.train()
 
         return out

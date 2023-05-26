@@ -154,7 +154,8 @@ class RecurrentPolicy:
             series should be returned.
 
         """
-        if deterministic:
+        training = self.model.training
+        if deterministic and training:
             self.model.eval()
 
         # This is the same mechanism within `torch.no_grad`
@@ -184,7 +185,7 @@ class RecurrentPolicy:
 
         torch.set_grad_enabled(prev)
 
-        if deterministic:
+        if deterministic and training:
             self.model.train()
 
         return out, out_states
