@@ -1,6 +1,7 @@
 """Environment protocol definition and helper dummy environment definitions."""
 
-from typing import Any, Generic, Protocol, TypeVar
+from abc import ABC, abstractmethod
+from typing import Any, Generic, TypeVar
 
 import torch
 from tensordict import TensorDict
@@ -12,12 +13,12 @@ _ObservationSpec = TypeVar("_ObservationSpec", bound=TensorSpec)
 _ActionSpec = TypeVar("_ActionSpec", bound=TensorSpec)
 
 
-class Env(Protocol):
+class Env(ABC):
     """Protocol defining the IsaacGym -like environments for supporting
     highly parallelized simulation.
 
     Args:
-        num_envs: Number of parallel and independent environment being
+        num_envs: Number of parallel and independent environments being
             simulated by one :class:`Env` instance.
         config: Config detailing simulation options/parameters for the
             environment's initialization.
@@ -31,9 +32,21 @@ class Env(Protocol):
     #: policy's underlying components, and the learning buffer.
     action_spec: TensorSpec
 
+    #: Environment config passed to the environment at instantiation.
+    #: This could be overwritten by :meth:`Environment.reset`, but it's
+    #: entirely at the developer's discretion.
+    config: dict[str, Any]
+
+    #: Device the environment's states, observations, and rewards reside
+    #: on.
+    device: Device
+
     #: An optional attribute denoting the max number of steps an environment
     #: may take before being reset.
     max_horizon: int
+
+    #: Number of parallel and independent environments being simulated.
+    num_envs: int
 
     #: Spec defining part of the environment's outputs (and policy's
     #: model's outputs). Used for initializing the policy, the
@@ -48,8 +61,11 @@ class Env(Protocol):
         config: None | dict[str, Any] = None,
         device: Device = "cpu",
     ) -> None:
-        ...
+        self.num_envs = num_envs
+        self.config = config or {}
+        self.device = device
 
+    @abstractmethod
     def reset(
         self, *, config: None | dict[str, Any] = None
     ) -> torch.Tensor | TensorDict:
@@ -65,6 +81,7 @@ class Env(Protocol):
 
         """
 
+    @abstractmethod
     def step(self, action: torch.Tensor | TensorDict) -> TensorDict:
         """Step the environment by applying an action, simulating an environment
         transition, and returning an observation and a reward.
@@ -118,21 +135,16 @@ class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
         config: None | dict[str, Any] = None,
         device: Device = "cpu",
     ) -> None:
-        if config is None:
-            config = {}
-        self.observation_spec = UnboundedContinuousTensorSpec(1, device=device)
-        self.bounds = config.get("bounds", 100.0)
-        self.state = (
-            -self.bounds * torch.rand(num_envs, device=device).unsqueeze(1)
-            + self.bounds
-        )
+        super().__init__(num_envs, config=config, device=device)
+        self.observation_spec = UnboundedContinuousTensorSpec(1, device=self.device)
+        self.bounds = self.config.get("bounds", 100.0)
+        self.reset(config=self.config)
 
     def reset(self, *, config: None | dict[str, Any] = None) -> torch.Tensor:
-        if config and "bounds" in config:
-            self.bounds = config["bounds"]
+        config = config or {}
+        self.bounds = config.get("bounds", self.bounds)
         self.state = (
-            -self.bounds
-            * torch.rand(self.state.size(0), device=self.state.device).unsqueeze(1)
+            -self.bounds * torch.rand(self.num_envs, 1, device=self.device)
             + self.bounds
         )
         return self.state
