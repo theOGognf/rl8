@@ -5,13 +5,13 @@ from typing import Any
 import torch
 from tensordict import TensorDict
 
-from rlstack.data import Device
+from rlstack.data import DataKeys, Device
 from rlstack.env import Env
 from rlstack.specs import UnboundedContinuousTensorSpec
 
 
 class Action(IntEnum):
-    """Enumeration for environment actions just for readability."""
+    """Enumeration of environment actions for readability."""
 
     HOLD = 0
 
@@ -39,8 +39,6 @@ class MockTrader(Env):
     the environment's observations as-is to learn complex trading behaviors.
     The environment also returns action masks that can be used for defining
     custom action distributions that could help accelerate learning.
-
-
 
     """
 
@@ -97,6 +95,7 @@ class MockTrader(Env):
 
     def step(self, action: torch.Tensor) -> TensorDict:
         old_price = self.state["price"].clone()
+        reward = torch.zeros(self.num_envs, 1, device=self.device).float()
 
         # Handle buy actions
         buy_mask = action == Action.BUY
@@ -106,6 +105,9 @@ class MockTrader(Env):
         # Handle sell actions
         sell_mask = action == Action.SELL
         self.state["invested"][sell_mask] = 0
+        reward[sell_mask] = torch.log(old_price[sell_mask]) - torch.log(
+            self.state["invested_price"][sell_mask]
+        )
 
         # Handle hold actions
         not_invested_mask = self.state["invested"] == 0
@@ -129,4 +131,8 @@ class MockTrader(Env):
             "LOG_CHANGE(price)",
             "LOG_CHANGE(price, invested_price)",
         )
-        return
+        return TensorDict(
+            {DataKeys.OBS: obs, DataKeys.REWARDS: reward},
+            batch_size=self.num_envs,
+            device=self.device,
+        )

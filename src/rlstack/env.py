@@ -174,8 +174,8 @@ class ContinuousDummyEnv(DummyEnv[UnboundedContinuousTensorSpec]):
         self.state += action
         return TensorDict(
             {DataKeys.OBS: self.state, DataKeys.REWARDS: -self.state.abs()},
-            batch_size=self.state.size(0),
-            device=self.state.device,
+            batch_size=self.num_envs,
+            device=self.device,
         )
 
 
@@ -203,6 +203,6 @@ class DiscreteDummyEnv(DummyEnv[DiscreteTensorSpec]):
         self.state += 2 * action - 1
         return TensorDict(
             {DataKeys.OBS: self.state, DataKeys.REWARDS: -self.state.abs()},
-            batch_size=self.state.size(0),
-            device=self.state.device,
+            batch_size=self.num_envs,
+            device=self.device,
         )
