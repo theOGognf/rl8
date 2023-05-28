@@ -63,7 +63,7 @@ class MockTrader(Env):
                 "action_mask": DiscreteTensorSpec(
                     2, shape=torch.Size([3]), device=device
                 ),
-                "invested": DiscreteTensorSpec(2, device=device),
+                "invested": DiscreteTensorSpec(2, shape=torch.Size([1]), device=device),
                 "LOG_CHANGE(price)": UnboundedContinuousTensorSpec(1, device=device),
                 "LOG_CHANGE(price, invested_price)": UnboundedContinuousTensorSpec(
                     1, device=device

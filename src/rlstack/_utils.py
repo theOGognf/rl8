@@ -2,7 +2,7 @@ import time
 from contextlib import contextmanager
 from typing import Callable, Generator, Iterable
 
-from .specs import TensorSpec
+from .specs import CompositeSpec, TensorSpec
 
 
 def assert_1d_spec(spec: TensorSpec, /) -> None:
@@ -17,12 +17,37 @@ def assert_1d_spec(spec: TensorSpec, /) -> None:
         AssertionError: If ``spec`` is not 1D.
 
     """
-    assert spec.shape.numel() == 1, (
+    assert spec.ndim == 1, (
+        f"{spec} is not compatible with default models and distributions. "
         "Default models and distributions do not support tensor specs "
         "that aren't 1D. Tensor specs must have shape ``[N]`` "
         "(where ``N`` is the number of independent elements) to be "
         "compatible with default models and distributions."
     )
+
+
+def assert_nd_spec(spec: TensorSpec, /) -> None:
+    """Check if the spec is at least 1D so it can properly interface with
+    library objects.
+
+    Args:
+        spec: Observation or action spec.
+
+    Raises:
+        AssertionError: If ``spec`` is not at least 1D.
+
+    """
+    match spec:
+        case CompositeSpec():
+            for k in spec:
+                assert_nd_spec(spec[k])
+        case _:
+            assert spec.ndim >= 1, (
+                f"{spec} is not a valid spec. Models and distributions must have specs"
+                " that have a non-empty shape. Tensor specs must have shape ``[N,"
+                " ...]`` (where ``N`` is the number of independent elements and"
+                " ``...`` is any number of additional dimensions)."
+            )
 
 
 @contextmanager
