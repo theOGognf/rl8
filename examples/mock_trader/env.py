@@ -5,9 +5,13 @@ from typing import Any
 import torch
 from tensordict import TensorDict
 
+from rlstack import Env
 from rlstack.data import DataKeys, Device
-from rlstack.env import Env
-from rlstack.specs import UnboundedContinuousTensorSpec
+from rlstack.specs import (
+    CompositeSpec,
+    DiscreteTensorSpec,
+    UnboundedContinuousTensorSpec,
+)
 
 
 class Action(IntEnum):
@@ -23,8 +27,8 @@ class Action(IntEnum):
 class MockTrader(Env):
     """An environment that mocks algotrading.
 
-    An asset's price is simulated according to the following equation
-    ``y = k * t * sin(f * t)`` where ``k``, ``f`` and ``t0`` are all
+    An asset's price is simulated according to the equation
+    ``y = k * t * sin(f * t)`` where ``k``, ``f``, and ``t0`` are all
     randomly sampled from their own independent uniform distributions
     defined by bounds specified in ``config``.
 
@@ -35,12 +39,14 @@ class MockTrader(Env):
 
     This environment serves as a playground for different kinds of models.
     Feedforward models could specify view requirements to utilize aggregated
-    metrics or sequence-based models, while recurrent models could accept
-    the environment's observations as-is to learn complex trading behaviors.
-    The environment also returns action masks that can be used for defining
-    custom action distributions that could help accelerate learning.
+    metrics or sequence-based components, while recurrent models could accept
+    the environment's observations as-is.
 
     """
+
+    # Environment state that's reset when the environment is reset and is
+    # updated when the environment is stepped.
+    state: TensorDict
 
     def __init__(
         self,
@@ -52,7 +58,19 @@ class MockTrader(Env):
     ) -> None:
         super().__init__(num_envs, config=config, device=device)
         self.max_horizon = 128
-        self.observation_spec = UnboundedContinuousTensorSpec(1, device=device)
+        self.observation_spec = CompositeSpec(
+            {
+                "action_mask": DiscreteTensorSpec(
+                    2, shape=torch.Size([3]), device=device
+                ),
+                "invested": DiscreteTensorSpec(2, device=device),
+                "LOG_CHANGE(price)": UnboundedContinuousTensorSpec(1, device=device),
+                "LOG_CHANGE(price, invested_price)": UnboundedContinuousTensorSpec(
+                    1, device=device
+                ),
+            }
+        )  # type: ignore[no-untyped-call]
+        self.action_spec = DiscreteTensorSpec(3, shape=torch.Size([1]), device=device)
         self.slope_bounds = self.config.get("slope_bounds", 1)
         self.frequency_bounds = self.config.get("frequency_bounds", math.pi)
         self.reset(config=self.config)
@@ -69,8 +87,13 @@ class MockTrader(Env):
         frequencies = self.frequency_bounds * torch.rand(
             self.num_envs, 1, device=self.device
         )
+        action_mask = torch.zeros(self.num_envs, 3, device=self.device).bool()
+        action_mask[:, Action.HOLD] = 1
+        action_mask[:, Action.BUY] = 1
+        action_mask[:, Action.SELL] = 0
         self.state = TensorDict(
             {
+                "action_mask": action_mask,
                 "invested": torch.zeros(self.num_envs, 1, device=self.device).bool(),
                 "invested_price": torch.zeros(
                     self.num_envs, 1, device=self.device
@@ -90,7 +113,10 @@ class MockTrader(Env):
             device=self.device,
         )
         return self.state.select(
-            "invested", "LOG_CHANGE(price)", "LOG_CHANGE(price, invested_price)"
+            "action_mask",
+            "invested",
+            "LOG_CHANGE(price)",
+            "LOG_CHANGE(price, invested_price)",
         )
 
     def step(self, action: torch.Tensor) -> TensorDict:
@@ -110,10 +136,17 @@ class MockTrader(Env):
         )
 
         # Handle hold actions
-        not_invested_mask = self.state["invested"] == 0
+        invested_mask = self.state["invested"] == 1
+        not_invested_mask = ~invested_mask
         self.state["invested_price"][not_invested_mask] = old_price[not_invested_mask]
 
         # Main environment state update
+        self.state["action_mask"][invested_mask][:, Action.HOLD] = 1
+        self.state["action_mask"][invested_mask][:, Action.BUY] = 0
+        self.state["action_mask"][invested_mask][:, Action.SELL] = 1
+        self.state["action_mask"][not_invested_mask][:, Action.HOLD] = 1
+        self.state["action_mask"][not_invested_mask][:, Action.BUY] = 1
+        self.state["action_mask"][not_invested_mask][:, Action.SELL] = 0
         self.state["t"] += 1
         self.state["price"] = (
             self.state["t"]
@@ -127,6 +160,7 @@ class MockTrader(Env):
             self.state["price"]
         ) - torch.log(self.state["invested_price"])
         obs = self.state.select(
+            "action_mask",
             "invested",
             "LOG_CHANGE(price)",
             "LOG_CHANGE(price, invested_price)",
