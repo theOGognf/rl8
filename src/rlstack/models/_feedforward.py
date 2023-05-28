@@ -75,7 +75,7 @@ class Model(
         self.action_spec = action_spec
         self.config = config
         self.feature_spec = Distribution.default_feature_spec(action_spec)
-        self.view_requirements = {DataKeys.OBS: ViewRequirement(DataKeys.OBS, shift=0)}
+        self.view_requirements = {DataKeys.OBS: ViewRequirement(shift=0)}
 
     def apply_view_requirements(
         self, batch: TensorDict, /, *, kind: ViewKind = "last"
@@ -112,25 +112,14 @@ class Model(
         for key, view_requirement in self.view_requirements.items():
             match kind:
                 case "all":
-                    item = view_requirement.apply_all(batch)
+                    item = view_requirement.apply_all(key, batch)
                 case "last":
-                    item = view_requirement.apply_last(batch)
+                    item = view_requirement.apply_last(key, batch)
             out[key] = item
             B_NEW = item.size(0)
             batch_sizes[key] = B_NEW
         batch_size = next(iter(batch_sizes.values()))
         return TensorDict(out, batch_size=batch_size, device=batch.device)
-
-    @property
-    def burn_size(self) -> int:
-        """Return the model's burn size (also the burn size for all view
-        requirements.
-
-        """
-        burn_sizes = {}
-        for key, view_requirement in self.view_requirements.items():
-            burn_sizes[key] = view_requirement.burn_size
-        return next(iter(burn_sizes.values()))
 
     @staticmethod
     def default_model_cls(
@@ -169,6 +158,17 @@ class Model(
     def device(self) -> Device:
         """Return the device the model is currently on."""
         return next(self.parameters()).device
+
+    @property
+    def drop_size(self) -> int:
+        """Return the model's drop size (also the drop size for all view
+        requirements).
+
+        """
+        drop_sizes = {}
+        for key, view_requirement in self.view_requirements.items():
+            drop_sizes[key] = view_requirement.drop_size
+        return next(iter(drop_sizes.values()))
 
     @abstractmethod
     def forward(self, batch: TensorDict, /) -> TensorDict:
@@ -214,15 +214,15 @@ class Model(
                 ambiguous batch size, making training and sampling impossible.
 
         """
-        burn_sizes = {}
+        drop_sizes = {}
         for key, view_requirement in self.view_requirements.items():
-            burn_sizes[key] = view_requirement.burn_size
-        if len(set(burn_sizes.values())) > 1:
+            drop_sizes[key] = view_requirement.drop_size
+        if len(set(drop_sizes.values())) > 1:
             raise RuntimeError(
-                f"""{self} view requirements with burn sizes {burn_sizes}
+                f"""{self} view requirements with drop sizes {drop_sizes}
                 result in an ambiguous batch size. It's recommended you:
                     1) use a view requirement method that does not have sample
-                        burn, allowing view requirements with different sizes
+                        dropping, allowing view requirements with different sizes
                     2) reformulate your model and observation function such
                         that view requirements are not necessary or are
                         handled internal to your environment

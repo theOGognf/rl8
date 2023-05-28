@@ -42,7 +42,7 @@ class View(Protocol):
         """
 
     @staticmethod
-    def burn_size(size: int, /) -> int:
+    def drop_size(size: int, /) -> int:
         """Return the amount of samples along the time or sequence dimension
         that's dropped for each batch element.
 
@@ -105,7 +105,7 @@ def pad_whole_sequence(x: torch.Tensor, size: int, /) -> TensorDict:
 
     """
     B, T = x.shape[:2]
-    pad = RollingWindow.burn_size(size)
+    pad = RollingWindow.drop_size(size)
     padding = torch.zeros_like(x)[:, :pad, ...]
     x = torch.cat([padding, x], 1)
     padding_mask = torch.zeros(B, T + pad, device=x.device, dtype=torch.bool)
@@ -218,9 +218,9 @@ class RollingWindow:
             return x.apply(lambda x: x[:, -size:, ...], batch_size=[B, T_NEW])
 
     @staticmethod
-    def burn_size(size: int, /) -> int:
+    def drop_size(size: int, /) -> int:
         """This view doesn't perform any padding or masking and instead
-        burns-off a small amount of samples at the beginning of each
+        drops a small amount of samples at the beginning of each
         sequence in order to create sequences of the same length.
 
         """
@@ -266,7 +266,7 @@ class PaddedRollingWindow:
             return RollingWindow.apply_all(pad_whole_sequence(x, size), size)
         else:
             B_OLD, T_OLD = x.shape[:2]
-            T_NEW = T_OLD + RollingWindow.burn_size(size)
+            T_NEW = T_OLD + RollingWindow.drop_size(size)
             return RollingWindow.apply_all(
                 x.apply(
                     lambda x: pad_whole_sequence(x, size), batch_size=[B_OLD, T_NEW]
@@ -299,9 +299,9 @@ class PaddedRollingWindow:
             return x.apply(lambda x: pad_last_sequence(x, size), batch_size=[B, size])
 
     @staticmethod
-    def burn_size(size: int, /) -> int:
+    def drop_size(size: int, /) -> int:
         """This view pads the beginning of each sequence and provides masking
-        to avoid burning-off samples.
+        to avoid dropping-off samples.
 
         """
         return size - size
@@ -319,7 +319,6 @@ class ViewRequirement:
     sequence-based observations.
 
     Args:
-        key: Key to apply the view requirement to for a given batch.
         shift: Number of additional previous samples in the time or sequence
             dimension to include in the view requirement's output.
         method: Method for applying a nonzero shift view requirement.
@@ -335,12 +334,6 @@ class ViewRequirement:
                   padding.
 
     """
-
-    #: Key to apply the view requirement to for a given batch. The key
-    #: can be any key that is compatible with a tensordict key.
-    #: E.g., a key can be a tuple of strings such that the item in the
-    #: batch is accessed like ``batch[("obs", "prices")]``.
-    key: str | tuple[str, ...]
 
     #: Method for applying a nonzero shift view requirement. Each method
     #: has its own advantage. Options include:
@@ -365,13 +358,10 @@ class ViewRequirement:
 
     def __init__(
         self,
-        key: str | tuple[str, ...],
-        /,
         *,
         shift: int = 0,
         method: ViewMethod = "rolling_window",
     ) -> None:
-        self.key = key
         self.shift = shift
         if shift < 0:
             raise ValueError(f"{self.__class__.__name__} `shift` must be non-negative.")
@@ -381,7 +371,9 @@ class ViewRequirement:
             case "padded_rolling_window":
                 self.method = PaddedRollingWindow
 
-    def apply_all(self, batch: TensorDict, /) -> torch.Tensor | TensorDict:
+    def apply_all(
+        self, key: str | tuple[str, ...], batch: TensorDict, /
+    ) -> torch.Tensor | TensorDict:
         """Apply the view to all of the time or sequence elements.
 
         This method expands the elements of ``batch``'s first two dimensions
@@ -391,6 +383,10 @@ class ViewRequirement:
         a policy's actions or environment interaction.
 
         Args:
+            key: Key to apply the view requirement to for a given batch. The key
+                can be any key that is compatible with a tensordict key.
+                E.g., a key can be a tuple of strings such that the item in the
+                batch is accessed like ``batch[("obs", "prices")]``.
             batch: Tensor dict of size ``[B, T, ...]`` where ``B`` is the batch
                 dimension, and ``T`` is the time or sequence dimension. ``B`` is
                 typically the number of parallel environments, and ``T`` is
@@ -404,7 +400,7 @@ class ViewRequirement:
             the return tensor or tensordict has size ``[B * T, ...]``.
 
         """
-        item = batch[self.key]
+        item = batch[key]
 
         with torch.no_grad():
             if not self.shift:
@@ -415,13 +411,19 @@ class ViewRequirement:
 
             return self.method.apply_all(item, self.shift + 1)
 
-    def apply_last(self, batch: TensorDict, /) -> torch.Tensor | TensorDict:
+    def apply_last(
+        self, key: str | tuple[str, ...], batch: TensorDict, /
+    ) -> torch.Tensor | TensorDict:
         """Apply the view to just the last time or sequence elements.
 
         This method is typically used for sampling a model's features
         and eventual sampling of a policy's actions for parallel environments.
 
         Args:
+            key: Key to apply the view requirement to for a given batch. The key
+                can be any key that is compatible with a tensordict key.
+                E.g., a key can be a tuple of strings such that the item in the
+                batch is accessed like ``batch[("obs", "prices")]``.
             batch: Tensor dict of size ``[B, T, ...]`` where ``B`` is the batch
                 dimension, and ``T`` is the time or sequence dimension. ``B`` is
                 typically the number of parallel environments, and ``T`` is
@@ -434,7 +436,7 @@ class ViewRequirement:
             tensor or tensordict has size ``[B, ...]``.
 
         """
-        item = batch[self.key]
+        item = batch[key]
 
         with torch.no_grad():
             if not self.shift:
@@ -443,6 +445,7 @@ class ViewRequirement:
             return self.method.apply_last(item, self.shift + 1)
 
     @property
-    def burn_size(self) -> int:
-        """Return the burn size of the underlying view requirement method."""
-        return self.method.burn_size(self.shift + 1)
+    def drop_size(self) -> int:
+        """Return the number of samples dropped when using the underlying view requirement method.
+        """
+        return self.method.drop_size(self.shift + 1)

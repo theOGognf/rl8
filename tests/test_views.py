@@ -349,9 +349,9 @@ VIEW_REQUIREMENT_APPLY_ALL_CASE_1 = (INPUTS, INPUTS.reshape(-1))
 def test_view_requirement_apply_all(
     inputs: TensorDict, expected: torch.Tensor | TensorDict
 ) -> None:
-    view_requirement = ViewRequirement("x", shift=0)
+    view_requirement = ViewRequirement(shift=0)
     out = {}
-    out["x"] = view_requirement.apply_all(inputs)
+    out["x"] = view_requirement.apply_all("x", inputs)
     out_batch = TensorDict(out, batch_size=out["x"].size(0))
     assert (out_batch == expected).all()
 
@@ -386,8 +386,8 @@ VIEW_REQUIREMENT_APPLY_LAST_CASE_1 = (INPUTS, INPUTS[:, -1, ...])
 def test_view_requirement_apply_last(
     inputs: TensorDict, expected: torch.Tensor | TensorDict
 ) -> None:
-    view_requirement = ViewRequirement("x", shift=0)
+    view_requirement = ViewRequirement(shift=0)
     out = {}
-    out["x"] = view_requirement.apply_last(inputs)
+    out["x"] = view_requirement.apply_last("x", inputs)
     out_batch = TensorDict(out, batch_size=out["x"].size(0))
     assert (out_batch == expected).all()
