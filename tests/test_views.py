@@ -66,6 +66,27 @@ PAD_LAST_SEQUENCE_CASE_2 = (
     SIZE,
 )
 
+B = 2
+T = 1
+SIZE = 3
+TOTAL = B * T
+INPUTS = torch.arange(TOTAL).reshape(B, T, 1, 1, 1).float()
+PADDING_MASK = torch.zeros(B, SIZE).bool()
+PADDING_MASK[:, : SIZE - T] = True
+PAD_LAST_SEQUENCE_CASE_3 = (
+    torch.arange(TOTAL).reshape(B, T, 1, 1, 1).float(),
+    TensorDict(
+        {
+            DataKeys.INPUTS: torch.cat(
+                [torch.zeros(B, SIZE - T, 1, 1, 1), INPUTS], dim=1
+            ),
+            DataKeys.PADDING_MASK: PADDING_MASK,
+        },
+        batch_size=[B, SIZE],
+    ),
+    SIZE,
+)
+
 
 @pytest.mark.parametrize(
     "inputs,expected,size",
@@ -73,6 +94,7 @@ PAD_LAST_SEQUENCE_CASE_2 = (
         PAD_LAST_SEQUENCE_CASE_0,
         PAD_LAST_SEQUENCE_CASE_1,
         PAD_LAST_SEQUENCE_CASE_2,
+        PAD_LAST_SEQUENCE_CASE_3,
     ],
 )
 def test_pad_last_sequence(
