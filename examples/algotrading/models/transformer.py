@@ -14,7 +14,5 @@ class Transformer(Model):
         config.get("embed_dim", 8)
         seq_len = config.get("seq_len", 16)
         self.view_requirements = {
-            (DataKeys.OBS, "LOG_CHANGE(price)"): ViewRequirement(
-                (DataKeys.OBS, "LOG_CHANGE(price)"), shift=seq_len
-            )
+            (DataKeys.OBS, "LOG_CHANGE(price)"): ViewRequirement(shift=seq_len)
         }

@@ -24,7 +24,7 @@ class Action(IntEnum):
     SELL = 2
 
 
-class MockTrader(Env):
+class AlgoTrading(Env):
     """An environment that mocks algotrading.
 
     An asset's price is simulated according to the equation
@@ -73,7 +73,6 @@ class MockTrader(Env):
         self.action_spec = DiscreteTensorSpec(3, shape=torch.Size([1]), device=device)
         self.slope_bounds = self.config.get("slope_bounds", 1)
         self.frequency_bounds = self.config.get("frequency_bounds", math.pi)
-        self.reset(config=self.config)
 
     def reset(self, *, config: dict[str, Any] | None = None) -> TensorDict:
         config = config or {}

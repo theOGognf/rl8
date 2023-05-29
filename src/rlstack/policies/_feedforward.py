@@ -6,7 +6,6 @@ from typing_extensions import Self
 
 from rlstack.distributions import Distribution
 
-from .._utils import assert_nd_spec
 from ..data import DataKeys, Device
 from ..models import Model
 from ..specs import TensorSpec
@@ -52,8 +51,6 @@ class Policy:
         distribution_cls: None | type[Distribution] = None,
         device: Device = "cpu",
     ) -> None:
-        assert_nd_spec(observation_spec)
-        assert_nd_spec(action_spec)
         self.model_config = model_config or {}
         if model and model_cls:
             raise ValueError(

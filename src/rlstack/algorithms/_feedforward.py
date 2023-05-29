@@ -7,7 +7,7 @@ import torch.optim as optim
 from tensordict import TensorDict
 from torch.utils.data import DataLoader
 
-from .._utils import StatTracker, profile_ms
+from .._utils import StatTracker, assert_nd_spec, profile_ms
 from ..data import (
     AlgorithmHparams,
     AlgorithmState,
@@ -244,6 +244,8 @@ class Algorithm:
         device: Device = "cpu",
     ) -> None:
         self.env = env_cls(num_envs, config=env_config, device=device)
+        assert_nd_spec(self.env.observation_spec)
+        assert_nd_spec(self.env.action_spec)
         self.policy = Policy(
             self.env.observation_spec,
             self.env.action_spec,

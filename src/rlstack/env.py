@@ -138,7 +138,6 @@ class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
         super().__init__(num_envs, config=config, device=device)
         self.observation_spec = UnboundedContinuousTensorSpec(1, device=self.device)
         self.bounds = self.config.get("bounds", 100.0)
-        self.reset(config=self.config)
 
     def reset(self, *, config: None | dict[str, Any] = None) -> torch.Tensor:
         config = config or {}
