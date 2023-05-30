@@ -53,6 +53,7 @@ dev = [
 [tool.isort]
 profile = "black"
 src_paths = [
+    "examples",
     "src",
     "tests"
 ]

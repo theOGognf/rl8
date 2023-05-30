@@ -100,7 +100,8 @@ class AlgoTrading(Env):
                 "frequencies": frequencies,
                 "slopes": slopes,
                 "t": t,
-                "price": t * slopes * torch.sin(t * frequencies),
+                "price": t * slopes * torch.sin(t * frequencies)
+                + self.slope_bounds * self.max_horizon,
                 "LOG_CHANGE(price)": torch.zeros(
                     self.num_envs, 1, device=self.device
                 ).float(),
@@ -123,34 +124,35 @@ class AlgoTrading(Env):
         reward = torch.zeros(self.num_envs, 1, device=self.device).float()
 
         # Handle buy actions
-        buy_mask = action == Action.BUY
+        buy_mask = (action == Action.BUY).flatten()
         self.state["invested"][buy_mask] = 1
         self.state["invested_price"][buy_mask] = old_price[buy_mask]
 
         # Handle sell actions
-        sell_mask = action == Action.SELL
+        sell_mask = (action == Action.SELL).flatten()
         self.state["invested"][sell_mask] = 0
         reward[sell_mask] = torch.log(old_price[sell_mask]) - torch.log(
             self.state["invested_price"][sell_mask]
         )
 
         # Handle hold actions
-        invested_mask = self.state["invested"] == 1
+        invested_mask = (self.state["invested"] == 1).flatten()
         not_invested_mask = ~invested_mask
         self.state["invested_price"][not_invested_mask] = old_price[not_invested_mask]
 
         # Main environment state update
-        self.state["action_mask"][invested_mask][:, Action.HOLD] = 1
-        self.state["action_mask"][invested_mask][:, Action.BUY] = 0
-        self.state["action_mask"][invested_mask][:, Action.SELL] = 1
-        self.state["action_mask"][not_invested_mask][:, Action.HOLD] = 1
-        self.state["action_mask"][not_invested_mask][:, Action.BUY] = 1
-        self.state["action_mask"][not_invested_mask][:, Action.SELL] = 0
+        self.state["action_mask"][invested_mask, Action.HOLD] = 1
+        self.state["action_mask"][invested_mask, Action.BUY] = 0
+        self.state["action_mask"][invested_mask, Action.SELL] = 1
+        self.state["action_mask"][not_invested_mask, Action.HOLD] = 1
+        self.state["action_mask"][not_invested_mask, Action.BUY] = 1
+        self.state["action_mask"][not_invested_mask, Action.SELL] = 0
         self.state["t"] += 1
         self.state["price"] = (
             self.state["t"]
             * self.state["slopes"]
             * torch.sin(self.state["t"] * self.state["frequencies"])
+            + self.slope_bounds * self.max_horizon
         )
         self.state["LOG_CHANGE(price)"] = torch.log(self.state["price"]) - torch.log(
             old_price
