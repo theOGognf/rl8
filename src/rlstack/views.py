@@ -74,8 +74,8 @@ def pad_last_sequence(x: torch.Tensor, size: int, /) -> TensorDict:
     pad = size - T
     if pad > 0:
         F = x.shape[2:]
-        padding = torch.zeros(B, size, *F, device=x.device)
-        x = torch.cat([padding, x], 1)[:, -size:, ...]
+        padding = torch.zeros(B, pad, *F, device=x.device)
+        x = torch.cat([padding, x], 1)
         padding_mask = torch.zeros(B, size, device=x.device, dtype=torch.bool)
         padding_mask[:, :pad] = True
     else:
@@ -106,8 +106,9 @@ def pad_whole_sequence(x: torch.Tensor, size: int, /) -> TensorDict:
 
     """
     B, T = x.shape[:2]
+    F = x.shape[2:]
     pad = RollingWindow.drop_size(size)
-    padding = torch.zeros_like(x)[:, :pad, ...]
+    padding = torch.zeros(B, pad, *F, device=x.device)
     x = torch.cat([padding, x], 1)
     padding_mask = torch.zeros(B, T + pad, device=x.device, dtype=torch.bool)
     padding_mask[:, :pad] = True

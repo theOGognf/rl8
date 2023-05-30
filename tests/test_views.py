@@ -70,16 +70,20 @@ B = 2
 T = 1
 SIZE = 3
 TOTAL = B * T
-INPUTS = torch.arange(TOTAL).reshape(B, T, 1, 1, 1).float()
+INPUTS = torch.cat(
+    [
+        torch.zeros(B, SIZE - T, 1, 1, 1),
+        torch.arange(TOTAL).reshape(B, T, 1, 1, 1).float(),
+    ],
+    dim=1,
+)
 PADDING_MASK = torch.zeros(B, SIZE).bool()
 PADDING_MASK[:, : SIZE - T] = True
 PAD_LAST_SEQUENCE_CASE_3 = (
     torch.arange(TOTAL).reshape(B, T, 1, 1, 1).float(),
     TensorDict(
         {
-            DataKeys.INPUTS: torch.cat(
-                [torch.zeros(B, SIZE - T, 1, 1, 1), INPUTS], dim=1
-            ),
+            DataKeys.INPUTS: INPUTS,
             DataKeys.PADDING_MASK: PADDING_MASK,
         },
         batch_size=[B, SIZE],
@@ -165,12 +169,36 @@ PAD_WHOLE_SEQUENCE_CASE_2 = (
 )
 
 
+B = 2
+T = 1
+SIZE = 3
+TOTAL = B * T
+INPUTS = torch.cat(
+    [torch.zeros(B, (SIZE - 1), 1, 1, 1), torch.arange(TOTAL).reshape(B, T, 1, 1, 1)],
+    dim=1,
+).float()
+PADDING_MASK = torch.zeros(B, T + (SIZE - 1)).bool()
+PADDING_MASK[:, : (SIZE - T)] = True
+PAD_WHOLE_SEQUENCE_CASE_3 = (
+    torch.arange(TOTAL).reshape(B, T, 1, 1, 1).float(),
+    TensorDict(
+        {
+            DataKeys.INPUTS: INPUTS,
+            DataKeys.PADDING_MASK: PADDING_MASK,
+        },
+        batch_size=[B, T + (SIZE - 1)],
+    ),
+    SIZE,
+)
+
+
 @pytest.mark.parametrize(
     "inputs,expected,size",
     [
         PAD_WHOLE_SEQUENCE_CASE_0,
         PAD_WHOLE_SEQUENCE_CASE_1,
         PAD_WHOLE_SEQUENCE_CASE_2,
+        PAD_WHOLE_SEQUENCE_CASE_3,
     ],
 )
 def test_pad_whole_sequence(
