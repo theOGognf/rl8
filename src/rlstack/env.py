@@ -142,9 +142,8 @@ class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
     def reset(self, *, config: None | dict[str, Any] = None) -> torch.Tensor:
         config = config or {}
         self.bounds = config.get("bounds", self.bounds)
-        self.state = (
-            -self.bounds * torch.rand(self.num_envs, 1, device=self.device)
-            + self.bounds
+        self.state = torch.empty(self.num_envs, 1, device=self.device).uniform_(
+            -self.bounds, self.bounds
         )
         return self.state
 

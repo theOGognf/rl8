@@ -18,6 +18,42 @@ FINFO = torch.finfo()
 
 
 class Transformer(Model):
+    """A model that applies self-attention to historical price changes
+    to eventually construct logits used for sampling actions.
+
+    The model eventually reduces the environment observation into a 1D
+    tensor that's fed into feature and value function models that produce
+    the model's outputs. The feature model and value function
+    model share parameters since they share the same input from the
+    feature vector created partly from the self-attention mechanism.
+
+    This model also applies action masking to ignore impossible actions
+    according to the environment's observation (i.e., disallowing buying
+    an asset when the asset is already owned).
+
+    Args:
+        observation_spec: Environment observation spec.
+        action_spec: Environment action spec.
+        invested_embed_dim: The size of the embedding to create for the
+            environment observation indicating whether the policy is
+            already invested in the asset.
+        price_embed_dim: The size of the embedding for historical price
+            changes.
+        seq_len: Number of historical price changes to use for the
+            self-attention mechanism. This should always be less than
+            the environment horizon used during training.
+        num_heads: Number of attention heads to use per self-attention
+            layer.
+        num_layers: Number of self-attention layers to use.
+        hiddens: Hidden neurons for each layer in the feature and value
+            function models. The first element is also used as the number
+            of hidden neurons in the self-attention mechanism.
+        activation_fn: Activation function used by all components.
+        bias: Whether to use a bias in the linear layers for the feature
+            and value function models.
+
+    """
+
     def __init__(
         self,
         observation_spec: TensorSpec,
@@ -55,7 +91,7 @@ class Transformer(Model):
                 num_heads=num_heads,
                 hidden_dim=hiddens[0],
                 activation_fn=activation_fn,
-                skip_kind="residual",
+                skip_kind="cat",
             ),
             num_layers,
         )
@@ -68,9 +104,7 @@ class Transformer(Model):
             ),
             get_activation(activation_fn),
         )
-        feature_head = nn.Linear(
-            hiddens[-1], action_spec.shape[0] * action_spec.space.n
-        )
+        feature_head = nn.Linear(hiddens[-1], 3)
         nn.init.uniform_(feature_head.weight, a=-1e-3, b=1e-3)
         nn.init.zeros_(feature_head.bias)
         self.feature_model.append(feature_head)
@@ -95,13 +129,11 @@ class Transformer(Model):
             x_price,
             key_padding_mask=batch[
                 DataKeys.OBS, "LOG_CHANGE(price)", DataKeys.PADDING_MASK
-            ].bool(),
+            ],
         )
         x_price = masked_avg(
             x_price,
-            mask=~batch[
-                DataKeys.OBS, "LOG_CHANGE(price)", DataKeys.PADDING_MASK
-            ].bool(),
+            mask=~batch[DataKeys.OBS, "LOG_CHANGE(price)", DataKeys.PADDING_MASK],
             dim=1,
             keepdim=False,
         )

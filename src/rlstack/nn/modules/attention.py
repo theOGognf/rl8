@@ -99,9 +99,6 @@ class CrossAttention(
         skip_kind: Kind of residual or skip connection to make between
             the output of the multihead attention and the feedforward
             module.
-        fan_in: Whether to apply downsampling within the skip connection
-            when using a ``skip_kind`` that increases hidden feature
-            dimensions.
 
     """
 
@@ -127,7 +124,6 @@ class CrossAttention(
         attention_dropout: float = 0.0,
         hidden_dropout: float = 0.0,
         skip_kind: None | str = "cat",
-        fan_in: bool = True,
     ) -> None:
         super().__init__()
         self.q_norm = nn.LayerNorm(embed_dim)
@@ -136,7 +132,8 @@ class CrossAttention(
             embed_dim, num_heads, dropout=attention_dropout, batch_first=True
         )
         self.skip_connection = SequentialSkipConnection(
-            embed_dim, kind=skip_kind, fan_in=fan_in
+            embed_dim,
+            kind=skip_kind,
         )
         mlp = torch.nn.Sequential(
             nn.LayerNorm(self.skip_connection.out_features),
@@ -218,9 +215,6 @@ class SelfAttention(
         skip_kind: Kind of residual or skip connection to make between
             the output of the multihead attention and the feedforward
             module.
-        fan_in: Whether to apply downsampling within the skip connection
-            when using a ``skip_kind`` that increases hidden feature
-            dimensions.
 
     """
 
@@ -243,7 +237,6 @@ class SelfAttention(
         attention_dropout: float = 0.0,
         hidden_dropout: float = 0.0,
         skip_kind: None | str = "cat",
-        fan_in: bool = True,
     ) -> None:
         super().__init__()
         self.x_norm = nn.LayerNorm(embed_dim)
@@ -251,7 +244,8 @@ class SelfAttention(
             embed_dim, num_heads, dropout=attention_dropout, batch_first=True
         )
         self.skip_connection = SequentialSkipConnection(
-            embed_dim, kind=skip_kind, fan_in=fan_in
+            embed_dim,
+            kind=skip_kind,
         )
         mlp = torch.nn.Sequential(
             nn.LayerNorm(self.skip_connection.out_features),
