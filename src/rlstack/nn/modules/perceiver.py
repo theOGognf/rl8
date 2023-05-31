@@ -34,6 +34,8 @@ class PerceiverLayer(
         skip_kind: Kind of residual or skip connection to make between
             outputs of the multihead attentions and the feedforward
             modules.
+        share_parameters: Whether to use the same parameters for the layers
+            in the self-attention stack.
 
     .. _`Perceiver`: https://arxiv.org/pdf/2103.03206.pdf
 
@@ -51,6 +53,7 @@ class PerceiverLayer(
         attention_dropout: float = 0.0,
         hidden_dropout: float = 0.0,
         skip_kind: str = "cat",
+        share_parameters: bool = False,
     ) -> None:
         super().__init__()
         self.cross_attention = CrossAttention(
@@ -73,6 +76,7 @@ class PerceiverLayer(
                 skip_kind=skip_kind,
             ),
             num_layers,
+            share_parameters=share_parameters,
         )
 
     def forward(
@@ -134,6 +138,8 @@ class PerceiverIOLayer(
         skip_kind: Kind of residual or skip connection to make between
             outputs of the multihead attentions and the feedforward
             modules.
+        share_parameters: Whether to use the same parameters for the layers
+            in the self-attention stack.
 
     .. _`PerceiverIO`: https://arxiv.org/pdf/2107.14795.pdf
 
@@ -152,6 +158,7 @@ class PerceiverIOLayer(
         attention_dropout: float = 0.0,
         hidden_dropout: float = 0.0,
         skip_kind: str = "cat",
+        share_parameters: bool = False,
     ) -> None:
         super().__init__()
         self.perceiver_layer = PerceiverLayer(
@@ -163,6 +170,7 @@ class PerceiverIOLayer(
             attention_dropout=attention_dropout,
             hidden_dropout=hidden_dropout,
             skip_kind=skip_kind,
+            share_parameters=share_parameters,
         )
         self.output_query = nn.Parameter(torch.zeros([output_seq_dim, embed_dim]))
         with torch.no_grad():

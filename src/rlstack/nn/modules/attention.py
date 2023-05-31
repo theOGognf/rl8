@@ -311,12 +311,24 @@ class SelfAttentionStack(
     Args:
         module: Self-attention module to repeat.
         num_layers: Number of layers of ``module`` to repeat.
+        share_parameters: Whether to use the same module for each layer.
 
     """
 
-    def __init__(self, module: SelfAttention, num_layers: int, /) -> None:
+    def __init__(
+        self,
+        module: SelfAttention,
+        num_layers: int,
+        /,
+        *,
+        share_parameters: bool = False,
+    ) -> None:
         super().__init__()
-        self.layers = nn.ModuleList([copy.deepcopy(module) for _ in range(num_layers)])
+        if share_parameters:
+            modules = [module for _ in range(num_layers)]
+        else:
+            modules = [copy.deepcopy(module) for _ in range(num_layers)]
+        self.layers = nn.ModuleList(modules)
 
     def forward(
         self,

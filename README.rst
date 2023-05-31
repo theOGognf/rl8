@@ -55,58 +55,6 @@ high-level trainer interface (this updates the policy indefinitely).
     trainer = Trainer(DiscreteDummyEnv)
     trainer.run()
 
-Why rlstack?
-============
-
-**TL;DR: rlstack focuses on a niche subset of RL that simplifies the overall
-library while allowing fast and fully customizable environments, models, and
-action distributions.**
-
-There are many high quality, open-sourced RL libraries. Most of them take on the
-daunting task of being a monolithic, one-stop-shop for everything RL, attempting to
-support as many algorithms, environments, models, and compute capabilities as possible.
-Naturely, this monolothic goal has some drawbacks:
-
-* The software becomes more dense with each supported feature, making the library
-  all-the-more difficult to customize for a specific use case.
-* The software becomes less performant for a specific use case. RL practitioners
-  typically end up accepting the cost of transitioning to expensive and
-  difficult-to-manage compute clusters to get results faster.
-
-There's a handful of high quality, open-sourced RL libraries that tradeoff feature
-richness to reduce these drawbacks. However, each library still doesn't provide
-enough speed benefit to warrant the switch from a monolithic repo, or is still
-too complex to adapt to a specific use case.
-
-**rlstack** is a niche RL library that finds a goldilocks zone between the
-feature support and speed/complexity tradeoff by making some key assumptions:
-
-* Environments are highly parallelized and their parallelization is entirely
-  managed within the environment. This allows **rlstack** to ignore distributed
-  computing design considerations.
-* Environments are infinite horizon (i.e., they have no terminal conditions).
-  This allows **rlstack** to reset environments at the same, fixed horizon
-  intervals, greatly simplifying environment and algorithm implementations.
-* The only supported ML framework is PyTorch and the only supported algorithm
-  is PPO. This allows **rlstack** to ignore layers upon layers of abstraction,
-  greatly simplifying the overall library implementation.
-
-The end result is a minimal and high throughput library that can train policies
-to solve complex tasks on a single NVIDIA RTX 2080 within minutes.
-
-Unfortunately, this means **rlstack** doesn't support as many use cases as
-a monolithic RL library might. In fact, **rlstack** is probably a bad fit for
-your use case if:
-
-* Your environment isn't parallelizable.
-* Your environment must contain terminal conditions and can't be reformulated
-  as an infinite horizon task.
-* You want to use an ML framework that isn't PyTorch or you want to use an
-  algorithm that isn't a variant of PPO.
-
-However, if **rlstack** does fit your use case, it can do wonders for your
-RL workflow.
-
 Concepts
 ========
 
@@ -298,6 +246,58 @@ high-level trainer interface.
         stop_conditions=[Plateaus("returns/mean", rtol=0.05)],
     )
     trainer.run()
+
+Why rlstack?
+============
+
+**TL;DR: rlstack focuses on a niche subset of RL that simplifies the overall
+library while allowing fast and fully customizable environments, models, and
+action distributions.**
+
+There are many high quality, open-sourced RL libraries. Most of them take on the
+daunting task of being a monolithic, one-stop-shop for everything RL, attempting to
+support as many algorithms, environments, models, and compute capabilities as possible.
+Naturely, this monolothic goal has some drawbacks:
+
+* The software becomes more dense with each supported feature, making the library
+  all-the-more difficult to customize for a specific use case.
+* The software becomes less performant for a specific use case. RL practitioners
+  typically end up accepting the cost of transitioning to expensive and
+  difficult-to-manage compute clusters to get results faster.
+
+There's a handful of high quality, open-sourced RL libraries that tradeoff feature
+richness to reduce these drawbacks. However, each library still doesn't provide
+enough speed benefit to warrant the switch from a monolithic repo, or is still
+too complex to adapt to a specific use case.
+
+**rlstack** is a niche RL library that finds a goldilocks zone between the
+feature support and speed/complexity tradeoff by making some key assumptions:
+
+* Environments are highly parallelized and their parallelization is entirely
+  managed within the environment. This allows **rlstack** to ignore distributed
+  computing design considerations.
+* Environments are infinite horizon (i.e., they have no terminal conditions).
+  This allows **rlstack** to reset environments at the same, fixed horizon
+  intervals, greatly simplifying environment and algorithm implementations.
+* The only supported ML framework is PyTorch and the only supported algorithm
+  is PPO. This allows **rlstack** to ignore layers upon layers of abstraction,
+  greatly simplifying the overall library implementation.
+
+The end result is a minimal and high throughput library that can train policies
+to solve complex tasks on a single NVIDIA RTX 2080 within minutes.
+
+Unfortunately, this means **rlstack** doesn't support as many use cases as
+a monolithic RL library might. In fact, **rlstack** is probably a bad fit for
+your use case if:
+
+* Your environment isn't parallelizable.
+* Your environment must contain terminal conditions and can't be reformulated
+  as an infinite horizon task.
+* You want to use an ML framework that isn't PyTorch or you want to use an
+  algorithm that isn't a variant of PPO.
+
+However, if **rlstack** does fit your use case, it can do wonders for your
+RL workflow.
 
 Related Projects
 ================

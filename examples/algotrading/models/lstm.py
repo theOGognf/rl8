@@ -12,10 +12,6 @@ FINFO = torch.finfo()
 class LazyLemur(RecurrentModel):
     """An LSTM model that maintains states across horizons.
 
-    This model also applies action masking to ignore impossible actions
-    according to the environment's observation (i.e., disallowing buying
-    an asset when the asset is already owned).
-
     Args:
         observation_spec: Environment observation spec.
         action_spec: Environment action spec.
@@ -33,8 +29,8 @@ class LazyLemur(RecurrentModel):
         observation_spec: TensorSpec,
         action_spec: TensorSpec,
         /,
-        invested_embed_dim: int = 4,
-        hidden_size: int = 256,
+        invested_embed_dim: int = 2,
+        hidden_size: int = 128,
         num_layers: int = 1,
         bias: bool = True,
     ) -> None:
@@ -90,9 +86,7 @@ class LazyLemur(RecurrentModel):
         h_0 = states[DataKeys.HIDDEN_STATES][:, 0, ...].permute(1, 0, 2).contiguous()
         c_0 = states[DataKeys.CELL_STATES][:, 0, ...].permute(1, 0, 2).contiguous()
         latents, (h_n, c_n) = self.lstm(x, (h_0, c_0))
-        features = self.feature_head(latents).reshape(
-            -1, self.action_spec.shape[0], self.action_spec.space.n
-        )
+        features = self.feature_head(latents).reshape(-1, 1, 3)
         self._value = self.vf_head(latents).reshape(-1, 1)
         inf_mask = torch.clamp(
             torch.log(batch[DataKeys.OBS, "action_mask"]), min=FINFO.min, max=FINFO.max
@@ -110,9 +104,6 @@ class LazyLemur(RecurrentModel):
             },
             batch_size=batch.size(0),
         )
-
-    def init_states(self, n: int) -> TensorDict:
-        return self.state_spec.zero([n])
 
     def value_function(self) -> torch.Tensor:
         assert self._value is not None

@@ -27,10 +27,6 @@ class AttentiveAlpaca(Model):
     model share parameters since they share the same input from the
     feature vector created partly from the self-attention mechanism.
 
-    This model also applies action masking to ignore impossible actions
-    according to the environment's observation (i.e., disallowing buying
-    an asset when the asset is already owned).
-
     Args:
         observation_spec: Environment observation spec.
         action_spec: Environment action spec.
@@ -59,12 +55,12 @@ class AttentiveAlpaca(Model):
         observation_spec: TensorSpec,
         action_spec: TensorSpec,
         /,
-        invested_embed_dim: int = 4,
+        invested_embed_dim: int = 2,
         price_embed_dim: int = 8,
         seq_len: int = 4,
         num_heads: int = 4,
         num_layers: int = 2,
-        hiddens: tuple[int, ...] = (256, 256),
+        hiddens: tuple[int, ...] = (128, 128),
         activation_fn: str = "relu",
         bias: bool = True,
     ) -> None:
@@ -94,6 +90,7 @@ class AttentiveAlpaca(Model):
                 skip_kind="cat",
             ),
             num_layers,
+            share_parameters=True,
         )
         self.feature_model = nn.Sequential(
             MLP(

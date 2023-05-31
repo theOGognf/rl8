@@ -36,6 +36,8 @@ if __name__ == "__main__":
             algorithm_cls = Algorithm
             model_cls = AttentiveAlpaca
 
+    experiment = mlflow.set_experiment("rlstack.examples.algotrading")
+    print(f"Logging run under MLFlow experiment {experiment.experiment_id}")
     trainer = Trainer(
         AlgoTrading,
         algorithm_cls=algorithm_cls,

@@ -20,10 +20,6 @@ class MischievousMule(Model):
     they share the same input from the feature vector created partly
     from the aggregation mechanism.
 
-    This model also applies action masking to ignore impossible actions
-    according to the environment's observation (i.e., disallowing buying
-    an asset when the asset is already owned).
-
     Args:
         observation_spec: Environment observation spec.
         action_spec: Environment action spec.
@@ -46,9 +42,9 @@ class MischievousMule(Model):
         observation_spec: TensorSpec,
         action_spec: TensorSpec,
         /,
-        invested_embed_dim: int = 4,
+        invested_embed_dim: int = 2,
         seq_len: int = 4,
-        hiddens: tuple[int, ...] = (256, 256),
+        hiddens: tuple[int, ...] = (128, 128),
         activation_fn: str = "relu",
         bias: bool = True,
     ) -> None:
@@ -63,6 +59,12 @@ class MischievousMule(Model):
         )
         assert not seq_len % 4, "`seq_len` must be a factor of 4 for this model."
         self.seq_len = seq_len
+        # Feedforward models use a default view requirement that passes
+        # only the most recent observation to the model for inference.
+        # We specify a view requirement on historical price changes by
+        # adding a nested key to the default view requirement. This
+        # keeps the default view requirement while also allowing the model
+        # to use historical price changes as additional inputs.
         self.view_requirements[(DataKeys.OBS, "LOG_CHANGE(price)")] = ViewRequirement(
             shift=seq_len
         )
