@@ -21,7 +21,7 @@ to the policy's model.
 The example is intended to be ran as a module and CLI from the **rlstack**
 project root directory as follows:
 
-.. bash::
+.. code:: console
 
     python -m examples.algotrading
 
