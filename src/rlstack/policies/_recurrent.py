@@ -77,11 +77,6 @@ class RecurrentPolicy:
         """Return the device the policy's model is on."""
         return next(self.model.parameters()).device
 
-    @property
-    def feature_spec(self) -> TensorSpec:
-        """Return the feature spec defined in the model."""
-        return self.model.feature_spec
-
     def init_states(self, n: int, /) -> TensorDict:
         """Return new recurrent states for the policy's model."""
         return self.model.init_states(n)

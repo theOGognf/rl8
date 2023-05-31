@@ -273,7 +273,6 @@ class RecurrentAlgorithm:
                 DataKeys.OBS: self.env.observation_spec,
                 DataKeys.STATES: self.policy.state_spec,
                 DataKeys.REWARDS: UnboundedContinuousTensorSpec(1, device=device),
-                DataKeys.FEATURES: self.policy.feature_spec,
                 DataKeys.ACTIONS: self.env.action_spec,
                 DataKeys.LOGP: UnboundedContinuousTensorSpec(1, device=device),
                 DataKeys.VALUES: UnboundedContinuousTensorSpec(1, device=device),
@@ -396,9 +395,6 @@ class RecurrentAlgorithm:
 
                 # Update the buffer using sampled policy data and environment
                 # transition data.
-                self.buffer[DataKeys.FEATURES][:, t, ...] = sample_batch[
-                    DataKeys.FEATURES
-                ]
                 self.buffer[DataKeys.ACTIONS][:, t, ...] = sample_batch[
                     DataKeys.ACTIONS
                 ]
@@ -425,7 +421,6 @@ class RecurrentAlgorithm:
                 return_logp=False,
                 return_values=True,
             )
-            self.buffer[DataKeys.FEATURES][:, -1, ...] = sample_batch[DataKeys.FEATURES]
             self.buffer[DataKeys.VALUES][:, -1, ...] = sample_batch[DataKeys.VALUES]
 
             self.state.horizons += 1

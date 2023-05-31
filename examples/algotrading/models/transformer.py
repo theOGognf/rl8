@@ -17,7 +17,7 @@ from rlstack.views import ViewRequirement
 FINFO = torch.finfo()
 
 
-class Transformer(Model):
+class AttentiveAlpaca(Model):
     """A model that applies self-attention to historical price changes
     to eventually construct logits used for sampling actions.
 

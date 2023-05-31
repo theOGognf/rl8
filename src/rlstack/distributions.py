@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from copy import deepcopy
 from typing import Any, Generic, TypeVar
 
 import torch
@@ -77,37 +76,6 @@ class Distribution(ABC):
                     f"Action spec {action_spec} has no default distribution support."
                 )
 
-    @staticmethod
-    def default_feature_spec(action_spec: TensorSpec, /) -> TensorSpec:
-        """Return a default feature spec given an action spec.
-
-        Useful for defining feature specs for simple and common action
-        specs. Custom models with complex action specs should define
-        their own custom feature specs as an attribute.
-
-        Args:
-            action_spec: Spec defining the outputs of the policy's action
-                distribution that this model is a component of. Typically
-                passed into the model's ``__init__``.
-
-        Returns:
-            A spec defining the inputs to the policy's action distribution.
-            For simple distributions (e.g., categorical or diagonal gaussian),
-            this returns a spec defining the inputs to those distributions
-            (e.g., logits and mean/scales, respectively). For complex
-            distributions, this returns a copy of the action spec and the model
-            is expected to assign the correct feature spec within its own
-            ``__init__``.
-
-        """
-        match action_spec:
-            case DiscreteTensorSpec():
-                return Categorical.required_feature_spec(action_spec)
-            case UnboundedContinuousTensorSpec():
-                return Normal.required_feature_spec(action_spec)
-            case _:
-                return deepcopy(action_spec)
-
     @abstractmethod
     def deterministic_sample(self) -> torch.Tensor | TensorDict:
         """Draw a deterministic sample from the probability distribution."""
@@ -154,14 +122,6 @@ class TorchDistributionWrapper(
     def logp(self, samples: torch.Tensor) -> torch.Tensor:
         return self.dist.log_prob(samples).sum(-1, keepdim=True)
 
-    @staticmethod
-    @abstractmethod
-    def required_feature_spec(action_spec: _ActionSpec, /) -> _FeatureSpec:
-        """Define feature spec requirements for the distribution given an
-        action spec.
-
-        """
-
     def sample(self) -> torch.Tensor:
         return self.dist.sample()
 
@@ -177,15 +137,6 @@ class Categorical(
         super().__init__(features, model)
         self.dist = torch.distributions.Categorical(logits=features["logits"])  # type: ignore[no-untyped-call]
 
-    @staticmethod
-    def required_feature_spec(action_spec: DiscreteTensorSpec, /) -> CompositeSpec:
-        return CompositeSpec(
-            logits=UnboundedContinuousTensorSpec(
-                shape=torch.Size([action_spec.shape[0], action_spec.space.n]),
-                device=action_spec.device,
-            )
-        )  # type: ignore[no-untyped-call]
-
 
 class Normal(
     TorchDistributionWrapper[
@@ -197,19 +148,6 @@ class Normal(
     def __init__(self, features: TensorDict, model: Any) -> None:
         super().__init__(features, model)
         self.dist = torch.distributions.Normal(loc=features["mean"], scale=torch.exp(features["log_std"]))  # type: ignore[no-untyped-call]
-
-    @staticmethod
-    def required_feature_spec(
-        action_spec: UnboundedContinuousTensorSpec, /
-    ) -> CompositeSpec:
-        return CompositeSpec(
-            mean=UnboundedContinuousTensorSpec(
-                shape=action_spec.shape, device=action_spec.device
-            ),
-            log_std=UnboundedContinuousTensorSpec(
-                shape=action_spec.shape, device=action_spec.device
-            ),
-        )  # type: ignore[no-untyped-call]
 
 
 class SquashedNormal(Normal):

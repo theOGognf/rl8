@@ -80,11 +80,6 @@ class Policy:
         return next(self.model.parameters()).device
 
     @property
-    def feature_spec(self) -> TensorSpec:
-        """Return the feature spec defined in the model."""
-        return self.model.feature_spec
-
-    @property
     def observation_spec(self) -> TensorSpec:
         """Return the observation spec used for constructing the model."""
         return self.model.observation_spec

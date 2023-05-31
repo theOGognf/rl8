@@ -8,7 +8,6 @@ from typing_extensions import Self
 
 from .._utils import assert_1d_spec
 from ..data import DataKeys, Device
-from ..distributions import Distribution
 from ..nn import MLP, Module, get_activation
 from ..specs import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTensorSpec
 from ..views import ViewKind, ViewRequirement
@@ -45,12 +44,6 @@ class Model(
     #: Model-specific configuration. Passed from the policy and algorithm.
     config: dict[str, Any]
 
-    #: Spec defining the forward pass output. Useful for passing inputs to an
-    #: action distribution or stroing values in the replay buffer. Defaults
-    #: to `action_spec`. This should be overwritten in a model's ``__init__``
-    #: for models that feed into custom action distributions .
-    feature_spec: TensorSpec
-
     #: Spec defining the forward pass input. Useful for validating the forward
     #: pass and for defining the model as a function of the observation spec.
     observation_spec: TensorSpec
@@ -74,7 +67,6 @@ class Model(
         self.observation_spec = observation_spec
         self.action_spec = action_spec
         self.config = config
-        self.feature_spec = Distribution.default_feature_spec(action_spec)
         self.view_requirements = {DataKeys.OBS: ViewRequirement(shift=0)}
 
     def apply_view_requirements(
@@ -203,7 +195,6 @@ class Model(
         """
         self.observation_spec = self.observation_spec.to(device)
         self.action_spec = self.action_spec.to(device)
-        self.feature_spec = self.feature_spec.to(device)
         return super().to(device)
 
     def validate_view_requirements(self) -> None:
@@ -391,12 +382,12 @@ class DefaultDiscreteModel(
 
     def forward(self, batch: TensorDict, /) -> TensorDict:
         obs = batch[DataKeys.OBS]
-        features = self.feature_model(obs).reshape(
+        logits = self.feature_model(obs).reshape(
             -1, self.action_spec.shape[0], self.action_spec.space.n
         )
         self._value = self.vf_model(obs)
         return TensorDict(
-            {"logits": features},
+            {"logits": logits},
             batch_size=batch.batch_size,
             device=obs.device,
         )

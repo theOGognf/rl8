@@ -8,7 +8,6 @@ from typing_extensions import Self
 
 from .._utils import assert_1d_spec
 from ..data import DataKeys, Device
-from ..distributions import Distribution
 from ..nn import Module
 from ..specs import (
     CompositeSpec,
@@ -48,12 +47,6 @@ class RecurrentModel(
     #: Model-specific configuration. Passed from the policy and algorithm.
     config: dict[str, Any]
 
-    #: Spec defining the forward pass output. Useful for passing inputs to an
-    #: action distribution or stroing values in the replay buffer. Defaults
-    #: to `action_spec`. This should be overwritten in a model's ``__init__``
-    #: for models that feed into custom action distributions .
-    feature_spec: TensorSpec
-
     #: Spec defining observations part of the forward pass input. Useful for
     #: validating the forward pass and for defining the model as a function of
     #: the observation spec.
@@ -74,7 +67,6 @@ class RecurrentModel(
         self.observation_spec = observation_spec
         self.action_spec = action_spec
         self.config = config
-        self.feature_spec = Distribution.default_feature_spec(action_spec)
 
     @staticmethod
     def default_model_cls(
@@ -173,7 +165,6 @@ class RecurrentModel(
         """
         self.observation_spec = self.observation_spec.to(device)
         self.action_spec = self.action_spec.to(device)
-        self.feature_spec = self.feature_spec.to(device)
         self.state_spec = self.state_spec.to(device)
         return super().to(device)
 
