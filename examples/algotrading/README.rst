@@ -18,8 +18,16 @@ asset. The parameterization of the asset's price makes learning to
 trade the asset a bit difficult if historical data isn't used as inputs
 to the policy's model.
 
-The example is intended to be ran as a module and CLI from the **rlstack**
-project root directory as follows:
+It's recommended that you browse the example's files to gain an understanding
+of how custom environments and models should be defined to get the most
+benefit out of **rlstack**'s design. The example is organized as follows:
+
+* ``./__main__.py`` is the main script.
+* ``./env.py`` contains the environment's definition.
+* ``./models`` contains model definitions.
+
+The example's main script is intended to be ran as a module and CLI from the
+**rlstack** project root directory as follows:
 
 .. code:: console
 
