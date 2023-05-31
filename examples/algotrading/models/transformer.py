@@ -60,7 +60,7 @@ class AttentiveAlpaca(Model):
         seq_len: int = 4,
         num_heads: int = 4,
         num_layers: int = 2,
-        hiddens: tuple[int, ...] = (128, 128),
+        hiddens: tuple[int, ...] = (64, 64),
         activation_fn: str = "relu",
         bias: bool = True,
     ) -> None:
@@ -87,7 +87,7 @@ class AttentiveAlpaca(Model):
                 num_heads=num_heads,
                 hidden_dim=hiddens[0],
                 activation_fn=activation_fn,
-                skip_kind="cat",
+                skip_kind="residual",
             ),
             num_layers,
             share_parameters=True,
