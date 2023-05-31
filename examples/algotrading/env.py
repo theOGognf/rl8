@@ -148,9 +148,13 @@ class AlgoTrading(Env):
         )
 
         # Handle hold actions
+        hold_mask = (action == Action.HOLD).flatten()
         invested_mask = (self.state["invested"] == 1).flatten()
         not_invested_mask = ~invested_mask
         self.state["invested_price"][not_invested_mask] = old_price[not_invested_mask]
+        reward[invested_mask & hold_mask] = self.state["LOG_CHANGE(price)"][
+            invested_mask & hold_mask
+        ].clone()
 
         # Main environment state update
         self.state["action_mask"][invested_mask, Action.HOLD] = True
