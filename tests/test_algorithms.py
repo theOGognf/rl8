@@ -1,9 +1,10 @@
 import math
+from unittest.mock import patch
 
 import pytest
 import torch
 
-from rlstack import Algorithm, RecurrentAlgorithm
+from rlstack import Algorithm, RecurrentAlgorithm, RecurrentPolicy
 from rlstack.env import ContinuousDummyEnv, DiscreteDummyEnv, Env
 
 
@@ -12,7 +13,7 @@ from rlstack.env import ContinuousDummyEnv, DiscreteDummyEnv, Env
 def test_algorithm(algorithm_cls: type[Algorithm], env_cls: type[Env]) -> None:
     SEED = 42
     NUM_ENVS = 64
-    HORIZON = 8
+    HORIZON = 32
     ENTROPY_COEFF = 1e-2
     RTOL = 1e-3
     torch.manual_seed(SEED)
@@ -59,3 +60,41 @@ def test_algorithm(algorithm_cls: type[Algorithm], env_cls: type[Env]) -> None:
         step_stats_accumulated["monitors/kl_div"],
         rel_tol=RTOL,
     )
+
+
+def test_feedforward_algorithm_resets() -> None:
+    algo = Algorithm(
+        DiscreteDummyEnv, horizon=32, num_envs=64, horizons_per_env_reset=2
+    )
+    with (patch.object(DiscreteDummyEnv, "reset", wraps=algo.env.reset) as reset,):
+        algo.collect()
+        assert algo.state.horizons == 1
+        assert reset.call_count == 1
+        algo.collect()
+        assert algo.state.horizons == 2
+        assert reset.call_count == 1
+        algo.collect()
+        assert algo.state.horizons == 3
+        assert reset.call_count == 2
+
+
+def test_recurrent_algorithm_resets() -> None:
+    algo = RecurrentAlgorithm(
+        DiscreteDummyEnv, horizon=32, num_envs=64, seq_len=4, seqs_per_state_reset=8
+    )
+    with (
+        patch.object(DiscreteDummyEnv, "reset", wraps=algo.env.reset) as reset,
+        patch.object(
+            RecurrentPolicy, "init_states", wraps=algo.policy.init_states
+        ) as init_states,
+    ):
+        algo.collect()
+        assert algo.state.horizons == 1
+        assert reset.call_count == 1
+        assert algo.state.seqs == 8
+        assert init_states.call_count == 1
+        algo.collect()
+        assert algo.state.horizons == 2
+        assert reset.call_count == 2
+        assert algo.state.seqs == 16
+        assert init_states.call_count == 2

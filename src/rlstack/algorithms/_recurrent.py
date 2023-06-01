@@ -404,7 +404,7 @@ class RecurrentAlgorithm:
                 self.buffer[DataKeys.OBS][:, t + 1, ...] = out_batch[DataKeys.OBS]
                 self.buffer[DataKeys.STATES][:, t + 1, ...] = sample_states
 
-                if t and not (t % self.hparams.seq_len):
+                if not ((t + 1) % self.hparams.seq_len):
                     self.state.seqs += 1
 
             # Sample features and value function at last observation.
