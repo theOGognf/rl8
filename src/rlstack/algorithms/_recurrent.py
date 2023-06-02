@@ -232,7 +232,7 @@ class RecurrentAlgorithm:
         horizons_per_env_reset: int = 1,
         num_envs: int = 8192,
         seq_len: int = 4,
-        seqs_per_state_reset: int = 4,
+        seqs_per_state_reset: int = 8,
         optimizer_cls: type[optim.Optimizer] = optim.Adam,
         optimizer_config: None | dict[str, Any] = None,
         accumulate_grads: bool = False,
