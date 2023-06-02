@@ -33,7 +33,7 @@ class Env(ABC):
     action_spec: TensorSpec
 
     #: Environment config passed to the environment at instantiation.
-    #: This could be overwritten by :meth:`Environment.reset`, but it's
+    #: This could be overwritten by the environment's reset, but it's
     #: entirely at the developer's discretion.
     config: dict[str, Any]
 

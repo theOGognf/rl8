@@ -22,10 +22,6 @@ class SequentialSkipConnection(Module[[torch.Tensor, torch.Tensor], torch.Tensor
                 - "cat" for concatenating outputs
                 - `None` for no skip connection
 
-        fan_in: Whether to apply a linear layer after each skip connection
-            automatically such that the output of the forward pass will
-            always have dimension ``embed_dim``.
-
     """
 
     #: Number of input features for each module.
@@ -68,9 +64,9 @@ class SequentialSkipConnection(Module[[torch.Tensor, torch.Tensor], torch.Tensor
     def append(self, module: nn.Module, /) -> int:
         """Append ``module`` to the skip connection.
 
-        If :attr:`SequentialSkipConnection.fan_in` is ``True``, then a
-        fan-in layer is also appended after ``module`` to reduce the
-        number of output features back to the input dimension.
+        If the skip connection kind is concatenation, then an intermediate
+        layer is also appended to downsample the feature dimension back to the
+        original embedding dimension.
 
         Args:
             module: Module to append and apply a skip connection to.
@@ -102,7 +98,6 @@ class SequentialSkipConnection(Module[[torch.Tensor, torch.Tensor], torch.Tensor
 
         Returns:
             A tensor with shape depending on
-            :attr:`SequentialSkipConnection.fan_in` and
             :attr:`SequentialSkipConnection.kind`.
 
         """

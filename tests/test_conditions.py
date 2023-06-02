@@ -1,4 +1,11 @@
-from rlstack.conditions import And, HitsLowerBound, HitsUpperBound, Plateaus
+from rlstack.conditions import (
+    And,
+    HitsLowerBound,
+    HitsUpperBound,
+    Plateaus,
+    StopsDecreasing,
+    StopsIncreasing,
+)
 
 
 def test_and() -> None:
@@ -29,3 +36,17 @@ def test_plateaus() -> None:
     assert not plateaus({"returns/mean": 1})
     assert not plateaus({"returns/mean": 0.9})
     assert plateaus({"returns/mean": 1})
+
+
+def test_stops_decreasing() -> None:
+    stops_decreasing = StopsDecreasing("returns/mean", patience=2)
+    assert not stops_decreasing({"returns/mean": 1})
+    assert not stops_decreasing({"returns/mean": 1.1})
+    assert stops_decreasing({"returns/mean": 1.2})
+
+
+def test_stops_increasing() -> None:
+    stops_increasing = StopsIncreasing("returns/mean", patience=2)
+    assert not stops_increasing({"returns/mean": 1})
+    assert not stops_increasing({"returns/mean": 0.9})
+    assert stops_increasing({"returns/mean": 0.8})
