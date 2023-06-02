@@ -341,7 +341,11 @@ class Algorithm:
         """
         with profile_ms() as collect_timer:
             # Gather initial observation.
-            if not (self.state.horizons % self.hparams.horizons_per_env_reset):
+            if self.state.horizons and self.hparams.horizons_per_env_reset < 0:
+                self.buffer[DataKeys.OBS][:, 0, ...] = self.buffer[DataKeys.OBS][
+                    :, -1, ...
+                ]
+            elif not (self.state.horizons % self.hparams.horizons_per_env_reset):
                 self.buffer[DataKeys.OBS][:, 0, ...] = self.env.reset(config=env_config)
             else:
                 self.buffer[DataKeys.OBS][:, 0, ...] = self.buffer[DataKeys.OBS][
