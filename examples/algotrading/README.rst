@@ -6,7 +6,7 @@ showcase the speed and utility of **rlstack** when it comes to learning
 complex behaviors based on historical data.
 
 The environment simulates an asset's price according to the equation
-``y[k + 1] = (1 + km) * (1 + kc * sin(f * t)) * y[k]`` where
+``y[k] = (1 + km) * (1 + kc * sin(f * k)) * y[k - 1]`` where
 ``km``, ``kc``, ``f``, and ``y[0]`` are all randomly sampled
 from their own independent uniform distributions, some of which
 are defined by values in the environment's config.
