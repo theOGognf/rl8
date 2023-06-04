@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
 from tensordict import TensorDict
+from torchrl.data import CompositeSpec, TensorSpec, UnboundedContinuousTensorSpec
 
 from rlstack import RecurrentModel
 from rlstack.data import DataKeys
-from rlstack.specs import CompositeSpec, TensorSpec, UnboundedContinuousTensorSpec
 
 FINFO = torch.finfo()
 

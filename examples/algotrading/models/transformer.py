@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from tensordict import TensorDict
+from torchrl.data import TensorSpec
 
 from rlstack import Model
 from rlstack.data import DataKeys
@@ -11,7 +12,6 @@ from rlstack.nn import (
     get_activation,
     masked_avg,
 )
-from rlstack.specs import TensorSpec
 from rlstack.views import ViewRequirement
 
 FINFO = torch.finfo()

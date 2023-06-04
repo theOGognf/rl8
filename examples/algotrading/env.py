@@ -4,14 +4,14 @@ from typing import Any
 
 import torch
 from tensordict import TensorDict
-
-from rlstack import Env
-from rlstack.data import DataKeys, Device
-from rlstack.specs import (
+from torchrl.data import (
     CompositeSpec,
     DiscreteTensorSpec,
     UnboundedContinuousTensorSpec,
 )
+
+from rlstack import Env
+from rlstack.data import DataKeys, Device
 
 
 class Action(IntEnum):
