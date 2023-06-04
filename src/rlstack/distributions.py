@@ -3,14 +3,14 @@ from typing import Any, Generic, TypeVar
 
 import torch
 from tensordict import TensorDict
-
-from ._utils import assert_1d_spec
-from .specs import (
+from torchrl.data import (
     CompositeSpec,
     DiscreteTensorSpec,
     TensorSpec,
     UnboundedContinuousTensorSpec,
 )
+
+from ._utils import assert_1d_spec
 
 _ActionSpec = TypeVar("_ActionSpec", bound=TensorSpec)
 _FeatureSpec = TypeVar("_FeatureSpec", bound=TensorSpec)

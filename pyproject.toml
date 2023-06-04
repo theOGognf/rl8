@@ -25,8 +25,7 @@ classifiers = [
 dependencies = [
     "mlflow-skinny",
     "psutil",
-    "tensordict",
-    "torch",
+    "torchrl",
     "typing-extensions"
 ]
 dynamic = ["version"]
@@ -65,10 +64,7 @@ implicit_reexport = true
 no_implicit_optional = true
 show_error_codes = true
 strict = true
-
-[[tool.mypy.overrides]]
-module = "rlstack.specs"
-ignore_errors = true
+disable_error_code = "misc"
 
 [tool.setuptools_scm]
 version_scheme = "no-guess-dev"

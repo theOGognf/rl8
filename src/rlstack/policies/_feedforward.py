@@ -2,13 +2,13 @@ from typing import Any
 
 import torch
 from tensordict import TensorDict
+from torchrl.data import TensorSpec
 from typing_extensions import Self
 
 from rlstack.distributions import Distribution
 
 from ..data import DataKeys, Device
 from ..models import Model
-from ..specs import TensorSpec
 from ..views import ViewKind
 
 

@@ -4,12 +4,12 @@ from typing import Any, Generic, Sequence, TypeVar
 import torch
 import torch.nn as nn
 from tensordict import TensorDict
+from torchrl.data import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTensorSpec
 from typing_extensions import Self
 
 from .._utils import assert_1d_spec
 from ..data import DataKeys, Device
 from ..nn import MLP, Module, get_activation
-from ..specs import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTensorSpec
 from ..views import ViewKind, ViewRequirement
 
 _ObservationSpec = TypeVar("_ObservationSpec", bound=TensorSpec)

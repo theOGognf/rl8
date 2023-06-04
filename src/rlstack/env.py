@@ -5,9 +5,9 @@ from typing import Any, Generic, TypeVar
 
 import torch
 from tensordict import TensorDict
+from torchrl.data import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTensorSpec
 
 from .data import DataKeys, Device
-from .specs import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTensorSpec
 
 _ObservationSpec = TypeVar("_ObservationSpec", bound=TensorSpec)
 _ActionSpec = TypeVar("_ActionSpec", bound=TensorSpec)

@@ -4,17 +4,17 @@ from typing import Any, Generic, TypeVar
 import torch
 import torch.nn as nn
 from tensordict import TensorDict
-from typing_extensions import Self
-
-from .._utils import assert_1d_spec
-from ..data import DataKeys, Device
-from ..nn import Module
-from ..specs import (
+from torchrl.data import (
     CompositeSpec,
     DiscreteTensorSpec,
     TensorSpec,
     UnboundedContinuousTensorSpec,
 )
+from typing_extensions import Self
+
+from .._utils import assert_1d_spec
+from ..data import DataKeys, Device
+from ..nn import Module
 
 _ObservationSpec = TypeVar("_ObservationSpec", bound=TensorSpec)
 _ActionSpec = TypeVar("_ActionSpec", bound=TensorSpec)
@@ -245,7 +245,7 @@ class DefaultContinuousRecurrentModel(
                     device=action_spec.device,
                 ),
             }
-        )  # type: ignore[no-untyped-call]
+        )
         self.lstm = nn.LSTM(
             observation_spec.shape[0],
             hidden_size,
@@ -330,7 +330,7 @@ class DefaultDiscreteRecurrentModel(
                     device=action_spec.device,
                 ),
             }
-        )  # type: ignore[no-untyped-call]
+        )
         self.lstm = nn.LSTM(
             observation_spec.shape[0],
             hidden_size,

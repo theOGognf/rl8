@@ -5,9 +5,15 @@ import torch
 import torch.amp as amp
 import torch.optim as optim
 from tensordict import TensorDict
-from torch.utils.data import DataLoader
+from torchrl.data import CompositeSpec, UnboundedContinuousTensorSpec
 
-from .._utils import StatTracker, assert_nd_spec, memory_stats, profile_ms
+from .._utils import (
+    SimpleDataLoader,
+    StatTracker,
+    assert_nd_spec,
+    memory_stats,
+    profile_ms,
+)
 from ..data import (
     CollectStats,
     DataKeys,
@@ -24,7 +30,6 @@ from ..nn import generalized_advantage_estimate, ppo_losses
 from ..optimizer import OptimizerWrapper
 from ..policies import RecurrentPolicy
 from ..schedulers import EntropyScheduler, LRScheduler, ScheduleKind
-from ..specs import CompositeSpec, UnboundedContinuousTensorSpec
 
 
 class RecurrentAlgorithm:
@@ -269,7 +274,7 @@ class RecurrentAlgorithm:
         )
         max_horizon = self.env.max_horizon if hasattr(self.env, "max_horizon") else 32
         horizon = min(horizon, max_horizon) if horizon else max_horizon
-        self.buffer_spec = CompositeSpec(  # type: ignore[no-untyped-call]
+        self.buffer_spec = CompositeSpec(
             {
                 DataKeys.OBS: self.env.observation_spec,
                 DataKeys.STATES: self.policy.state_spec,
@@ -528,11 +533,10 @@ class RecurrentAlgorithm:
                     "monitors/kl_div",
                 ],
             )
-            loader = DataLoader(
+            loader = SimpleDataLoader(
                 self.buffer,
                 batch_size=self.hparams.sgd_minibatch_size,
                 shuffle=self.hparams.shuffle_minibatches,
-                collate_fn=lambda x: x,
             )
             for _ in range(self.hparams.num_sgd_iters):
                 for minibatch in loader:

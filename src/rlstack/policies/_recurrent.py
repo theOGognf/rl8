@@ -2,12 +2,12 @@ from typing import Any
 
 import torch
 from tensordict import TensorDict
+from torchrl.data import CompositeSpec, TensorSpec
 from typing_extensions import Self
 
 from ..data import DataKeys, Device
 from ..distributions import Distribution
 from ..models import RecurrentModel
-from ..specs import CompositeSpec, TensorSpec
 
 
 class RecurrentPolicy:

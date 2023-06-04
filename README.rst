@@ -317,7 +317,7 @@ Related Projects
   by most practitioners and use cases.
 * `TorchRL`_: TorchRL is PyTorch's RL library that's focused on efficient, modular,
   documented, and tested RL building blocks and algorithm implementations aimed
-  at supporting research in RL.
+  at supporting research in RL. TorchRL is a direct dependency of **rlstack**.
 
 .. _`Automatic Mixed Precision (AMP)`: https://pytorch.org/docs/stable/amp.html
 .. _`RL Games`: https://github.com/Denys88/rl_games
