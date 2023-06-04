@@ -3,7 +3,7 @@ rlstack: A Minimal RL Library
 
 **rlstack** is a minimal RL library that can simulate highly parallelized,
 infinite horizon environments, and can train a PPO policy using those
-environments, achieving up to 500k environment transitions (and one policy
+environments, achieving up to 1M environment transitions (and one policy
 update) per second using a single NVIDIA RTX 2080.
 
 * **Documentation**: https://theogognf.github.io/rlstack/
