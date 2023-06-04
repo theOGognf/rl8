@@ -109,7 +109,7 @@ class MischievousMule(Model):
         x = torch.cat(
             [
                 x_invested,
-                batch[DataKeys.OBS, "LOG_CHANGE(price, invested_price)"],
+                batch[DataKeys.OBS, "LOG_CHANGE(price, position)"],
                 x_price,
             ],
             dim=-1,

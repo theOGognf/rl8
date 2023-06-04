@@ -78,7 +78,7 @@ class LazyLemur(RecurrentModel):
         x = torch.cat(
             [
                 x_invested,
-                batch[DataKeys.OBS, "LOG_CHANGE(price, invested_price)"],
+                batch[DataKeys.OBS, "LOG_CHANGE(price, position)"],
                 batch[DataKeys.OBS, "LOG_CHANGE(price)"],
             ],
             dim=-1,

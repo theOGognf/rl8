@@ -70,7 +70,7 @@ class AlgoTrading(Env):
                 "LOG_CHANGE(price)": UnboundedContinuousTensorSpec(
                     1, device=device, dtype=torch.float32
                 ),
-                "LOG_CHANGE(price, invested_price)": UnboundedContinuousTensorSpec(
+                "LOG_CHANGE(price, position)": UnboundedContinuousTensorSpec(
                     1, device=device, dtype=torch.float32
                 ),
             }
@@ -106,7 +106,7 @@ class AlgoTrading(Env):
                 "invested": torch.zeros(
                     self.num_envs, 1, device=self.device, dtype=torch.long
                 ),
-                "invested_price": torch.zeros(
+                "position": torch.zeros(
                     self.num_envs, 1, device=self.device, dtype=torch.float32
                 ),
                 "f": f,
@@ -117,7 +117,7 @@ class AlgoTrading(Env):
                 "LOG_CHANGE(price)": torch.zeros(
                     self.num_envs, 1, device=self.device, dtype=torch.float32
                 ),
-                "LOG_CHANGE(price, invested_price)": torch.zeros(
+                "LOG_CHANGE(price, position)": torch.zeros(
                     self.num_envs, 1, device=self.device, dtype=torch.float32
                 ),
             },
@@ -128,7 +128,7 @@ class AlgoTrading(Env):
             "action_mask",
             "invested",
             "LOG_CHANGE(price)",
-            "LOG_CHANGE(price, invested_price)",
+            "LOG_CHANGE(price, position)",
         )
 
     def step(self, action: torch.Tensor) -> TensorDict:
@@ -138,20 +138,20 @@ class AlgoTrading(Env):
         # Handle buy actions
         buy_mask = (action == Action.BUY).flatten()
         self.state["invested"][buy_mask] = 1
-        self.state["invested_price"][buy_mask] = old_price[buy_mask]
+        self.state["position"][buy_mask] = old_price[buy_mask]
 
         # Handle sell actions
         sell_mask = (action == Action.SELL).flatten()
         self.state["invested"][sell_mask] = 0
         reward[sell_mask] = torch.log(old_price[sell_mask]) - torch.log(
-            self.state["invested_price"][sell_mask]
+            self.state["position"][sell_mask]
         )
 
         # Handle hold actions
         hold_mask = (action == Action.HOLD).flatten()
         invested_mask = (self.state["invested"] == 1).flatten()
         not_invested_mask = ~invested_mask
-        self.state["invested_price"][not_invested_mask] = old_price[not_invested_mask]
+        self.state["position"][not_invested_mask] = old_price[not_invested_mask]
         reward[invested_mask & hold_mask] = self.state["LOG_CHANGE(price)"][
             invested_mask & hold_mask
         ].clone()
@@ -170,14 +170,14 @@ class AlgoTrading(Env):
         self.state["LOG_CHANGE(price)"] = torch.log(self.state["price"]) - torch.log(
             old_price
         )
-        self.state["LOG_CHANGE(price, invested_price)"] = torch.log(
+        self.state["LOG_CHANGE(price, position)"] = torch.log(
             self.state["price"]
-        ) - torch.log(self.state["invested_price"])
+        ) - torch.log(self.state["position"])
         obs = self.state.select(
             "action_mask",
             "invested",
             "LOG_CHANGE(price)",
-            "LOG_CHANGE(price, invested_price)",
+            "LOG_CHANGE(price, position)",
         )
         return TensorDict(
             {DataKeys.OBS: obs, DataKeys.REWARDS: reward},
