@@ -7,11 +7,12 @@ import torch.optim as optim
 from tensordict import TensorDict
 from torch.utils.data import DataLoader
 
-from .._utils import StatTracker, assert_nd_spec, profile_ms
+from .._utils import StatTracker, assert_nd_spec, mem_stats, profile_ms
 from ..data import (
     CollectStats,
     DataKeys,
     Device,
+    MemStats,
     RecurrentAlgorithmHparams,
     RecurrentAlgorithmState,
     StepStats,
@@ -451,6 +452,10 @@ class RecurrentAlgorithm:
         collect_stats["profiling/collect_ms"] = collect_timer()
         return collect_stats
 
+    def mem_stats(self) -> MemStats:
+        """Return current algorithm memory usage."""
+        return mem_stats(self.hparams.device_type)
+
     @property
     def params(self) -> dict[str, Any]:
         """Return algorithm parameters."""
@@ -501,7 +506,6 @@ class RecurrentAlgorithm:
             del self.buffer[DataKeys.VALUES]
 
             # Main PPO loop.
-            device_type = "cuda" if str(self.hparams.device) != "cpu" else "cpu"
             grad_accumulation_steps = (
                 self.hparams.num_minibatches if self.hparams.accumulate_grads else 1
             )
@@ -532,7 +536,7 @@ class RecurrentAlgorithm:
             for _ in range(self.hparams.num_sgd_iters):
                 for minibatch in loader:
                     with amp.autocast(
-                        device_type,
+                        self.hparams.device_type,
                         enabled=self.hparams.enable_amp,
                     ):
                         sample_batch, _ = self.policy.sample(

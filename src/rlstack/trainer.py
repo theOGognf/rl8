@@ -6,7 +6,7 @@ import mlflow
 
 from .algorithms import Algorithm
 from .conditions import Condition
-from .data import CollectStats, StepStats, TrainStats
+from .data import CollectStats, MemStats, StepStats, TrainStats
 from .env import Env
 
 
@@ -24,6 +24,9 @@ class AlgorithmProtocol(Protocol):
     def collect(
         self, *, env_config: None | dict[str, Any] = None, deterministic: bool = False
     ) -> CollectStats:
+        ...
+
+    def mem_stats(self) -> MemStats:
         ...
 
     @property
@@ -115,6 +118,7 @@ class Trainer:
 
         """
         train_stats = {
+            **self.algorithm.mem_stats(),
             **self.algorithm.collect(env_config=env_config),
             **self.algorithm.step(),
         }

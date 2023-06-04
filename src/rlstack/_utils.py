@@ -1,7 +1,11 @@
 import time
 from contextlib import contextmanager
-from typing import Callable, Generator, Iterable
+from typing import Callable, Generator, Iterable, Literal
 
+import psutil
+import torch
+
+from .data import MemStats
 from .specs import CompositeSpec, TensorSpec
 
 
@@ -48,6 +52,22 @@ def assert_nd_spec(spec: TensorSpec, /) -> None:
                 " ...]`` (where ``N`` is the number of independent elements and"
                 " ``...`` is any number of additional dimensions)."
             )
+
+
+def mem_stats(device_type: Literal["cuda", "cpu"], /) -> MemStats:
+    """Return memory stats for a particular device type."""
+    match device_type:
+        case "cpu":
+            svmem = psutil.virtual_memory()
+            free = svmem.free
+            total = svmem.total
+        case "cuda":
+            free, total = torch.cuda.mem_get_info()
+    return {
+        "memory/free": free,
+        "memory/total": total,
+        "memory/percent": 100 * (total - free) / total,
+    }
 
 
 @contextmanager

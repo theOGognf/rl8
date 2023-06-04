@@ -215,6 +215,11 @@ class AlgorithmHparams:
             )
 
     @property
+    def device_type(self) -> Literal["cpu", "cuda"]:
+        """Return the device type."""
+        return "cuda" if str(self.device) != "cpu" else "cpu"
+
+    @property
     def num_minibatches(self) -> int:
         """Return the number of minibatches for convenience."""
         return (self.num_envs * self.horizon) // self.sgd_minibatch_size
@@ -337,6 +342,16 @@ CollectStats = TypedDict(
     total=False,
 )
 
+#: Values used for tracking the training device's memory stats.
+MemStats = TypedDict(
+    "MemStats",
+    {
+        "memory/free": int,
+        "memory/total": int,
+        "memory/percent": float,
+    },
+    total=False,
+)
 
 #: Values returned when stepping/updating a policy.
 StepStats = TypedDict(
@@ -356,7 +371,7 @@ StepStats = TypedDict(
 )
 
 #: Values returned during training.
-class TrainStats(CollectStats, StepStats):
+class TrainStats(CollectStats, MemStats, StepStats):
     ...
 
 
@@ -381,6 +396,9 @@ TrainStatKey = Literal[
     "losses/policy",
     "losses/vf",
     "losses/total",
+    "memory/free",
+    "memory/total",
+    "memory/percent",
     "monitors/kl_div",
     "profiling/step_ms",
 ]
