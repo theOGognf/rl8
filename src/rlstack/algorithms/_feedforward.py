@@ -7,14 +7,14 @@ import torch.optim as optim
 from tensordict import TensorDict
 from torch.utils.data import DataLoader
 
-from .._utils import StatTracker, assert_nd_spec, mem_stats, profile_ms
+from .._utils import StatTracker, assert_nd_spec, memory_stats, profile_ms
 from ..data import (
     AlgorithmHparams,
     AlgorithmState,
     CollectStats,
     DataKeys,
     Device,
-    MemStats,
+    MemoryStats,
     StepStats,
 )
 from ..distributions import Distribution
@@ -418,9 +418,9 @@ class Algorithm:
         collect_stats["profiling/collect_ms"] = collect_timer()
         return collect_stats
 
-    def mem_stats(self) -> MemStats:
+    def memory_stats(self) -> MemoryStats:
         """Return current algorithm memory usage."""
-        return mem_stats(self.hparams.device_type)
+        return memory_stats(self.hparams.device_type)
 
     @property
     def params(self) -> dict[str, Any]:

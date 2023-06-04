@@ -343,8 +343,8 @@ CollectStats = TypedDict(
 )
 
 #: Values used for tracking the training device's memory stats.
-MemStats = TypedDict(
-    "MemStats",
+MemoryStats = TypedDict(
+    "MemoryStats",
     {
         "memory/free": int,
         "memory/total": int,
@@ -371,7 +371,7 @@ StepStats = TypedDict(
 )
 
 #: Values returned during training.
-class TrainStats(CollectStats, MemStats, StepStats):
+class TrainStats(CollectStats, MemoryStats, StepStats):
     ...
 
 

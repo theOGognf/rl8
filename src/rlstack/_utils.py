@@ -5,7 +5,7 @@ from typing import Callable, Generator, Iterable, Literal
 import psutil
 import torch
 
-from .data import MemStats
+from .data import MemoryStats
 from .specs import CompositeSpec, TensorSpec
 
 
@@ -54,7 +54,7 @@ def assert_nd_spec(spec: TensorSpec, /) -> None:
             )
 
 
-def mem_stats(device_type: Literal["cuda", "cpu"], /) -> MemStats:
+def memory_stats(device_type: Literal["cuda", "cpu"], /) -> MemoryStats:
     """Return memory stats for a particular device type."""
     match device_type:
         case "cpu":
