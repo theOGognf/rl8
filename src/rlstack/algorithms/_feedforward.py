@@ -465,13 +465,14 @@ class Algorithm:
             final_obs = self.buffer[DataKeys.OBS][:, -1, ...]
             self.buffer = self.buffer[:, :-1, ...]
             views = self.policy.model.apply_view_requirements(self.buffer, kind="all")
-            self.buffer = self.buffer.reshape(-1)
-            self.buffer[DataKeys.VIEWS] = views
 
             # Free buffer elements that aren't used for the rest of the step.
             del self.buffer[DataKeys.OBS]
             del self.buffer[DataKeys.REWARDS]
             del self.buffer[DataKeys.VALUES]
+
+            self.buffer = self.buffer.reshape(-1)
+            self.buffer[DataKeys.VIEWS] = views
 
             # Main PPO loop.
             grad_accumulation_steps = (

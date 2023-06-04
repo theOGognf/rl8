@@ -498,12 +498,13 @@ class RecurrentAlgorithm:
             # data.
             final_obs = self.buffer[DataKeys.OBS][:, -1, ...]
             final_states = self.buffer[DataKeys.STATES][:, -1, ...]
-            self.buffer = self.buffer[:, :-1, ...]
-            self.buffer = self.buffer.reshape(-1, self.hparams.seq_len)
 
             # Free buffer elements that aren't used for the rest of the step.
             del self.buffer[DataKeys.REWARDS]
             del self.buffer[DataKeys.VALUES]
+
+            self.buffer = self.buffer[:, :-1, ...]
+            self.buffer = self.buffer.reshape(-1, self.hparams.seq_len)
 
             # Main PPO loop.
             grad_accumulation_steps = (
