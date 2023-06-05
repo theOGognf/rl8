@@ -3,7 +3,7 @@ Running Examples
 
 Example main scripts (``__main__.py``) are intended to be ran as modules and
 CLIs from the **rlstack** project root directory as follows (assuming
-`$EXAMPLE`` is the example directory you want to run):
+``$EXAMPLE`` is the example directory you want to run):
 
 .. code:: console
 
