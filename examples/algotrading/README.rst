@@ -32,21 +32,3 @@ benefit out of **rlstack**'s design. The example is organized as follows:
 * ``./__main__.py`` is the main script.
 * ``./env.py`` contains the environment's definition.
 * ``./models`` contains model definitions.
-
-Running the Example
--------------------
-
-The example's main script is intended to be ran as a module and CLI from the
-**rlstack** project root directory as follows:
-
-.. code:: console
-
-    python -m examples.algotrading
-
-If this is your first time using **rlstack**, MLFlow will create
-an ``../mlruns`` directory when you run the example. The ``../mlruns``
-directory will contain an experiment directory (where multiple example
-runs can reside), under which will be the example's run directory. You can
-track experiment progress by reloading files within the run directory, or by
-using the MLFlow UI by running ``mlflow ui`` while in ``../mlruns``'s parent
-directory.

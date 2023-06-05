@@ -135,7 +135,7 @@ class Categorical(
 
     def __init__(self, features: TensorDict, model: Any, /) -> None:
         super().__init__(features, model)
-        self.dist = torch.distributions.Categorical(logits=features["logits"])  # type: ignore[no-untyped-call]
+        self.dist = torch.distributions.Categorical(logits=features["logits"])
 
 
 class Normal(
@@ -147,7 +147,9 @@ class Normal(
 
     def __init__(self, features: TensorDict, model: Any) -> None:
         super().__init__(features, model)
-        self.dist = torch.distributions.Normal(loc=features["mean"], scale=torch.exp(features["log_std"]))  # type: ignore[no-untyped-call]
+        self.dist = torch.distributions.Normal(
+            loc=features["mean"], scale=torch.exp(features["log_std"])
+        )
 
 
 class SquashedNormal(Normal):
@@ -166,7 +168,7 @@ class SquashedNormal(Normal):
         eps = torch.finfo(samples.dtype).eps
         clipped_samples = samples.clamp(min=-1 + eps, max=1 - eps)
         inverted_samples = 0.5 * (clipped_samples.log1p() - (-clipped_samples).log1p())
-        logp = torch.clamp(self.dist.log_prob(inverted_samples), min=-100, max=100).sum(  # type: ignore[no-untyped-call]
+        logp = torch.clamp(self.dist.log_prob(inverted_samples), min=-100, max=100).sum(
             -1, keepdim=True
         )
         logp -= torch.sum(torch.log(1 - samples**2 + eps), dim=-1, keepdim=True)

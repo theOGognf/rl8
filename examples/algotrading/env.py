@@ -74,7 +74,7 @@ class AlgoTrading(Env):
                     1, device=device, dtype=torch.float32
                 ),
             }
-        )  # type: ignore[no-untyped-call]
+        )
         self.action_spec = DiscreteTensorSpec(3, shape=torch.Size([1]), device=device)
         self.f_bounds = self.config.get("f_bounds", math.pi)
         self.k_cyclic_bounds = self.config.get("k_cyclic_bounds", 0.05)

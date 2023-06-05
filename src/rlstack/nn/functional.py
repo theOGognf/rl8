@@ -195,8 +195,8 @@ def masked_categorical_sample(
         while mask.dim() < x.dim():
             mask = mask.unsqueeze(-1)
         x = x + torch.clamp(torch.log(mask), FINFO.min, FINFO.max)
-    dist = torch.distributions.Categorical(logits=x)  # type: ignore[no-untyped-call]
-    samples = dist.sample().unsqueeze(-1)  # type: ignore[no-untyped-call]
+    dist = torch.distributions.Categorical(logits=x)
+    samples = dist.sample().unsqueeze(-1)
     return x.gather(dim, samples), samples
 
 

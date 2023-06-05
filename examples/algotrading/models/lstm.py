@@ -53,7 +53,7 @@ class LazyLemur(RecurrentModel):
                     device=action_spec.device,
                 ),
             }
-        )  # type: ignore[no-untyped-call]
+        )
         self.invested_embedding = nn.Embedding(2, invested_embed_dim)
         self.lstm = nn.LSTM(
             invested_embed_dim + 2,
@@ -61,7 +61,7 @@ class LazyLemur(RecurrentModel):
             num_layers=num_layers,
             bias=bias,
             batch_first=True,
-        )  # type: ignore[no-untyped-call]
+        )
         self.feature_head = nn.Linear(hidden_size, 3, bias=bias)
         nn.init.uniform_(self.feature_head.weight, a=-1e-3, b=1e-3)
         nn.init.zeros_(self.feature_head.bias)

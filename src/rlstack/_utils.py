@@ -82,6 +82,59 @@ def profile_ms() -> Generator[Callable[[], float], None, None]:
     yield lambda: (time.perf_counter_ns() - start) / 1e6
 
 
+class Batcher:
+    """A simple utility for batching a tensordict.
+
+    Args:
+        batch: Tensordict to batch.
+        batch_size: Batch size per iteration. Defaults to the whole
+            tensordict.
+        shuffle: Whether to shuffle samples before batching.
+
+    """
+
+    #: Tensordict to batch when iterating over the batcher.
+    batch: TensorDict
+
+    #: Chunk size to split :attr:`Batcher.batch` into.
+    batch_size: int
+
+    #: List of indices for each batch. Instantiated each time the batcher
+    #: is iterated over.
+    indices: list[torch.Tensor]
+
+    #: Whether to shuffle samples before batching for each iteration.
+    shuffle: bool
+
+    def __init__(
+        self,
+        batch: TensorDict,
+        /,
+        *,
+        batch_size: None | int = None,
+        shuffle: bool = False,
+    ) -> None:
+        self.batch = batch
+        self.batch_size = batch_size or self.batch.size(0)
+        self.shuffle = shuffle
+
+    def __iter__(self) -> Self:
+        self.idx = 0
+        if self.shuffle:
+            indices = torch.randperm(self.batch.size(0), device=self.batch.device)
+        else:
+            indices = torch.arange(self.batch.size(0), device=self.batch.device)
+        self.indices = torch.split(indices, self.batch_size)
+        return self
+
+    def __next__(self) -> TensorDict:
+        if self.idx < len(self.indices):
+            out = self.batch[self.indices[self.idx], ...]
+            self.idx += 1
+            return out
+        raise StopIteration
+
+
 class CumulativeAverage:
     """Helper for maintaining a cumulative average.
 
@@ -110,63 +163,6 @@ class CumulativeAverage:
     def update(self, value: float, /) -> float:
         self.avg = (value + self.n * self.avg) / (self.n + 1)
         return self.avg
-
-
-class SimpleDataLoader:
-    """A simple dataloader for batching a tensordict.
-
-    PyTorch's native dataloader isn't made for batching a buffer that's already
-    pre-allocated whose device doesn't change. This dataloader is significantly
-    faster as a result.
-
-    Args:
-        batch: Tensordict to batch.
-        batch_size: Batch size per iteration. Defaults to the whole
-            tensordict.
-        shuffle: Whether to shuffle samples before batching.
-
-    """
-
-    #: Tensordict to batch when iterating over the dataloader.
-    batch: TensorDict
-
-    #: Chunk size to split :attr:`SimpleDataLoader.batch` into.
-    batch_size: int
-
-    #: List of indices for each batch. Instantiated each time the dataloader
-    #: is iterated over.
-    indices: list[torch.Tensor]
-
-    #: Whether to shuffle samples before batching for each iteration.
-    shuffle: bool
-
-    def __init__(
-        self,
-        batch: TensorDict,
-        /,
-        *,
-        batch_size: None | int = None,
-        shuffle: bool = False,
-    ) -> None:
-        self.batch = batch
-        self.batch_size = batch_size or self.batch.size(0)
-        self.shuffle = shuffle
-
-    def __iter__(self) -> Self:
-        if self.shuffle:
-            indices = torch.randperm(self.batch.size(0), device=self.batch.device)
-        else:
-            indices = torch.arange(self.batch.size(0), device=self.batch.device)
-        self.indices = torch.split(indices, self.batch_size)
-        self.idx = 0
-        return self
-
-    def __next__(self) -> TensorDict:
-        if self.idx < len(self.indices):
-            out = self.batch[self.indices[self.idx], ...]
-            self.idx += 1
-            return out
-        raise StopIteration
 
 
 class StatTracker:

@@ -46,7 +46,7 @@ class OptimizerWrapper:
     ) -> None:
         self.optimizer = optimizer
         self.grad_accumulation_steps = grad_accumulation_steps
-        self.scaler = GradScaler(enabled=enable_amp)  # type: ignore[no-untyped-call]
+        self.scaler = GradScaler(enabled=enable_amp)
         self.step_calls = 0
 
     def step(
@@ -73,12 +73,12 @@ class OptimizerWrapper:
         """
         self.step_calls += 1
         stepped = False
-        self.scaler.scale(loss).backward()  # type: ignore[no-untyped-call]
+        self.scaler.scale(loss).backward()
         if self.step_calls % self.grad_accumulation_steps == 0:
-            self.scaler.unscale_(self.optimizer)  # type: ignore[no-untyped-call]
+            self.scaler.unscale_(self.optimizer)
             nn.utils.clip_grad_norm_(params, max_grad_norm)
-            self.scaler.step(self.optimizer)  # type: ignore[no-untyped-call]
-            self.scaler.update()  # type: ignore[no-untyped-call]
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
             self.optimizer.zero_grad()
             stepped = True
         return stepped

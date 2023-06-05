@@ -7,13 +7,7 @@ import torch.optim as optim
 from tensordict import TensorDict
 from torchrl.data import CompositeSpec, UnboundedContinuousTensorSpec
 
-from .._utils import (
-    SimpleDataLoader,
-    StatTracker,
-    assert_nd_spec,
-    memory_stats,
-    profile_ms,
-)
+from .._utils import Batcher, StatTracker, assert_nd_spec, memory_stats, profile_ms
 from ..data import (
     AlgorithmHparams,
     AlgorithmState,
@@ -501,19 +495,19 @@ class Algorithm:
                     "monitors/kl_div",
                 ],
             )
-            loader = SimpleDataLoader(
+            batcher = Batcher(
                 self.buffer,
                 batch_size=self.hparams.sgd_minibatch_size,
                 shuffle=self.hparams.shuffle_minibatches,
             )
             for _ in range(self.hparams.num_sgd_iters):
-                for minibatch in loader:
+                for buffer_batch in batcher:
                     with amp.autocast(
                         self.hparams.device_type,
                         enabled=self.hparams.enable_amp,
                     ):
                         sample_batch = self.policy.sample(
-                            minibatch,
+                            buffer_batch,
                             kind="all",
                             deterministic=False,
                             inplace=False,
@@ -529,7 +523,7 @@ class Algorithm:
                             sample_batch[DataKeys.FEATURES], self.policy.model
                         )
                         losses = ppo_losses(
-                            minibatch,
+                            buffer_batch,
                             sample_batch,
                             curr_action_dist,
                             clip_param=self.hparams.clip_param,
@@ -543,8 +537,8 @@ class Algorithm:
                     # Calculate approximate KL divergence for debugging.
                     with torch.no_grad():
                         logp_ratio = (
-                            curr_action_dist.logp(minibatch[DataKeys.ACTIONS])
-                            - minibatch[DataKeys.LOGP]
+                            curr_action_dist.logp(buffer_batch[DataKeys.ACTIONS])
+                            - buffer_batch[DataKeys.LOGP]
                         )
                         kl_div = (
                             torch.mean((torch.exp(logp_ratio) - 1) - logp_ratio)
