@@ -45,8 +45,6 @@ class AttentiveAlpaca(Model):
             function models. The first element is also used as the number
             of hidden neurons in the self-attention mechanism.
         activation_fn: Activation function used by all components.
-        bias: Whether to use a bias in the linear layers for the feature
-            and value function models.
 
     """
 
@@ -62,7 +60,6 @@ class AttentiveAlpaca(Model):
         num_layers: int = 2,
         hiddens: tuple[int, ...] = (64, 64),
         activation_fn: str = "relu",
-        bias: bool = True,
     ) -> None:
         super().__init__(
             observation_spec,
@@ -74,7 +71,6 @@ class AttentiveAlpaca(Model):
             num_layers=num_layers,
             hiddens=hiddens,
             activation_fn=activation_fn,
-            bias=bias,
         )
         self.view_requirements[(DataKeys.OBS, "LOG_CHANGE(price)")] = ViewRequirement(
             shift=seq_len
@@ -97,7 +93,7 @@ class AttentiveAlpaca(Model):
                 invested_embed_dim + 1 + price_embed_dim,
                 hiddens,
                 activation_fn=activation_fn,
-                bias=bias,
+                norm_layer=nn.BatchNorm1d,
             ),
             get_activation(activation_fn),
         )
@@ -110,7 +106,7 @@ class AttentiveAlpaca(Model):
                 invested_embed_dim + 1 + price_embed_dim,
                 hiddens,
                 activation_fn=activation_fn,
-                bias=bias,
+                norm_layer=nn.BatchNorm1d,
             ),
             get_activation(activation_fn),
             nn.Linear(hiddens[-1], 1),

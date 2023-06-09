@@ -5,6 +5,7 @@ from torchrl.data import CompositeSpec, TensorSpec, UnboundedContinuousTensorSpe
 
 from rlstack import RecurrentModel
 from rlstack.data import DataKeys
+from rlstack.nn import MLP, get_activation
 
 FINFO = torch.finfo()
 
@@ -20,7 +21,9 @@ class LazyLemur(RecurrentModel):
             already invested in the asset.
         hidden_size: Hidden neurons within the LSTM.
         num_layers: Number of LSTM cells.
-        bias: Whether to use a bias in model components.
+        hiddens: Hidden neurons for each layer in the feature and value
+            function models.
+        activation_fn: Activation function used by all components.
 
     """
 
@@ -30,9 +33,10 @@ class LazyLemur(RecurrentModel):
         action_spec: TensorSpec,
         /,
         invested_embed_dim: int = 2,
-        hidden_size: int = 128,
+        hidden_size: int = 64,
         num_layers: int = 1,
-        bias: bool = True,
+        hiddens: tuple[int, ...] = (64, 64),
+        activation_fn: str = "relu",
     ) -> None:
         super().__init__(
             observation_spec,
@@ -40,7 +44,6 @@ class LazyLemur(RecurrentModel):
             invested_embed_dim=invested_embed_dim,
             hidden_size=hidden_size,
             num_layers=num_layers,
-            bias=bias,
         )
         self.state_spec = CompositeSpec(
             {
@@ -59,13 +62,31 @@ class LazyLemur(RecurrentModel):
             invested_embed_dim + 2,
             hidden_size,
             num_layers=num_layers,
-            bias=bias,
             batch_first=True,
         )
-        self.feature_head = nn.Linear(hidden_size, 3, bias=bias)
-        nn.init.uniform_(self.feature_head.weight, a=-1e-3, b=1e-3)
-        nn.init.zeros_(self.feature_head.bias)
-        self.vf_head = nn.Linear(hidden_size, 1, bias=bias)
+        self.feature_model = nn.Sequential(
+            MLP(
+                hidden_size,
+                hiddens,
+                activation_fn=activation_fn,
+                norm_layer=nn.BatchNorm1d,
+            ),
+            get_activation(activation_fn),
+        )
+        feature_head = nn.Linear(hiddens[-1], 3)
+        nn.init.uniform_(feature_head.weight, a=-1e-3, b=1e-3)
+        nn.init.zeros_(feature_head.bias)
+        self.feature_model.append(feature_head)
+        self.vf_model = nn.Sequential(
+            MLP(
+                hidden_size,
+                hiddens,
+                activation_fn=activation_fn,
+                norm_layer=nn.BatchNorm1d,
+            ),
+            get_activation(activation_fn),
+            nn.Linear(hiddens[-1], 1),
+        )
         self._value = None
 
     def forward(
@@ -86,13 +107,14 @@ class LazyLemur(RecurrentModel):
         h_0 = states[DataKeys.HIDDEN_STATES][:, 0, ...].permute(1, 0, 2).contiguous()
         c_0 = states[DataKeys.CELL_STATES][:, 0, ...].permute(1, 0, 2).contiguous()
         latents, (h_n, c_n) = self.lstm(x, (h_0, c_0))
-        features = self.feature_head(latents).reshape(-1, 1, 3)
-        self._value = self.vf_head(latents).reshape(-1, 1)
+        latents = latents.reshape(B * T, -1)
+        features = self.feature_model(latents).reshape(-1, 1, 3)
+        self._value = self.vf_model(latents).reshape(-1, 1)
         inf_mask = torch.clamp(
             torch.log(batch[DataKeys.OBS, "action_mask"]), min=FINFO.min, max=FINFO.max
         ).reshape(-1, 1, 3)
         masked_logits = features + inf_mask
-        self._value = self.vf_head(latents).reshape(-1, 1)
+        self._value = self.vf_model(latents).reshape(-1, 1)
         return TensorDict(
             {"logits": masked_logits},
             batch_size=masked_logits.size(0),

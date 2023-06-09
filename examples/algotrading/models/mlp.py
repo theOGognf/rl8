@@ -32,8 +32,6 @@ class MischievousMule(Model):
         hiddens: Hidden neurons for each layer in the feature and value
             function models.
         activation_fn: Activation function used by all components.
-        bias: Whether to use a bias in the linear layers for the feature
-            and value function models.
 
     """
 
@@ -46,7 +44,6 @@ class MischievousMule(Model):
         seq_len: int = 4,
         hiddens: tuple[int, ...] = (128, 128),
         activation_fn: str = "relu",
-        bias: bool = True,
     ) -> None:
         super().__init__(
             observation_spec,
@@ -55,7 +52,6 @@ class MischievousMule(Model):
             seq_len=seq_len,
             hiddens=hiddens,
             activation_fn=activation_fn,
-            bias=bias,
         )
         assert not seq_len % 4, "`seq_len` must be a factor of 4 for this model."
         self.seq_len = seq_len
@@ -74,7 +70,7 @@ class MischievousMule(Model):
                 invested_embed_dim + 5,
                 hiddens,
                 activation_fn=activation_fn,
-                bias=bias,
+                norm_layer=nn.BatchNorm1d,
             ),
             get_activation(activation_fn),
         )
@@ -87,7 +83,7 @@ class MischievousMule(Model):
                 invested_embed_dim + 5,
                 hiddens,
                 activation_fn=activation_fn,
-                bias=bias,
+                norm_layer=nn.BatchNorm1d,
             ),
             get_activation(activation_fn),
             nn.Linear(hiddens[-1], 1),
