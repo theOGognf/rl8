@@ -15,7 +15,7 @@ def test_algorithm(algorithm_cls: type[Algorithm], env_cls: type[Env]) -> None:
     NUM_ENVS = 64
     HORIZON = 32
     ENTROPY_COEFF = 1e-2
-    RTOL = 1e-3
+    RTOL = 1e-5
     torch.manual_seed(SEED)
     algo = algorithm_cls(
         env_cls, num_envs=NUM_ENVS, horizon=HORIZON, entropy_coeff=ENTROPY_COEFF

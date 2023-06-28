@@ -162,6 +162,7 @@ class CumulativeAverage:
 
     def update(self, value: float, /) -> float:
         self.avg = (value + self.n * self.avg) / (self.n + 1)
+        self.n += 1
         return self.avg
 
 
