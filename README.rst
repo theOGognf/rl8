@@ -82,10 +82,10 @@ distributions.
   actually calls and samples from the model and action distribution,
   respectively. The policy handles some pre/post -processing on its I/O
   to make it more convenient to sample from the model and action distribution
-  together. The policy is *almost never user-defined*.
+  together. The policy is *rarely user-defined*.
 * **The algorithm**: The PPO implementation that uses the environment to train
   the policy (i.e., update the model's parameters). All hyperparameters and
-  customizations are set with the algorithm. The algorithm is *almost never
+  customizations are set with the algorithm. The algorithm is *rarely
   user-defined*.
 * **The trainer**: The high-level interface for using the algorithm to train
   indefinitely or until some condition is met. The trainer directly integrates
