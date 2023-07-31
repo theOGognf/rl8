@@ -82,7 +82,7 @@ class AlgoTrading(Env):
 
     def reset(self, *, config: dict[str, Any] | None = None) -> TensorDict:
         config = config or {}
-        self.f_bounds = self.config.get("f_bounds", self.f_bounds)
+        self.f_bounds = config.get("f_bounds", self.f_bounds)
         self.k_cyclic_bounds = config.get("k_cyclic_bounds", self.k_cyclic_bounds)
         self.k_market_bounds = config.get("k_market_bounds", self.k_market_bounds)
         f = torch.empty(self.num_envs, 1, device=self.device).uniform_(0, self.f_bounds)
