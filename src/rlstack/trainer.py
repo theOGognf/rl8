@@ -179,7 +179,7 @@ class Trainer:
         stop_conditions = stop_conditions or []
         train_stats = self.step(env_config=env_config)
         while not any([condition(train_stats) for condition in stop_conditions]):
-            if steps_per_eval and not (steps_per_eval % self.state["algorithm/steps"]):
+            if steps_per_eval and not (self.state["algorithm/steps"] % steps_per_eval):
                 self.eval(env_config=eval_env_config)
             train_stats = self.step(env_config=env_config)
         return train_stats
