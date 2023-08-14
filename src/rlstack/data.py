@@ -259,6 +259,9 @@ class RecurrentAlgorithmHparams(AlgorithmHparams):
         if self.horizon % self.seq_len:
             raise ValueError("`seq_len` must be a factor of `horizon`.")
 
+        if self.seqs_per_state_reset == 0:
+            raise ValueError("`seqs_per_state_reset` must be nonzero.")
+
         if (self.horizon * self.horizons_per_env_reset) % (
             self.seq_len * self.seqs_per_state_reset
         ):
@@ -268,9 +271,6 @@ class RecurrentAlgorithmHparams(AlgorithmHparams):
                 " `horizons_per_env_reset=1`, and `seq_len=2`, then"
                 " `seqs_per_state_reset` can be 1, 2, or 4."
             )
-
-        if self.seqs_per_state_reset == 0:
-            raise ValueError("`seqs_per_state_reset` must be nonzero.")
 
     @property
     def num_minibatches(self) -> int:

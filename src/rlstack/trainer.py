@@ -110,9 +110,30 @@ class Trainer:
         Returns:
             Eval stats from the collection buffer.
 
+        Raises:
+            RuntimeError: If this method is called outside of the underlying
+                algorithm's ``horizons_per_env_reset`` interval.
+            ValueError: If the an eval environment config is provided but
+                the environment isn't expected to use that eval environment
+                config.
+
         """
         if (
-            self.state["algorithm/collects"]
+            env_config
+            and self.algorithm.hparams.horizons_per_env_reset < 0
+            and self.state["algorithm/collects"]
+        ):
+            raise ValueError(
+                "An eval environment config was provided even though the environment is"
+                " not expected to use the config because `horizons_per_env_reset` is <"
+                " 0 (indicating the environment is only reset once at the beginning of"
+                " training). Either 1) do not provide an eval environment config, or 2)"
+                " set `horizons_per_env_reset` > 0."
+            )
+
+        if (
+            self.algorithm.hparams.horizons_per_env_reset > 0
+            and self.state["algorithm/collects"]
             % self.algorithm.hparams.horizons_per_env_reset
         ):
             raise RuntimeError(
@@ -122,7 +143,8 @@ class Trainer:
                 " evaluation."
             )
         stats = defaultdict(list)
-        for _ in range(self.algorithm.hparams.horizons_per_env_reset):
+        horizons_per_env_reset = max(1, self.algorithm.hparams.horizons_per_env_reset)
+        for _ in range(horizons_per_env_reset):
             for k, v in self.algorithm.collect(
                 env_config=env_config, deterministic=deterministic
             ).items():
@@ -163,9 +185,29 @@ class Trainer:
             The most recent train stats when the training is stopped due
             to a stop condition being satisfied.
 
+        Raises:
+            ValueError: 1) If the an eval environment config is provided but
+                the environment isn't expected to use that eval environment
+                config, and 2) if ``steps_per_eval`` is not a factor of
+                the algorithm's ``horizons_per_env_reset``.
+
         """
         if (
             steps_per_eval
+            and self.algorithm.hparams.horizons_per_env_reset < 0
+            and eval_env_config
+        ):
+            raise ValueError(
+                "An eval environment config was provided even though the environment is"
+                " not expected to use the config because `horizons_per_env_reset` is <"
+                " 0 (indicating the environment is only reset once at the beginning of"
+                " training). Either 1) do not provide an eval environment config, or 2)"
+                " set `horizons_per_env_reset` > 0."
+            )
+
+        if (
+            steps_per_eval
+            and self.algorithm.hparams.horizons_per_env_reset > 0
             and steps_per_eval % self.algorithm.hparams.horizons_per_env_reset
         ):
             raise ValueError(
