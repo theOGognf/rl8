@@ -141,7 +141,7 @@ class Trainer:
         stop_conditions: None | list[Condition] = None,
     ) -> TrainStats:
         """Run the trainer and underlying algorithm until at least of of the
-        :attr:`Trainer.stop_conditions` is satisfied.
+        ``stop_conditions`` is satisfied.
 
         This method runs indefinitely unless at least one stop condition is
         provided.

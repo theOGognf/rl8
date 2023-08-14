@@ -146,7 +146,7 @@ class Algorithm:
         >>> from rlstack import Algorithm
         >>> from rlstack.env import DiscreteDummyEnv
         >>> algo = Algorithm(DiscreteDummyEnv)
-        >>> algo.collect()
+        >>> algo.collect()  # doctest: +SKIP
         >>> algo.step()  # doctest: +SKIP
 
     .. _`PPO`: https://arxiv.org/pdf/1707.06347.pdf

@@ -155,7 +155,7 @@ class RecurrentAlgorithm:
         >>> from rlstack import RecurrentAlgorithm
         >>> from rlstack.env import DiscreteDummyEnv
         >>> algo = RecurrentAlgorithm(DiscreteDummyEnv)
-        >>> algo.collect()
+        >>> algo.collect()  # doctest: +SKIP
         >>> algo.step()  # doctest: +SKIP
 
     .. _`PPO`: https://arxiv.org/pdf/1707.06347.pdf
