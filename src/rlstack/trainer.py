@@ -126,7 +126,7 @@ class Trainer:
             raise ValueError(
                 "An eval environment config was provided even though the environment is"
                 " not expected to use the config because `horizons_per_env_reset` is <"
-                " 0 (indicating the environment is only reset once at the beginning of"
+                " 0 (indicating the environment is reset just once at the beginning of"
                 " training). Either 1) do not provide an eval environment config, or 2)"
                 " set `horizons_per_env_reset` > 0."
             )
@@ -200,7 +200,7 @@ class Trainer:
             raise ValueError(
                 "An eval environment config was provided even though the environment is"
                 " not expected to use the config because `horizons_per_env_reset` is <"
-                " 0 (indicating the environment is only reset once at the beginning of"
+                " 0 (indicating the environment is reset just once at the beginning of"
                 " training). Either 1) do not provide an eval environment config, or 2)"
                 " set `horizons_per_env_reset` > 0."
             )
