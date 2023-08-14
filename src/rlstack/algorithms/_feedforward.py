@@ -206,7 +206,7 @@ class Algorithm:
 
     #: Algorithm state for determining when to reset the environment, when
     #: the policy can be updated, and for tracking additional algorithm
-    #: metrics like method call counts.
+    #: metrics like time elapsed within a method.
     state: AlgorithmState
 
     def __init__(
@@ -310,7 +310,10 @@ class Algorithm:
         )
 
     def collect(
-        self, *, env_config: None | dict[str, Any] = None, deterministic: bool = False
+        self,
+        *,
+        env_config: None | dict[str, Any] = None,
+        deterministic: bool = False,
     ) -> CollectStats:
         """Collect environment transitions and policy samples in a buffer.
 
@@ -341,12 +344,14 @@ class Algorithm:
         """
         with profile_ms() as collect_timer:
             # Gather initial observation.
+            env_was_reset = False
             if self.state.horizons and self.hparams.horizons_per_env_reset < 0:
                 self.buffer[DataKeys.OBS][:, 0, ...] = self.buffer[DataKeys.OBS][
                     :, -1, ...
                 ]
             elif not (self.state.horizons % self.hparams.horizons_per_env_reset):
                 self.buffer[DataKeys.OBS][:, 0, ...] = self.env.reset(config=env_config)
+                env_was_reset = True
             else:
                 self.buffer[DataKeys.OBS][:, 0, ...] = self.buffer[DataKeys.OBS][
                     :, -1, ...
@@ -409,11 +414,8 @@ class Algorithm:
                 "rewards/mean": float(torch.mean(rewards)),
                 "rewards/std": float(torch.std(rewards)),
             }
-        self.state.collect_calls += 1
-        self.state.total_steps += self.hparams.num_envs * self.hparams.horizon
-        collect_stats["counting/collect_calls"] = self.state.collect_calls
-        collect_stats["counting/horizons"] = self.state.horizons
-        collect_stats["counting/total_steps"] = self.state.total_steps
+        collect_stats["env/resets"] = self.hparams.num_envs * int(env_was_reset)
+        collect_stats["env/steps"] = self.hparams.num_envs * self.hparams.horizon
         collect_stats["profiling/collect_ms"] = collect_timer()
         return collect_stats
 
@@ -582,7 +584,5 @@ class Algorithm:
 
             # Update algo stats.
             step_stats = stat_tracker.items()
-        self.state.step_calls += 1
-        step_stats["counting/step_calls"] = self.state.step_calls
         step_stats["profiling/step_ms"] = step_timer()
         return step_stats  # type: ignore[return-value]

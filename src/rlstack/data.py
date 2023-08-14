@@ -298,20 +298,10 @@ class AlgorithmState:
     #: dummy buffer data isn't used to update the policy.
     buffered: bool = False
 
-    #: Number of times :meth:`Algorithm.collect` has been called.
-    collect_calls: int = 0
-
-    #: Running count of number of environment horizons sampled. This is
-    #: equivalent to :attr:`Algorithm.collect_calls`. Used for tracking
-    #: when to reset :attr:`Algorithm.env` based on
+    #: Running count of number of environment horizons sampled. Used for
+    #: tracking when to reset :attr:`Algorithm.env` based on
     #: :attr:`Algorithm.horizons_per_env_reset`.
     horizons: int = 0
-
-    #: Number of times :meth:`Algorithm.step` has been called.
-    step_calls: int = 0
-
-    #: Total number of environment steps made.
-    total_steps: int = 0
 
 
 @dataclass(kw_only=True)
@@ -322,13 +312,22 @@ class RecurrentAlgorithmState(AlgorithmState):
     seqs: int = 0
 
 
+#: Trainer state during training/evaluation used for tracking running totals.
+TrainerState = TypedDict(
+    "TrainerState",
+    {
+        "algorithm/collects": int,
+        "algorithm/steps": int,
+        "env/steps": int,
+    },
+)
+
 #: Values returned when collecting environment transitions.
 CollectStats = TypedDict(
     "CollectStats",
     {
-        "counting/collect_calls": int,
-        "counting/horizons": int,
-        "counting/total_steps": int,
+        "env/resets": int,
+        "env/steps": int,
         "profiling/collect_ms": float,
         "returns/min": float,
         "returns/max": float,
@@ -338,6 +337,26 @@ CollectStats = TypedDict(
         "rewards/max": float,
         "rewards/mean": float,
         "rewards/std": float,
+    },
+    total=False,
+)
+
+#: :class:`CollectStats` but with an ``"eval"``` prefix that's added when
+#: an algorithm is evaluated during training.
+EvalCollectStats = TypedDict(
+    "EvalCollectStats",
+    {
+        "eval/env/resets": int,
+        "eval/env/steps": int,
+        "eval/profiling/collect_ms": float,
+        "eval/returns/min": float,
+        "eval/returns/max": float,
+        "eval/returns/mean": float,
+        "eval/returns/std": float,
+        "eval/rewards/min": float,
+        "eval/rewards/max": float,
+        "eval/rewards/mean": float,
+        "eval/rewards/std": float,
     },
     total=False,
 )
@@ -359,7 +378,6 @@ StepStats = TypedDict(
     {
         "coefficients/entropy": float,
         "coefficients/vf": float,
-        "counting/step_calls": int,
         "losses/entropy": float,
         "losses/policy": float,
         "losses/vf": float,
@@ -377,9 +395,8 @@ class TrainStats(CollectStats, MemoryStats, StepStats):
 
 #: All the keys from :class:`TrainStats`.
 TrainStatKey = Literal[
-    "counting/collect_calls",
-    "counting/horizons",
-    "counting/total_steps",
+    "env/resets",
+    "env/steps",
     "profiling/collect_ms",
     "returns/min",
     "returns/max",
@@ -391,7 +408,6 @@ TrainStatKey = Literal[
     "rewards/std",
     "coefficients/entropy",
     "coefficients/vf",
-    "counting/step_calls",
     "losses/entropy",
     "losses/policy",
     "losses/vf",

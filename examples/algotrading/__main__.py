@@ -46,8 +46,10 @@ if __name__ == "__main__":
             "enable_amp": torch.cuda.is_available(),
             "device": "cuda" if torch.cuda.is_available() else "cpu",
         },
-        stop_conditions=[Plateaus("returns/mean", patience=10, rtol=0.05)],
     )
     run = mlflow.active_run()
     print(f"Logging metrics under MLFlow run {run.info.run_id}")
-    trainer.run()
+    trainer.run(
+        steps_per_eval=10,
+        stop_conditions=[Plateaus("returns/mean", patience=10, rtol=0.05)],
+    )

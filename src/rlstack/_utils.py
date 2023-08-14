@@ -82,6 +82,25 @@ def profile_ms() -> Generator[Callable[[], float], None, None]:
     yield lambda: (time.perf_counter_ns() - start) / 1e6
 
 
+def reduce_stats(x: dict[str, list[float]]) -> dict[str, float]:
+    """Helper for reducing a mapping of keys to lists of metrics into scalars."""
+    y = {}
+    for k, v in x.items():
+        op = k.split("/")[-1]
+        match op:
+            case "min":
+                y[k] = min(v)
+            case "max":
+                y[k] = max(v)
+            case "mean":
+                y[k] = sum(v) / len(v)
+            case "std":
+                y[k] = (sum([s**2 for s in v]) / len(v)) ** 0.5
+            case _:
+                y[k] = sum(v)
+    return y
+
+
 class Batcher:
     """A simple utility for batching a tensordict.
 
