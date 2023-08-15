@@ -1,5 +1,6 @@
 """High-level training interfaces."""
 
+import os
 from collections import defaultdict
 from typing import Any, Protocol
 
@@ -43,6 +44,9 @@ class AlgorithmProtocol(Protocol):
 
     @property
     def params(self) -> dict[str, Any]:
+        ...
+
+    def save_policy(self, path: str | os.PathLike, /) -> None:
         ...
 
     def step(self) -> StepStats:

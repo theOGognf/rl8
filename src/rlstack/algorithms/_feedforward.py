@@ -1,6 +1,8 @@
+import os
 from dataclasses import asdict
 from typing import Any
 
+import cloudpickle
 import torch
 import torch.amp as amp
 import torch.optim as optim
@@ -434,6 +436,19 @@ class Algorithm:
             "entropy_coeff": self.entropy_scheduler.coeff,
             **asdict(self.hparams),
         }
+
+    def save_policy(self, path: str | os.PathLike, /) -> None:
+        """Save the policy by cloud pickling it to ``path``.
+
+        This method is only defined to expose a common interface between
+        different algorithms for saving the underlying policy through
+        the trainer interface. This is by no means the only way
+        to save a policy and isn't even a recommended way to save
+        a policy.
+
+        """
+        with open(path, "wb") as f:
+            cloudpickle.dump(self.policy, f)
 
     def step(self) -> StepStats:
         """Take a step with the algorithm, using collected environment

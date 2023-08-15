@@ -157,7 +157,9 @@ class Policy:
                 contain the original views).
 
         Returns:
-            A tensordict containing AT LEAST actions sampled from the policy.
+            A tensordict containing AT LEAST actions sampled from the policy of
+            batch size ``[B * T, ...]`` where ``B`` is the input's batch dimension,
+            and ``T`` is the time or sequence dimension.
 
         """
         if DataKeys.VIEWS in batch.keys():
@@ -213,7 +215,30 @@ class Policy:
 
 
 class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
+    """A MLflow Python model implementation of a feedforward policy.
+
+    This is by no means the only way to define a MLflow interface for
+    a feedforward policy, nor is it the recommended way to deploy
+    or serve your trained policy with MLflow. This is simply a minimal
+    and generic implementation of a MLflow Python model for feedforward
+    policies that serves as a convenience. The majority of policy deployment
+    use cases will probably be satisified with this minimal implementation.
+    Use cases not covered by this implementation are encouraged to write
+    their own implementation that fits their needs as this implementation
+    will likely not see further development beyond bugfixes.
+
+    On top of this implementation being minimal and in "maintenance mode",
+    it doesn't support all the many kinds of policy models one could
+    define with ``rlstack``. This implementation supports many observation
+    spaces, but this implementation does not support all action spaces.
+    Action spaces are limited to (flattened) 1D spaces; more than 1D is
+    possible, but it's likely it will experience inconsistent behavior
+    when storing actions in the output dataframe.
+
+    """
+
     def load_context(self, context: mlflow.pyfunc.PythonModelContext) -> None:
+        """Loads the saved policy on model instantiation."""
         self.policy: Policy = cloudpickle.load(open(context.artifacts["policy"], "rb"))
 
     def predict(
@@ -221,6 +246,33 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
         context: mlflow.pyfunc.PythonModelContext,
         model_input: dict[str, Any],
     ) -> pd.DataFrame:
+        """Sample from the underlying policy using ``model_input`` as input.
+
+        Args:
+            context: Python model context that's unused for this implementation.
+            model_input: Policy model input (or observation). The observation
+                space is expected to be at least a composite spec that maps
+                strings to tensor specs; the policy model is expected to
+                ingest a tensordict and handle all the input preprocessing
+                (such as tensor concatenation) on its own. The model input
+                (or observation) is expected to match the policy model's
+                observation space and is expected to be of shape
+                ``[B, T, ...]`` for each tensor within the observation where
+                ``B`` is the batch dimension, and ``T`` is the time or sequence
+                dimension. The underlying policy will handle reshaping of the
+                model input for batch inference and the policy's outputs will
+                be of shape ``[B * T, ...]`` such that the batch and time
+                dimensions are flattened into the first dimension. Thus,
+                the index of the resulting output dataframe from this method
+                will correspond to indicies of the flattened first dimension.
+
+        Returns:
+            A dataframe with ``B * T`` rows containing sampled actions, log
+            probabilities of sampling those actions, and value estimates.
+            ``B`` is the model input's batch dimension, and ``T`` is the model
+            input's time or sequence dimension.
+
+        """
         batch_size = get_batch_size_from_model_input(model_input)
         batch = TensorDict(
             {DataKeys.OBS: self.policy.observation_spec.encode(model_input)},

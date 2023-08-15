@@ -146,7 +146,9 @@ class RecurrentPolicy:
             and a tensordict containing updated recurrent states. The returned
             recurrent states will only have shape ``[B, ...]`` WITHOUT a
             time dimension ``T`` since only the last recurrent state of the
-            series should be returned.
+            series should be returned. Other returned values will have batch
+            size ``[B * T, ...]`` where ``B`` is the input's batch dimension,
+            and ``T`` is the time or sequence dimension.
 
         """
         # Should be in eval mode when `deterministic` is `True`.
