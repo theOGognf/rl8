@@ -1,5 +1,8 @@
 from typing import Any
 
+import cloudpickle
+import mlflow
+import pandas as pd
 import torch
 from tensordict import TensorDict
 from torchrl.data import TensorSpec
@@ -7,6 +10,7 @@ from typing_extensions import Self
 
 from rlstack.distributions import Distribution
 
+from .._utils import get_batch_size_from_model_input
 from ..data import DataKeys, Device
 from ..models import Model
 from ..views import ViewKind
@@ -92,6 +96,7 @@ class Policy:
         kind: ViewKind = "last",
         deterministic: bool = False,
         inplace: bool = False,
+        keepdim: bool = False,
         requires_grad: bool = False,
         return_actions: bool = True,
         return_logp: bool = False,
@@ -128,6 +133,10 @@ class Policy:
             inplace: Whether to store policy outputs in the given ``batch``
                 tensordict. Otherwise, create a separate tensordict that
                 will only contain policy outputs.
+            keepdim: Whether to reshape the output tensordict to have the same
+                batch size as the input tensordict batch. If ``False`` (the
+                default), the time dimension of the output tensordict will
+                be flattened into the first dimension.
             requires_grad: Whether to enable gradients for the underlying
                 model during forward passes. This should only be enabled during
                 a training loop or when requiring gradients for explainability
@@ -156,20 +165,23 @@ class Policy:
         else:
             in_batch = self.model.apply_view_requirements(batch, kind=kind)
 
+        # Should be in eval mode when `deterministic` is `True`.
+        # That is, `training` should be the opposite of `deterministic`.
         training = self.model.training
-        if deterministic and training:
-            self.model.eval()
+        if deterministic == training:
+            self.model.train(not training)
 
         # This is the same mechanism within `torch.no_grad`
         # for enabling/disabling gradients.
         prev = torch.is_grad_enabled()
         torch.set_grad_enabled(requires_grad)
 
+        B, T = batch.batch_size
         features = self.model(in_batch)
 
         # Store required outputs and get/store optional outputs.
         out = (
-            batch
+            batch.reshape(B * T)
             if inplace
             else TensorDict({}, batch_size=in_batch.batch_size, device=batch.device)
         )
@@ -184,11 +196,13 @@ class Policy:
             out[DataKeys.VALUES] = self.model.value_function()
         if return_views:
             out[DataKeys.VIEWS] = in_batch
+        if keepdim:
+            out = out.reshape(B, T)
 
         torch.set_grad_enabled(prev)
 
-        if deterministic and training:
-            self.model.train()
+        if deterministic == training:
+            self.model.train(training)
 
         return out
 
@@ -196,3 +210,37 @@ class Policy:
         """Move the policy and its attributes to ``device``."""
         self.model = self.model.to(device)
         return self
+
+
+class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
+    def load_context(self, context: mlflow.pyfunc.PythonModelContext) -> None:
+        self.policy: Policy = cloudpickle.load(open(context.artifacts["policy"], "rb"))
+
+    def predict(
+        self,
+        context: mlflow.pyfunc.PythonModelContext,
+        model_input: dict[str, Any],
+    ) -> pd.DataFrame:
+        batch_size = get_batch_size_from_model_input(model_input)
+        batch = TensorDict(
+            {DataKeys.OBS: self.policy.observation_spec.encode(model_input)},
+            batch_size=batch_size,
+            device=self.policy.device,
+        )
+        batch = self.policy.sample(
+            batch,
+            kind="all",
+            deterministic=True,
+            inplace=False,
+            keepdim=False,
+            requires_grad=False,
+            return_actions=True,
+            return_logp=True,
+            return_values=True,
+            return_views=False,
+        )
+        (BT,) = batch.batch_size
+        df = pd.DataFrame(index=range(BT))
+        for k in [DataKeys.ACTIONS, DataKeys.LOGP, DataKeys.VALUES]:
+            df[k] = batch[k].cpu().numpy()
+        return df

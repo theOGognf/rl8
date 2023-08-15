@@ -1,7 +1,8 @@
 import time
 from contextlib import contextmanager
-from typing import Callable, Generator, Iterable, Literal
+from typing import Any, Callable, Generator, Iterable, Literal
 
+import numpy as np
 import psutil
 import torch
 from tensordict import TensorDict
@@ -56,6 +57,47 @@ def assert_nd_spec(spec: TensorSpec, /) -> None:
             )
 
 
+def get_batch_size_from_model_input(model_input: dict[str, Any], /) -> torch.Size:
+    """Get the batch size from a MLflow policy model's input.
+
+    Since the model input can be a nested mapping containing
+    NumPy arrays, we have to do some kind of recursive search
+    to grab the batch size from a NumPy array in the mapping.
+    This assumes all NumPy arrays are shaped similarly and have
+    the same batch size.
+
+    Args:
+        model_input: A (possibly nested) mapping of strings to
+            NumPy arrays, where each NumPy array has size ``[B, T, ...]``
+            where ``B`` is the batch dimension, and ``T`` is the time
+            or sequence dimension.
+
+    Returns:
+        Batch size of the policy model's input.
+
+    Raises:
+        TypeError: If something other than a mapping or NumPy array
+            is given.
+        ValueError: If the batch size is not at least 3D.
+
+    """
+    for v in model_input.values():
+        match v:
+            case dict():
+                return get_batch_size_from_model_input(v)
+            case np.ndarray():
+                if v.ndim < 3:
+                    raise ValueError(
+                        "Policy model input element must have dimension >= 3."
+                    )
+                return torch.Size(v.shape[:2])
+            case _:
+                raise TypeError(
+                    f"Policy model input element type {v.__class__.__name__} is not"
+                    " supported."
+                )
+
+
 def memory_stats(device_type: Literal["cuda", "cpu"], /) -> MemoryStats:
     """Return memory stats for a particular device type."""
     match device_type:
@@ -82,7 +124,7 @@ def profile_ms() -> Generator[Callable[[], float], None, None]:
     yield lambda: (time.perf_counter_ns() - start) / 1e6
 
 
-def reduce_stats(x: dict[str, list[float]]) -> dict[str, float]:
+def reduce_stats(x: dict[str, list[float]], /) -> dict[str, float]:
     """Helper for reducing a mapping of keys to lists of metrics into scalars."""
     y = {}
     for k, v in x.items():

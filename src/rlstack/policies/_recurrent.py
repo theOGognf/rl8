@@ -149,9 +149,11 @@ class RecurrentPolicy:
             series should be returned.
 
         """
+        # Should be in eval mode when `deterministic` is `True`.
+        # That is, `training` should be the opposite of `deterministic`.
         training = self.model.training
-        if deterministic and training:
-            self.model.eval()
+        if deterministic == training:
+            self.model.train(not training)
 
         # This is the same mechanism within `torch.no_grad`
         # for enabling/disabling gradients.
@@ -164,7 +166,9 @@ class RecurrentPolicy:
 
         # Store required outputs and get/store optional outputs.
         out = (
-            batch if inplace else TensorDict({}, batch_size=B * T, device=batch.device)
+            batch.reshape(B * T)
+            if inplace
+            else TensorDict({}, batch_size=B * T, device=batch.device)
         )
         out[DataKeys.FEATURES] = features
         if return_actions:
@@ -180,8 +184,8 @@ class RecurrentPolicy:
 
         torch.set_grad_enabled(prev)
 
-        if deterministic and training:
-            self.model.train()
+        if deterministic == training:
+            self.model.train(training)
 
         return out, out_states
 
