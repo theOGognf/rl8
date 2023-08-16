@@ -2,7 +2,6 @@ from typing import Any
 
 import cloudpickle
 import mlflow
-import numpy.typing as npt
 import pandas as pd
 import torch
 from tensordict import TensorDict
@@ -263,8 +262,8 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
         ...     # We cheat here a bit and use the environment's spec
         ...     # to generate a valid input example. These are usually
         ...     # constructed by some other service.
-        ...     model_input = DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu().numpy()
-        ...     model.predict(model_input)  # doctest: +SKIP
+        ...     obs = DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu().numpy()
+        ...     model.predict({"obs": obs})  # doctest: +SKIP
 
     """
 
@@ -275,7 +274,7 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
     def predict(
         self,
         context: mlflow.pyfunc.PythonModelContext,
-        model_input: dict[str, Any] | npt.NDArray[Any],
+        model_input: dict[str, Any],
     ) -> pd.DataFrame:
         """Sample from the underlying policy using ``model_input`` as input.
 
@@ -287,12 +286,12 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
                 ingest a tensordict and handle all the input preprocessing
                 (such as tensor concatenation) on its own. The model input
                 (or observation) is expected to match the policy model's
-                observation space and is expected to be of shape
-                ``[B, T, ...]`` for each tensor within the observation where
-                ``B`` is the batch dimension, and ``T`` is the time or sequence
-                dimension. The underlying policy will handle reshaping of the
-                model input for batch inference and the policy's outputs will
-                be of shape ``[B * T, ...]`` such that the batch and time
+                observation space within an ``"obs"`` key and is expected to
+                be of shape ``[B, T, ...]`` for each tensor within the observation
+                where ``B`` is the batch dimension, and ``T`` is the time or
+                sequence dimension. The underlying policy will handle reshaping
+                of the model input for batch inference and the policy's outputs
+                will be of shape ``[B * T, ...]`` such that the batch and time
                 dimensions are flattened into the first dimension. Thus,
                 the index of the resulting output dataframe from this method
                 will correspond to indicies of the flattened first dimension.
@@ -304,9 +303,10 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
             input's time or sequence dimension.
 
         """
-        batch_size = get_batch_size_from_model_input(model_input)
+        obs = model_input[DataKeys.OBS]
+        batch_size = get_batch_size_from_model_input(obs)
         batch = TensorDict(
-            {DataKeys.OBS: self.policy.observation_spec.encode(model_input)},
+            {DataKeys.OBS: self.policy.observation_spec.encode(obs)},
             batch_size=batch_size,
             device=self.policy.device,
         )

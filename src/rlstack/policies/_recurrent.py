@@ -264,8 +264,8 @@ class MLflowRecurrentPolicyModel(mlflow.pyfunc.PythonModel):
         ...     # We cheat here a bit and use the environment's spec
         ...     # to generate a valid input example. These are usually
         ...     # constructed by some other service.
-        ...     model_input = DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu().numpy()
-        ...     model.predict(model_input)  # doctest: +SKIP
+        ...     obs = DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu().numpy()
+        ...     model.predict({"obs": obs})  # doctest: +SKIP
 
     """
 
@@ -320,25 +320,21 @@ class MLflowRecurrentPolicyModel(mlflow.pyfunc.PythonModel):
             model's outputs.
 
         """
-        model_states = {}
-        state_keys = set(self.policy.model.state_spec.keys())
-        for k in state_keys:
-            if k in model_input:
-                model_states[k] = model_input.pop(k)
-        batch_size = get_batch_size_from_model_input(model_input)
-        if set(model_states) != state_keys:
-            states = None
-        else:
-            states = TensorDict(
-                self.policy.model.state_spec.encode(model_states),
-                batch_size=torch.Size([batch_size[0], 1]),
-                device=self.policy.device,
-            )
+        obs = model_input[DataKeys.OBS]
+        batch_size = get_batch_size_from_model_input(obs)
         batch = TensorDict(
-            {DataKeys.OBS: self.policy.observation_spec.encode(model_input)},
+            {DataKeys.OBS: self.policy.observation_spec.encode(obs)},
             batch_size=batch_size,
             device=self.policy.device,
         )
+        if DataKeys.STATES in model_input:
+            states = TensorDict(
+                self.policy.model.state_spec.encode(model_input[DataKeys.STATES]),
+                batch_size=torch.Size([batch_size[0], 1]),
+                device=self.policy.device,
+            )
+        else:
+            states = None
         batch, states = self.policy.sample(
             batch,
             states,
