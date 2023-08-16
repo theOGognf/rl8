@@ -2,6 +2,7 @@ from typing import Any
 
 import cloudpickle
 import mlflow
+import numpy as np
 import pandas as pd
 import torch
 from tensordict import TensorDict
@@ -275,15 +276,15 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
     def predict(
         self,
         context: mlflow.pyfunc.PythonModelContext,
-        model_input: dict[str, Any],
+        model_input: dict[str, Any] | np.ndarray,
     ) -> pd.DataFrame:
         """Sample from the underlying policy using ``model_input`` as input.
 
         Args:
             context: Python model context that's unused for this implementation.
             model_input: Policy model input (or observation). The observation
-                space is expected to be at least a composite spec that maps
-                strings to tensor specs; the policy model is expected to
+                space is expected to be a 1D vector or a composite spec that
+                maps strings to tensor specs; the policy model is expected to
                 ingest a tensordict and handle all the input preprocessing
                 (such as tensor concatenation) on its own. The model input
                 (or observation) is expected to match the policy model's
