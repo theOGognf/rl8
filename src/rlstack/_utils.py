@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from typing import Any, Callable, Generator, Iterable, Literal
 
 import numpy as np
+import pandas as pd
 import psutil
 import torch
 from tensordict import TensorDict
@@ -57,7 +58,7 @@ def assert_nd_spec(spec: TensorSpec, /) -> None:
             )
 
 
-def get_batch_size_from_model_input(model_input: dict[str, Any], /) -> torch.Size:
+def get_batch_size_from_model_input(x: dict[str, Any] | np.ndarray, /) -> torch.Size:  # type: ignore[return]
     """Get the batch size from a MLflow policy model's input.
 
     Since the model input can be a nested mapping containing
@@ -67,10 +68,11 @@ def get_batch_size_from_model_input(model_input: dict[str, Any], /) -> torch.Siz
     the same batch size.
 
     Args:
-        model_input: A (possibly nested) mapping of strings to
-            NumPy arrays, where each NumPy array has size ``[B, T, ...]``
+        x: A (possibly nested) mapping of strings to NumPy arrays,
+            where each NumPy array has size ``[B, T, ...]``
             where ``B`` is the batch dimension, and ``T`` is the time
-            or sequence dimension.
+            or sequence dimension. Or just a plain NumPy array
+            with similar size.
 
     Returns:
         Batch size of the policy model's input.
@@ -81,21 +83,19 @@ def get_batch_size_from_model_input(model_input: dict[str, Any], /) -> torch.Siz
         ValueError: If the batch size is not at least 3D.
 
     """
-    for v in model_input.values():
-        match v:
-            case dict():
+    match x:
+        case dict():
+            for v in x.values():
                 return get_batch_size_from_model_input(v)
-            case np.ndarray():
-                if v.ndim < 3:
-                    raise ValueError(
-                        "Policy model input element must have dimension >= 3."
-                    )
-                return torch.Size(v.shape[:2])
-            case _:
-                raise TypeError(
-                    f"Policy model input element type {v.__class__.__name__} is not"
-                    " supported."
-                )
+        case np.ndarray():
+            if x.ndim < 3:
+                raise ValueError("Policy model input element must have dimension >= 3.")
+            return torch.Size(x.shape[:2])
+        case _:
+            raise TypeError(
+                f"Policy model input element type {x.__class__.__name__} is not"
+                " supported."
+            )
 
 
 def memory_stats(device_type: Literal["cuda", "cpu"], /) -> MemoryStats:
@@ -141,6 +141,34 @@ def reduce_stats(x: dict[str, list[float]], /) -> dict[str, float]:
             case _:
                 y[k] = sum(v)
     return y
+
+
+def td2df(td: TensorDict, /) -> pd.DataFrame:
+    """Convert a 1D (and unnested) tensordict to a dataframe.
+
+    Args:
+        td: Tensordict to convert.
+
+    Returns:
+        A dataframe with the same columns as keys in ``td``.
+
+    Raises:
+        TypeError: If any of the values in the tensordict are not
+            tensors.
+        ValueError: If the tensordict is not 1D.
+
+    """
+    if td.batch_size.numel() != 1:
+        raise ValueError("Can only convert 1D tensordicts to dataframes.")
+    (B,) = td.batch_size
+    df = pd.DataFrame(index=range(B))
+    for k, v in td.items():
+        match v:
+            case torch.Tensor():
+                df[k] = v.cpu().numpy()
+            case _:
+                raise TypeError("Nested tensordicts can't be converted to dataframes.")
+    return df
 
 
 class Batcher:

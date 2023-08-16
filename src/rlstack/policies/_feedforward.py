@@ -10,7 +10,7 @@ from typing_extensions import Self
 
 from rlstack.distributions import Distribution
 
-from .._utils import get_batch_size_from_model_input
+from .._utils import get_batch_size_from_model_input, td2df
 from ..data import DataKeys, Device
 from ..models import Model
 from ..views import ViewKind
@@ -133,10 +133,6 @@ class Policy:
             inplace: Whether to store policy outputs in the given ``batch``
                 tensordict. Otherwise, create a separate tensordict that
                 will only contain policy outputs.
-            keepdim: Whether to reshape the output tensordict to have the same
-                batch size as the input tensordict batch. If ``False`` (the
-                default), the time dimension of the output tensordict will
-                be flattened into the first dimension.
             requires_grad: Whether to enable gradients for the underlying
                 model during forward passes. This should only be enabled during
                 a training loop or when requiring gradients for explainability
@@ -178,12 +174,11 @@ class Policy:
         prev = torch.is_grad_enabled()
         torch.set_grad_enabled(requires_grad)
 
-        B, T = batch.batch_size
         features = self.model(in_batch)
 
         # Store required outputs and get/store optional outputs.
         out = (
-            batch.reshape(B * T)
+            batch.reshape(-1)
             if inplace
             else TensorDict({}, batch_size=in_batch.batch_size, device=batch.device)
         )
@@ -198,8 +193,6 @@ class Policy:
             out[DataKeys.VALUES] = self.model.value_function()
         if return_views:
             out[DataKeys.VIEWS] = in_batch
-        if keepdim:
-            out = out.reshape(B, T)
 
         torch.set_grad_enabled(prev)
 
@@ -234,6 +227,44 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
     Action spaces are limited to (flattened) 1D spaces; more than 1D is
     possible, but it's likely it will experience inconsistent behavior
     when storing actions in the output dataframe.
+
+    Examples:
+
+        A minimal example of training a policy, saving it with MLflow,
+        and then reloading it for inference using this interface.
+
+        >>> from tempfile import TemporaryDirectory
+        >>>
+        >>> import mlflow
+        >>>
+        >>> from rlstack import Trainer
+        >>> from rlstack.env import DiscreteDummyEnv
+        >>> from rlstack.policies import MLflowPolicyModel
+        >>> # Create the trainer and step it once for the heck of it.
+        >>> trainer = Trainer(DiscreteDummyEnv)
+        >>> trainer.step()
+        >>> # Create a temporary directory for storing model artifacts
+        >>> # and the actual MLflow model. This'll get cleaned-up
+        >>> # once the context ends.
+        >>> with TemporaryDirectory() as tmp:
+        >>>     trainer.algorithm.save_policy(f"{tmp}/policy.pkl")
+        >>>     # This is usually where your use case's specifics
+        >>>     # come into play. At a bare minimum, the policy's
+        >>>     # artifact (the policy pickle file) is specified,
+        >>>     # but you may want to add code files, data files,
+        >>>     # etc..
+        >>>     mlflow.pyfunc.save_model(
+        >>>         f"{tmp}/model",
+        >>>         python_model=MLflowPolicyModel(),
+        >>>         artifacts={"policy": f"{tmp}/policy.pkl"},
+        >>>     )
+        >>>     model = mlflow.pyfunc.load_model(f"{tmp}/model")
+        >>>     # We cheat here a bit and use the environment's spec
+        >>>     # to generate a valid input example. These are usually
+        >>>     # constructed by some other service.
+        >>>     model_input = DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu().numpy()
+        >>>     model.predict(model_input)  # doctest: +SKIP
+
 
     """
 
@@ -284,15 +315,10 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
             kind="all",
             deterministic=True,
             inplace=False,
-            keepdim=False,
             requires_grad=False,
             return_actions=True,
             return_logp=True,
             return_values=True,
             return_views=False,
-        )
-        (BT,) = batch.batch_size
-        df = pd.DataFrame(index=range(BT))
-        for k in [DataKeys.ACTIONS, DataKeys.LOGP, DataKeys.VALUES]:
-            df[k] = batch[k].cpu().numpy()
-        return df
+        ).select(DataKeys.ACTIONS, DataKeys.LOGP, DataKeys.VALUES, inplace=True)
+        return td2df(batch)
