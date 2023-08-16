@@ -1,10 +1,14 @@
 from typing import Any
 
+import cloudpickle
+import mlflow
+import pandas as pd
 import torch
 from tensordict import TensorDict
 from torchrl.data import CompositeSpec, TensorSpec
 from typing_extensions import Self
 
+from .._utils import get_batch_size_from_model_input, td2df
 from ..data import DataKeys, Device
 from ..distributions import Distribution
 from ..models import RecurrentModel
@@ -203,3 +207,152 @@ class RecurrentPolicy:
         """Move the policy and its attributes to ``device``."""
         self.model = self.model.to(device)
         return self
+
+
+class MLflowRecurrentPolicyModel(mlflow.pyfunc.PythonModel):
+    """A MLflow Python model implementation of a recurrent policy.
+
+    This is by no means the only way to define a MLflow interface for
+    a recurrent policy, nor is it the recommended way to deploy
+    or serve your trained policy with MLflow. This is simply a minimal
+    and generic implementation of a MLflow Python model for recurrent
+    policies that serves as a convenience. The majority of policy deployment
+    use cases will probably be satisified with this minimal implementation.
+    Use cases not covered by this implementation are encouraged to write
+    their own implementation that fits their needs as this implementation
+    will likely not see further development beyond bugfixes.
+
+    On top of this implementation being minimal and in "maintenance mode",
+    it doesn't support all the many kinds of policy models one could
+    define with ``rlstack``. This implementation supports many observation
+    spaces, but this implementation does not support all action spaces.
+    Action spaces are limited to (flattened) 1D spaces; more than 1D is
+    possible, but it's likely it will experience inconsistent behavior
+    when storing actions in the output dataframe.
+
+    Examples:
+
+        A minimal example of training a policy, saving it with MLflow,
+        and then reloading it for inference using this interface.
+
+        >>> from tempfile import TemporaryDirectory
+        ...
+        ... import mlflow
+        ...
+        ... from rlstack import RecurrentAlgorithm, Trainer
+        ... from rlstack.env import DiscreteDummyEnv
+        ... from rlstack.policies import MLflowRecurrentPolicyModel
+        ... # Create the trainer and step it once for the heck of it.
+        ... trainer = Trainer(DiscreteDummyEnv, algorithm_cls=RecurrentAlgorithm)
+        ... trainer.step()
+        ... # Create a temporary directory for storing model artifacts
+        ... # and the actual MLflow model. This'll get cleaned-up
+        ... # once the context ends.
+        ... with TemporaryDirectory() as tmp:
+        ...     trainer.algorithm.save_policy(f"{tmp}/policy.pkl")
+        ...     # This is where you set options specific to your
+        ...     # use case. At a bare minimum, the policy's
+        ...     # artifact (the policy pickle file) is specified,
+        ...     # but you may want to add code files, data files,
+        ...     # dependencies/requirements, etc..
+        ...     mlflow.pyfunc.save_model(
+        ...         f"{tmp}/model",
+        ...         python_model=MLflowRecurrentPolicyModel(),
+        ...         artifacts={"policy": f"{tmp}/policy.pkl"},
+        ...     )
+        ...     model = mlflow.pyfunc.load_model(f"{tmp}/model")
+        ...     # We cheat here a bit and use the environment's spec
+        ...     # to generate a valid input example. These are usually
+        ...     # constructed by some other service.
+        ...     model_input = DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu().numpy()
+        ...     model.predict(model_input)  # doctest: +SKIP
+
+    """
+
+    def load_context(self, context: mlflow.pyfunc.PythonModelContext) -> None:
+        """Loads the saved policy on model instantiation."""
+        self.policy: RecurrentPolicy = cloudpickle.load(
+            open(context.artifacts["policy"], "rb")
+        )
+
+    def predict(
+        self,
+        context: mlflow.pyfunc.PythonModelContext,
+        model_input: dict[str, Any],
+    ) -> pd.DataFrame:
+        """Sample from the underlying policy using ``model_input`` as input.
+
+        Args:
+            context: Python model context that's unused for this implementation.
+            model_input: Policy model input (or observation). The observation
+                space is expected to be a composite spec that maps strings to
+                tensor specs; the policy model is expected to ingest a
+                tensordict and handle all the input preprocessing
+                (such as tensor concatenation) on its own. The model input
+                (or observation) is expected to match the policy model's
+                observation space and should contain the recurrent model's
+                recurrent state (unless a new recurrent state is
+                to be instantiated). The model inputs are expected to be of shape
+                ``[B, T, ...]`` for each tensor within the observation where
+                ``B`` is the batch dimension, and ``T`` is the time or sequence
+                dimension, while the model recurrent states are expected to be
+                of shape ``[B, 1, ...]``. The underlying policy will handle
+                reshaping of the model input for batch inference and the policy's
+                outputs will be of shape ``[B * T, ...]`` such that the batch and
+                time dimensions are flattened into the first dimension. Thus,
+                the index of the resulting output dataframe from this method
+                will correspond to indicies of the flattened first dimension.
+                The output dataframe will also contain the updated recurrent
+                states for just the final timestep. These recurrent states are
+                repeated along the time dimension to allow storing of recurrent
+                states within the same dataframe as the model outputs.
+
+        Returns:
+            A dataframe with ``B * T`` rows containing sampled actions, log
+            probabilities of sampling those actions, value estimates, and
+            updated recurrent model states. ``B`` is the model input's batch
+            dimension, and ``T`` is the model input's time or sequence dimension.
+            The recurrent states are a bit misleading as the model's recurrent
+            state doesn't represent the recurrent state for each time element,
+            but rather the recurrent state for just the last time element. The
+            recurrent state is simply repeated along the ``T`` dimension so
+            the recurrent state can be stored in the same dataframe as the
+            model's outputs.
+
+        """
+        model_states = {}
+        state_keys = set(self.policy.model.state_spec.keys())
+        for k in state_keys:
+            if k in model_input:
+                model_states[k] = model_input.pop(k)
+        batch_size = get_batch_size_from_model_input(model_input)
+        if set(model_states) != state_keys:
+            states = None
+        else:
+            states = TensorDict(
+                self.policy.model.state_spec.encode(model_states),
+                batch_size=torch.Size([batch_size[0], 1]),
+                device=self.policy.device,
+            )
+        batch = TensorDict(
+            {DataKeys.OBS: self.policy.observation_spec.encode(model_input)},
+            batch_size=batch_size,
+            device=self.policy.device,
+        )
+        batch, states = self.policy.sample(
+            batch,
+            states,
+            deterministic=True,
+            inplace=False,
+            keepdim=False,
+            requires_grad=False,
+            return_actions=True,
+            return_logp=True,
+            return_values=True,
+        )
+        batch = batch.select(
+            DataKeys.ACTIONS, DataKeys.LOGP, DataKeys.VALUES, inplace=True
+        )
+        states = states.expand(*batch_size).reshape(-1)
+        batch = batch.update(states)
+        return td2df(batch)

@@ -46,7 +46,7 @@ class AlgorithmProtocol(Protocol):
     def params(self) -> dict[str, Any]:
         ...
 
-    def save_policy(self, path: str | os.PathLike, /) -> None:
+    def save_policy(self, path: str | os.PathLike[str], /) -> None:
         ...
 
     def step(self) -> StepStats:
@@ -219,7 +219,7 @@ class Trainer:
                 " `horizons_per_env_reset`. This is necessary because algorithms share"
                 " the same buffer for collecting experiences during training and for"
                 " evaluation. Set `steps_per_eval` to a factor of"
-                " `horizons_per_env_reset to avoid this error."
+                " `horizons_per_env_reset` to avoid this error."
             )
         eval_env_config = eval_env_config or env_config
         stop_conditions = stop_conditions or []

@@ -437,7 +437,7 @@ class Algorithm:
             **asdict(self.hparams),
         }
 
-    def save_policy(self, path: str | os.PathLike, /) -> None:
+    def save_policy(self, path: str | os.PathLike[str], /) -> None:
         """Save the policy by cloud pickling it to ``path``.
 
         This method is only defined to expose a common interface between

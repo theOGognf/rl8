@@ -2,7 +2,7 @@ from typing import Any
 
 import cloudpickle
 import mlflow
-import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import torch
 from tensordict import TensorDict
@@ -235,37 +235,36 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
         and then reloading it for inference using this interface.
 
         >>> from tempfile import TemporaryDirectory
-        >>>
-        >>> import mlflow
-        >>>
-        >>> from rlstack import Trainer
-        >>> from rlstack.env import DiscreteDummyEnv
-        >>> from rlstack.policies import MLflowPolicyModel
-        >>> # Create the trainer and step it once for the heck of it.
-        >>> trainer = Trainer(DiscreteDummyEnv)
-        >>> trainer.step()
-        >>> # Create a temporary directory for storing model artifacts
-        >>> # and the actual MLflow model. This'll get cleaned-up
-        >>> # once the context ends.
-        >>> with TemporaryDirectory() as tmp:
-        >>>     trainer.algorithm.save_policy(f"{tmp}/policy.pkl")
-        >>>     # This is usually where your use case's specifics
-        >>>     # come into play. At a bare minimum, the policy's
-        >>>     # artifact (the policy pickle file) is specified,
-        >>>     # but you may want to add code files, data files,
-        >>>     # etc..
-        >>>     mlflow.pyfunc.save_model(
-        >>>         f"{tmp}/model",
-        >>>         python_model=MLflowPolicyModel(),
-        >>>         artifacts={"policy": f"{tmp}/policy.pkl"},
-        >>>     )
-        >>>     model = mlflow.pyfunc.load_model(f"{tmp}/model")
-        >>>     # We cheat here a bit and use the environment's spec
-        >>>     # to generate a valid input example. These are usually
-        >>>     # constructed by some other service.
-        >>>     model_input = DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu().numpy()
-        >>>     model.predict(model_input)  # doctest: +SKIP
-
+        ...
+        ... import mlflow
+        ...
+        ... from rlstack import Trainer
+        ... from rlstack.env import DiscreteDummyEnv
+        ... from rlstack.policies import MLflowPolicyModel
+        ... # Create the trainer and step it once for the heck of it.
+        ... trainer = Trainer(DiscreteDummyEnv)
+        ... trainer.step()
+        ... # Create a temporary directory for storing model artifacts
+        ... # and the actual MLflow model. This'll get cleaned-up
+        ... # once the context ends.
+        ... with TemporaryDirectory() as tmp:
+        ...     trainer.algorithm.save_policy(f"{tmp}/policy.pkl")
+        ...     # This is where you set options specific to your
+        ...     # use case. At a bare minimum, the policy's
+        ...     # artifact (the policy pickle file) is specified,
+        ...     # but you may want to add code files, data files,
+        ...     # dependencies/requirements, etc..
+        ...     mlflow.pyfunc.save_model(
+        ...         f"{tmp}/model",
+        ...         python_model=MLflowPolicyModel(),
+        ...         artifacts={"policy": f"{tmp}/policy.pkl"},
+        ...     )
+        ...     model = mlflow.pyfunc.load_model(f"{tmp}/model")
+        ...     # We cheat here a bit and use the environment's spec
+        ...     # to generate a valid input example. These are usually
+        ...     # constructed by some other service.
+        ...     model_input = DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu().numpy()
+        ...     model.predict(model_input)  # doctest: +SKIP
 
     """
 
@@ -276,7 +275,7 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
     def predict(
         self,
         context: mlflow.pyfunc.PythonModelContext,
-        model_input: dict[str, Any] | np.ndarray,
+        model_input: dict[str, Any] | npt.NDArray[Any],
     ) -> pd.DataFrame:
         """Sample from the underlying policy using ``model_input`` as input.
 
@@ -321,5 +320,8 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
             return_logp=True,
             return_values=True,
             return_views=False,
-        ).select(DataKeys.ACTIONS, DataKeys.LOGP, DataKeys.VALUES, inplace=True)
+        )
+        batch = batch.select(
+            DataKeys.ACTIONS, DataKeys.LOGP, DataKeys.VALUES, inplace=True
+        )
         return td2df(batch)

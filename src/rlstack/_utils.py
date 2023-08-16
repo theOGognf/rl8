@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from typing import Any, Callable, Generator, Iterable, Literal
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import psutil
 import torch
@@ -58,7 +59,7 @@ def assert_nd_spec(spec: TensorSpec, /) -> None:
             )
 
 
-def get_batch_size_from_model_input(x: dict[str, Any] | np.ndarray, /) -> torch.Size:  # type: ignore[return]
+def get_batch_size_from_model_input(x: dict[str, Any] | npt.NDArray[Any], /) -> torch.Size:  # type: ignore[return]
     """Get the batch size from a MLflow policy model's input.
 
     Since the model input can be a nested mapping containing
@@ -165,7 +166,7 @@ def td2df(td: TensorDict, /) -> pd.DataFrame:
     for k, v in td.items():
         match v:
             case torch.Tensor():
-                df[k] = v.cpu().numpy()
+                df[k] = v.cpu().numpy().tolist()
             case _:
                 raise TypeError("Nested tensordicts can't be converted to dataframes.")
     return df

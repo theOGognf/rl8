@@ -15,7 +15,12 @@ from .models import (
     Model,
     RecurrentModel,
 )
-from .policies import Policy, RecurrentPolicy
+from .policies import (
+    MLflowPolicyModel,
+    MLflowRecurrentPolicyModel,
+    Policy,
+    RecurrentPolicy,
+)
 from .trainer import Trainer
 
 try:

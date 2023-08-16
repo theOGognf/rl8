@@ -9,6 +9,11 @@ inference are properly handled.
 """
 
 from ._feedforward import MLflowPolicyModel, Policy
-from ._recurrent import RecurrentPolicy
+from ._recurrent import MLflowRecurrentPolicyModel, RecurrentPolicy
 
-__all__ = ["MLflowPolicyModel", "Policy", "RecurrentPolicy"]
+__all__ = [
+    "MLflowPolicyModel",
+    "MLflowRecurrentPolicyModel",
+    "Policy",
+    "RecurrentPolicy",
+]
