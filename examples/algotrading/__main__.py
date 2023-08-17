@@ -37,7 +37,7 @@ if __name__ == "__main__":
             model_cls = AttentiveAlpaca
 
     experiment = mlflow.set_experiment("rlstack.examples.algotrading")
-    print(f"Logging run under MLFlow experiment {experiment.experiment_id}")
+    print(f"Logging run under MLflow experiment {experiment.experiment_id}")
     trainer = trainer_cls(
         AlgoTrading,
         model_cls=model_cls,
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         device="cuda" if torch.cuda.is_available() else "cpu",
     )
     run = mlflow.active_run()
-    print(f"Logging metrics under MLFlow run {run.info.run_id}")
+    print(f"Logging metrics under MLflow run {run.info.run_id}")
     trainer.run(
         steps_per_eval=10,
         stop_conditions=[Plateaus("returns/mean", patience=10, rtol=0.05)],

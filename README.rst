@@ -32,6 +32,17 @@ Install from GitHub for the latest (unstable) version.
 Basic Usage
 -----------
 
+Train a policy with PPO and log training progress with MLflow using the
+high-level trainer interface (this updates the policy indefinitely).
+
+.. code:: python
+
+    from rlstack import Trainer
+    from rlstack.env import DiscreteDummyEnv
+
+    trainer = Trainer(DiscreteDummyEnv)
+    trainer.run()
+
 Collect environment transitions and update a policy directly using the
 low-level algorithm interface (this updates the policy once).
 
@@ -44,16 +55,9 @@ low-level algorithm interface (this updates the policy once).
     algo.collect()
     algo.step()
 
-Train a policy with PPO and log training progress with MLFlow using the
-high-level trainer interface (this updates the policy indefinitely).
-
-.. code:: python
-
-    from rlstack import Trainer
-    from rlstack.env import DiscreteDummyEnv
-
-    trainer = Trainer(DiscreteDummyEnv)
-    trainer.run()
+The trainer interface is the most popular interface for policy training
+workflows, whereas the algorithm interface is useful for lower-level
+customization of policy training workflows.
 
 Concepts
 ========
@@ -89,7 +93,7 @@ distributions.
   user-defined*.
 * **The trainer**: The high-level interface for using the algorithm to train
   indefinitely or until some condition is met. The trainer directly integrates
-  with MLFlow to track experiments and training progress. The trainer is *never
+  with MLflow to track experiments and training progress. The trainer is *never
   user-defined*.
 
 Quick Examples
@@ -98,25 +102,8 @@ Quick Examples
 Customizing Training Runs
 -------------------------
 
-Use a custom distribution and custom hyperparameters with the low-level
-algorithm interface. The algorithm uses default feedforward models depending
-on the environment's action spec.
-
-.. code:: python
-
-    from rlstack import Algorithm, SquashedNormal
-    from rlstack.env import ContinuousDummyEnv
-
-    algo = Algorithm(
-        ContinuousDummyEnv,
-        distribution_cls=SquashedNormal,
-        gae_lambda=0.99,
-        gamma=0.99,
-    )
-    algo.collect()
-    algo.step()
-
-Specify the same settings using the high-level trainer interface.
+Use a custom distribution and custom hyperparameters by passing
+options to the trainer (or algorithm) interface.
 
 .. code:: python
 
@@ -134,21 +121,10 @@ Specify the same settings using the high-level trainer interface.
 Training a Recurrent Policy
 ---------------------------
 
-Use the low-level algorithm interface to seamlessly switch between feedforward
-and recurrent algorithms. The recurrent algorithm uses default recurrent models
-depending on the environment's action spec.
-
-.. code:: python
-
-    from rlstack import RecurrentAlgorithm
-    from rlstack.env import DiscreteDummyEnv
-
-    algo = RecurrentAlgorithm(DiscreteDummyEnv)
-    algo.collect()
-    algo.step()
-
-Specify the algorithm type using the high-level trainer interface (which
-usually defaults to a feedforward version of the algorithm).
+Swap to the recurrent flavor of the trainer (or algorithm) interface
+to train a recurrent model and policy. The recurrent interfaces use
+canned and default recurrent models depending on the environment's
+observation and action specs.
 
 .. code:: python
 
@@ -161,18 +137,8 @@ usually defaults to a feedforward version of the algorithm).
 Training on a GPU
 -----------------
 
-Use the low-level algorithm interface to specify training on a GPU.
-
-.. code:: python
-
-    from rlstack import Algorithm
-    from rlstack.env import DiscreteDummyEnv
-
-    algo = Algorithm(DiscreteDummyEnv, device="cuda")
-    algo.collect()
-    algo.step()
-
-Specify training on a GPU using the high-level trainer interface.
+Specify the device used across the environment, model, and
+algorithm.
 
 .. code:: python
 
@@ -185,29 +151,9 @@ Specify training on a GPU using the high-level trainer interface.
 Minimizing GPU Memory Usage
 ---------------------------
 
-Use the low-level algorithm interface to enable policy updates with gradient
-accumulation and/or `Automatic Mixed Precision (AMP)`_ to minimize GPU memory
+Enable policy updates with gradient accumulation and/or
+`Automatic Mixed Precision (AMP)`_ to minimize GPU memory
 usage so you can simulate more environments or use larger models.
-
-.. code:: python
-
-    import torch.optim as optim
-
-    from rlstack import Algorithm
-    from rlstack.env import DiscreteDummyEnv
-
-    algo = Algorithm(
-        DiscreteDummyEnv,
-        optimizer_cls=optim.SGD,
-        accumulate_grads=True,
-        enable_amp=True,
-        sgd_minibatch_size=8192,
-        device="cuda",
-    )
-    algo.collect()
-    algo.step()
-
-Enable memory-minimization settings using the high-level trainer interface.
 
 .. code:: python
 
