@@ -30,7 +30,7 @@ class RecurrentTrainer(GenericTrainerBase[RecurrentAlgorithm]):
         model: Model instance to use. Mutually exclusive with ``model_cls``.
         model_cls: Optional custom policy model definition. A model class
             is provided for you based on the environment instance's specs
-            if you don't provide one. Defaults to a simple feedforward
+            if you don't provide one. Defaults to a simple recurrent
             neural network.
         model_config: Optional policy model config unpacked into the model
             during instantiation.
