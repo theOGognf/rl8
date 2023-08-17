@@ -16,7 +16,8 @@ extremely fast even for complex, sequence-based models because:
 
 """
 
+from ._base import GenericAlgorithmBase
 from ._feedforward import Algorithm
 from ._recurrent import RecurrentAlgorithm
 
-__all__ = ["Algorithm", "RecurrentAlgorithm"]
+__all__ = ["Algorithm", "GenericAlgorithmBase", "RecurrentAlgorithm"]

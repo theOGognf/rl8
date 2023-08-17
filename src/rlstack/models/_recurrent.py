@@ -15,13 +15,14 @@ from typing_extensions import Self
 from .._utils import assert_1d_spec
 from ..data import DataKeys, Device
 from ..nn import Module
+from ._base import GenericModelBase
 
 _ObservationSpec = TypeVar("_ObservationSpec", bound=TensorSpec)
 _ActionSpec = TypeVar("_ActionSpec", bound=TensorSpec)
 
 
 class RecurrentModel(
-    Module[
+    GenericModelBase[
         [TensorDict, TensorDict],
         tuple[TensorDict, TensorDict],
     ]
@@ -39,34 +40,9 @@ class RecurrentModel(
 
     """
 
-    #: Spec defining the outputs of the policy's action distribution that
-    #: this model is a component of. Useful for defining the model as a
-    #: function of the action spec.
-    action_spec: TensorSpec
-
-    #: Model-specific configuration. Passed from the policy and algorithm.
-    config: dict[str, Any]
-
-    #: Spec defining observations part of the forward pass input. Useful for
-    #: validating the forward pass and for defining the model as a function of
-    #: the observation spec.
-    observation_spec: TensorSpec
-
     #: Spec defining recurrent model states part of the forward pass input
     #: and output. This is expected to be defined in a model's ``__init__``.
     state_spec: CompositeSpec
-
-    def __init__(
-        self,
-        observation_spec: TensorSpec,
-        action_spec: TensorSpec,
-        /,
-        **config: Any,
-    ) -> None:
-        super().__init__()
-        self.observation_spec = observation_spec
-        self.action_spec = action_spec
-        self.config = config
 
     @staticmethod
     def default_model_cls(
@@ -100,11 +76,6 @@ class RecurrentModel(
                 raise TypeError(
                     f"Action spec {action_spec} has no default model support."
                 )
-
-    @property
-    def device(self) -> Device:
-        """Return the device the model is currently on."""
-        return next(self.parameters()).device
 
     @abstractmethod
     def forward(
@@ -169,19 +140,7 @@ class RecurrentModel(
         self.observation_spec = self.observation_spec.to(device)
         self.action_spec = self.action_spec.to(device)
         self.state_spec = self.state_spec.to(device)
-        return super().to(device)
-
-    @abstractmethod
-    def value_function(self) -> torch.Tensor:
-        """Return the value function output for the most recent forward pass.
-        Note that a :meth`RecurrentModel.forward` call has to be performed
-        first before this method can return anything.
-
-        This helps prevent extra forward passes from being performed just to
-        get a value function output in case the value function and action
-        distribution components share parameters.
-
-        """
+        return Module.to(self, device)
 
 
 class GenericRecurrentModel(RecurrentModel, Generic[_ObservationSpec, _ActionSpec]):

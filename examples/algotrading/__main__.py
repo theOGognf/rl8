@@ -3,7 +3,7 @@ import argparse
 import mlflow
 import torch
 
-from rlstack import Algorithm, RecurrentAlgorithm, Trainer
+from rlstack import RecurrentTrainer, Trainer
 from rlstack.conditions import Plateaus
 
 from .env import AlgoTrading
@@ -27,25 +27,22 @@ if __name__ == "__main__":
 
     match args.model:
         case "lstm":
-            algorithm_cls = RecurrentAlgorithm
+            trainer_cls = RecurrentTrainer
             model_cls = LazyLemur
         case "mlp":
-            algorithm_cls = Algorithm
+            trainer_cls = Trainer
             model_cls = MischievousMule
         case "transformer":
-            algorithm_cls = Algorithm
+            trainer_cls = Trainer
             model_cls = AttentiveAlpaca
 
     experiment = mlflow.set_experiment("rlstack.examples.algotrading")
     print(f"Logging run under MLFlow experiment {experiment.experiment_id}")
-    trainer = Trainer(
+    trainer = trainer_cls(
         AlgoTrading,
-        algorithm_cls=algorithm_cls,
-        algorithm_config={
-            "model_cls": model_cls,
-            "enable_amp": torch.cuda.is_available(),
-            "device": "cuda" if torch.cuda.is_available() else "cpu",
-        },
+        model_cls=model_cls,
+        enable_amp=torch.cuda.is_available(),
+        device="cuda" if torch.cuda.is_available() else "cpu",
     )
     run = mlflow.active_run()
     print(f"Logging metrics under MLFlow run {run.info.run_id}")

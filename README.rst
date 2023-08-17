@@ -125,11 +125,9 @@ Specify the same settings using the high-level trainer interface.
 
     trainer = Trainer(
         ContinuousDummyEnv,
-        algorithm_config={
-            "distribution_cls": SquashedNormal,
-            "gae_lambda": 0.99,
-            "gamma": 0.99,
-        }
+        distribution_cls=SquashedNormal,
+        gae_lambda=0.99,
+        gamma=0.99,
     )
     trainer.run()
 
@@ -154,10 +152,10 @@ usually defaults to a feedforward version of the algorithm).
 
 .. code:: python
 
-    from rlstack import RecurrentAlgorithm, Trainer
+    from rlstack import RecurrentAlgorithm, RecurrentTrainer
     from rlstack.env import DiscreteDummyEnv
 
-    trainer = Trainer(DiscreteDummyEnv, algorithm_cls=RecurrentAlgorithm)
+    trainer = RecurrentTrainer(DiscreteDummyEnv)
     trainer.run()
 
 Training on a GPU
@@ -181,7 +179,7 @@ Specify training on a GPU using the high-level trainer interface.
     from rlstack import Trainer
     from rlstack.env import DiscreteDummyEnv
 
-    trainer = Trainer(DiscreteDummyEnv, algorithm_config={"device": "cuda"})
+    trainer = Trainer(DiscreteDummyEnv, device="cuda")
     trainer.run()
 
 Minimizing GPU Memory Usage
@@ -218,14 +216,13 @@ Enable memory-minimization settings using the high-level trainer interface.
     from rlstack import Trainer
     from rlstack.env import DiscreteDummyEnv
 
-    trainer = Trainer(DiscreteDummyEnv,
-        algorithm_config={
-            "optimizer_cls": optim.SGD,
-            "accumulate_grads": True,
-            "enable_amp": True,
-            "sgd_minibatch_size": 8192,
-            "device": "cuda",
-        }
+    trainer = Trainer(
+        DiscreteDummyEnv,
+        optimizer_cls=optim.SGD,
+        accumulate_grads=True,
+        enable_amp=True,
+        sgd_minibatch_size=8192,
+        device="cuda",
     )
     trainer.run()
 

@@ -1,12 +1,9 @@
-import os
 from dataclasses import asdict
 from typing import Any
 
-import cloudpickle
 import torch
 import torch.amp as amp
 import torch.optim as optim
-from tensordict import TensorDict
 from torchrl.data import CompositeSpec, UnboundedContinuousTensorSpec
 
 from .._utils import Batcher, StatTracker, assert_nd_spec, memory_stats, profile_ms
@@ -26,9 +23,10 @@ from ..nn import generalized_advantage_estimate, ppo_losses
 from ..optimizer import OptimizerWrapper
 from ..policies import Policy
 from ..schedulers import EntropyScheduler, LRScheduler, ScheduleKind
+from ._base import GenericAlgorithmBase
 
 
-class Algorithm:
+class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
     """An optimized feedforward `PPO`_ algorithm with common tricks for
     stabilizing and accelerating learning.
 
@@ -154,62 +152,6 @@ class Algorithm:
     .. _`PPO`: https://arxiv.org/pdf/1707.06347.pdf
 
     """
-
-    #: Environment experience buffer used for aggregating environment
-    #: transition data and policy sample data. The same buffer object
-    #: is shared whenever using :meth:`Algorithm.collect` Buffer dimensions
-    #: are determined by ``num_envs`` and ``horizon`` args.
-    buffer: TensorDict
-
-    #: Tensor spec defining the environment experience buffer components
-    #: and dimensions. Used for instantiating :attr:`Algorithm.buffer`
-    #: at :class:`Algorithm` instantiation and each :meth:`Algorithm.step`
-    #: call.
-    buffer_spec: CompositeSpec
-
-    #: Entropy scheduler for updating the ``entropy_coeff`` after each
-    #: :meth:`Algorithm.step` call based on the number environment transitions
-    #: collected and learned on. By default, the entropy scheduler does not
-    #: actually update the entropy coefficient. The entropy scheduler only
-    #: updates the entropy coefficient if an ``entropy_coeff_schedule`` is
-    #: provided.
-    entropy_scheduler: EntropyScheduler
-
-    #: Environment used for experience collection within the
-    #: :meth:`Algorithm.collect` method. It's ultimately up to the environment
-    #: to make learning efficient by parallelizing simulations.
-    env: Env
-
-    #: Feedforward PPO hyperparameters that're constant throughout training
-    #: and can drastically affect training performance.
-    hparams: AlgorithmHparams
-
-    #: Learning rate scheduler for updating `optimizer` learning rate after
-    #: each `step` call based on the number of environment transitions
-    #: collected and learned on. By default, the learning scheduler does not
-    #: actually alter the `optimizer` learning rate (it actually leaves it
-    #: constant). The learning rate scheduler only alters the learning rate
-    #: if a `learning_rate_schedule` is provided.
-    lr_scheduler: LRScheduler
-
-    #: Wrapper around the underlying optimizer for updating the policy's model
-    #: that was constructed from ``optimizer_cls`` and ``optimizer_config``.
-    #: Handles gradient accumulation and Automatic Mixed Precision (AMP) model
-    #: updates. ``optimizer_cls`` defaults to a the Adam optimizer.
-    optimizer: OptimizerWrapper
-
-    #: Policy constructed from the ``model_cls``, ``model_config``, and
-    #: ``distribution_cls`` kwargs. A default policy is constructed according to
-    #: the environment's observation and action specs if these policy args
-    #: aren't provided. The policy is what does all the action sampling
-    #: within :meth:`Algorithm.collect` and is what is updated within
-    #: :meth:`Algorithm.step`.
-    policy: Policy
-
-    #: Algorithm state for determining when to reset the environment, when
-    #: the policy can be updated, and for tracking additional algorithm
-    #: metrics like time elapsed within a method.
-    state: AlgorithmState
 
     def __init__(
         self,
@@ -436,19 +378,6 @@ class Algorithm:
             "entropy_coeff": self.entropy_scheduler.coeff,
             **asdict(self.hparams),
         }
-
-    def save_policy(self, path: str | os.PathLike[str], /) -> None:
-        """Save the policy by cloud pickling it to ``path``.
-
-        This method is only defined to expose a common interface between
-        different algorithms for saving the underlying policy through
-        the trainer interface. This is by no means the only way
-        to save a policy and isn't even a recommended way to save
-        a policy.
-
-        """
-        with open(path, "wb") as f:
-            cloudpickle.dump(self.policy, f)
 
     def step(self) -> StepStats:
         """Take a step with the algorithm, using collected environment

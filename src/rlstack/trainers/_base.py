@@ -1,94 +1,29 @@
 """High-level training interfaces."""
 
-import os
 from collections import defaultdict
-from typing import Any, Protocol
+from typing import Any, Generic, TypeVar
 
 import mlflow
 
-from ._utils import reduce_stats
-from .algorithms import Algorithm
-from .conditions import Condition
-from .data import (
-    AlgorithmHparams,
-    CollectStats,
-    EvalCollectStats,
-    MemoryStats,
-    StepStats,
-    TrainerState,
-    TrainStats,
-)
-from .env import Env
+from .._utils import reduce_stats
+from ..algorithms import GenericAlgorithmBase
+from ..conditions import Condition
+from ..data import EvalCollectStats, TrainerState, TrainStats
+
+_Algorithm = TypeVar("_Algorithm", bound=GenericAlgorithmBase[Any, Any, Any])
 
 
-class AlgorithmProtocol(Protocol):
-    """Protocol for algorithms used by the trainer for training policies."""
-
-    hparams: AlgorithmHparams
-
-    def __init__(
-        self,
-        env_cls: type[Env],
-        /,
-        **kwargs: Any,
-    ) -> None:
-        ...
-
-    def collect(
-        self, *, env_config: None | dict[str, Any] = None, deterministic: bool = False
-    ) -> CollectStats:
-        ...
-
-    def memory_stats(self) -> MemoryStats:
-        ...
-
-    @property
-    def params(self) -> dict[str, Any]:
-        ...
-
-    def save_policy(self, path: str | os.PathLike[str], /) -> None:
-        ...
-
-    def step(self) -> StepStats:
-        ...
-
-
-class Trainer:
-    """Higher-level training interface that interops with other tools for
-    tracking and saving experiments (i.e., MLFlow).
-
-    This is the preferred training interface for most use cases.
-
-    Args:
-        env_cls: Environment to train on.
-        algorithm_cls: Algorithm class to use that ``algorithm_config`` is
-            unpacked into.
-        algorithm_config: Algorithm hyperparameters used to instantiate
-            the algorithm. Custom models, model configs, and distributions
-            are provided here.
-
-    """
-
+class GenericTrainerBase(Generic[_Algorithm]):
     #: Underlying PPO algorithm, including the environment, model,
     #: action distribution, and hyperparameters.
-    algorithm: AlgorithmProtocol
+    algorithm: _Algorithm
 
     #: Trainer state used for tracking a handful of running totals
     #: necessary for logging metrics, determining when a policy
     #: can be evaluated, etc..
     state: TrainerState
 
-    def __init__(
-        self,
-        env_cls: type[Env],
-        /,
-        *,
-        algorithm_cls: None | type[AlgorithmProtocol] = None,
-        algorithm_config: None | dict[str, Any] = None,
-    ) -> None:
-        algorithm_config = algorithm_config or {}
-        algorithm_cls = algorithm_cls or Algorithm
-        self.algorithm = algorithm_cls(env_cls, **algorithm_config)
+    def __init__(self) -> None:
         self.state = {
             "algorithm/collects": 0,
             "algorithm/steps": 0,

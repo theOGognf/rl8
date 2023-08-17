@@ -8,10 +8,12 @@ inference are properly handled.
 
 """
 
+from ._base import GenericPolicyBase
 from ._feedforward import MLflowPolicyModel, Policy
 from ._recurrent import MLflowRecurrentPolicyModel, RecurrentPolicy
 
 __all__ = [
+    "GenericPolicyBase",
     "MLflowPolicyModel",
     "MLflowRecurrentPolicyModel",
     "Policy",

@@ -13,6 +13,7 @@ Models are largely inspired by RLlib's `model concept`_.
 
 """
 
+from ._base import GenericModelBase
 from ._feedforward import (
     DefaultContinuousModel,
     DefaultDiscreteModel,
@@ -30,6 +31,7 @@ __all__ = [
     "DefaultContinuousModel",
     "DefaultDiscreteModel",
     "GenericModel",
+    "GenericModelBase",
     "Model",
     "DefaultContinuousRecurrentModel",
     "DefaultDiscreteRecurrentModel",

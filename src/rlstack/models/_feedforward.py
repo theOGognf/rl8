@@ -11,13 +11,14 @@ from .._utils import assert_1d_spec
 from ..data import DataKeys, Device
 from ..nn import MLP, Module, get_activation
 from ..views import ViewKind, ViewRequirement
+from ._base import GenericModelBase
 
 _ObservationSpec = TypeVar("_ObservationSpec", bound=TensorSpec)
 _ActionSpec = TypeVar("_ActionSpec", bound=TensorSpec)
 
 
 class Model(
-    Module[
+    GenericModelBase[
         [
             TensorDict,
         ],
@@ -36,18 +37,6 @@ class Model(
 
     """
 
-    #: Spec defining the outputs of the policy's action distribution that
-    #: this model is a component of. Useful for defining the model as a
-    #: function of the action spec.
-    action_spec: TensorSpec
-
-    #: Model-specific configuration. Passed from the policy and algorithm.
-    config: dict[str, Any]
-
-    #: Spec defining the forward pass input. Useful for validating the forward
-    #: pass and for defining the model as a function of the observation spec.
-    observation_spec: TensorSpec
-
     #: Requirements on how a tensor batch should be preprocessed by the
     #: policy prior to being passed to the forward pass. Useful for handling
     #: sequence shifting or masking so you don't have to.
@@ -63,10 +52,7 @@ class Model(
         /,
         **config: Any,
     ) -> None:
-        super().__init__()
-        self.observation_spec = observation_spec
-        self.action_spec = action_spec
-        self.config = config
+        super().__init__(observation_spec, action_spec, **config)
         self.view_requirements = {DataKeys.OBS: ViewRequirement(shift=0)}
 
     def apply_view_requirements(
@@ -147,11 +133,6 @@ class Model(
                 )
 
     @property
-    def device(self) -> Device:
-        """Return the device the model is currently on."""
-        return next(self.parameters()).device
-
-    @property
     def drop_size(self) -> int:
         """Return the model's drop size (also the drop size for all view
         requirements).
@@ -195,7 +176,7 @@ class Model(
         """
         self.observation_spec = self.observation_spec.to(device)
         self.action_spec = self.action_spec.to(device)
-        return super().to(device)
+        return Module.to(self, device)
 
     def validate_view_requirements(self) -> None:
         """Helper for validating a model's view requirements.
@@ -220,18 +201,6 @@ class Model(
 
                 """
             )
-
-    @abstractmethod
-    def value_function(self) -> torch.Tensor:
-        """Return the value function output for the most recent forward pass.
-        Note that a :meth`Model.forward` call has to be performed first before this
-        method can return anything.
-
-        This helps prevent extra forward passes from being performed just to
-        get a value function output in case the value function and action
-        distribution components share parameters.
-
-        """
 
 
 class GenericModel(Model, Generic[_ObservationSpec, _ActionSpec]):

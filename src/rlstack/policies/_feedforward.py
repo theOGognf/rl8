@@ -6,7 +6,6 @@ import pandas as pd
 import torch
 from tensordict import TensorDict
 from torchrl.data import TensorSpec
-from typing_extensions import Self
 
 from rlstack.distributions import Distribution
 
@@ -14,9 +13,10 @@ from .._utils import get_batch_size_from_model_input, td2df
 from ..data import DataKeys, Device
 from ..models import Model
 from ..views import ViewKind
+from ._base import GenericPolicyBase
 
 
-class Policy:
+class Policy(GenericPolicyBase[Model]):
     """The union of a feedforward model and an action distribution.
 
     Args:
@@ -30,18 +30,6 @@ class Policy:
         distribution_cls: Action distribution class.
 
     """
-
-    #: Underlying policy action distribution that's parameterized by
-    #: features produced by :attr:`Policy.model`.
-    distribution_cls: type[Distribution]
-
-    #: Underlying policy model that processes environment observations
-    #: into a value function approximation and into features to be
-    #: consumed by an action distribution for action sampling.
-    model: Model
-
-    #: Model kwarg overrides when instantiating the model.
-    model_config: dict[str, Any]
 
     def __init__(
         self,
@@ -73,21 +61,6 @@ class Policy:
             action_spec
         )
 
-    @property
-    def action_spec(self) -> TensorSpec:
-        """Return the action spec used for constructing the model."""
-        return self.model.action_spec
-
-    @property
-    def device(self) -> Device:
-        """Return the device the policy's model is on."""
-        return next(self.model.parameters()).device
-
-    @property
-    def observation_spec(self) -> TensorSpec:
-        """Return the observation spec used for constructing the model."""
-        return self.model.observation_spec
-
     def sample(
         self,
         batch: TensorDict,
@@ -96,7 +69,6 @@ class Policy:
         kind: ViewKind = "last",
         deterministic: bool = False,
         inplace: bool = False,
-        keepdim: bool = False,
         requires_grad: bool = False,
         return_actions: bool = True,
         return_logp: bool = False,
@@ -200,11 +172,6 @@ class Policy:
             self.model.train(training)
 
         return out
-
-    def to(self, device: Device, /) -> Self:
-        """Move the policy and its attributes to ``device``."""
-        self.model = self.model.to(device)
-        return self
 
 
 class MLflowPolicyModel(mlflow.pyfunc.PythonModel):

@@ -6,15 +6,15 @@ import pandas as pd
 import torch
 from tensordict import TensorDict
 from torchrl.data import CompositeSpec, TensorSpec
-from typing_extensions import Self
 
 from .._utils import get_batch_size_from_model_input, td2df
 from ..data import DataKeys, Device
 from ..distributions import Distribution
 from ..models import RecurrentModel
+from ._base import GenericPolicyBase
 
 
-class RecurrentPolicy:
+class RecurrentPolicy(GenericPolicyBase[RecurrentModel]):  # type: ignore[type-var]
     """The union of a recurrent model and an action distribution.
 
     Args:
@@ -28,18 +28,6 @@ class RecurrentPolicy:
         distribution_cls: Action distribution class.
 
     """
-
-    #: Underlying policy action distribution that's parameterized by
-    #: features produced by :attr:`RecurrentPolicy.model`.
-    distribution_cls: type[Distribution]
-
-    #: Underlying policy model that processes environment observations
-    #: into a value function approximation and into features to be
-    #: consumed by an action distribution for action sampling.
-    model: RecurrentModel
-
-    #: Model kwarg overrides when instantiating the model.
-    model_config: dict[str, Any]
 
     def __init__(
         self,
@@ -71,24 +59,9 @@ class RecurrentPolicy:
             action_spec
         )
 
-    @property
-    def action_spec(self) -> TensorSpec:
-        """Return the action spec used for constructing the model."""
-        return self.model.action_spec
-
-    @property
-    def device(self) -> Device:
-        """Return the device the policy's model is on."""
-        return next(self.model.parameters()).device
-
     def init_states(self, n: int, /) -> TensorDict:
         """Return new recurrent states for the policy's model."""
         return self.model.init_states(n)
-
-    @property
-    def observation_spec(self) -> TensorSpec:
-        """Return the observation spec used for constructing the model."""
-        return self.model.observation_spec
 
     def sample(
         self,
@@ -202,11 +175,6 @@ class RecurrentPolicy:
 
         """
         return self.model.state_spec
-
-    def to(self, device: Device, /) -> Self:
-        """Move the policy and its attributes to ``device``."""
-        self.model = self.model.to(device)
-        return self
 
 
 class MLflowRecurrentPolicyModel(mlflow.pyfunc.PythonModel):
