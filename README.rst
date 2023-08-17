@@ -128,7 +128,7 @@ observation and action specs.
 
 .. code:: python
 
-    from rlstack import RecurrentAlgorithm, RecurrentTrainer
+    from rlstack import RecurrentTrainer
     from rlstack.env import DiscreteDummyEnv
 
     trainer = RecurrentTrainer(DiscreteDummyEnv)
@@ -175,8 +175,9 @@ usage so you can simulate more environments or use larger models.
 Specifying Training Stop Conditions
 -----------------------------------
 
-Specify training stop conditions based on training statistics using the
-high-level trainer interface.
+Specify training stop conditions based on training statistics to stop
+training early when statistics plateau, hit a limit, stop
+increasing or decreasing, etc..
 
 .. code:: python
 
