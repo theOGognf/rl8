@@ -1,4 +1,3 @@
-from dataclasses import asdict
 from typing import Any
 
 import torch
@@ -6,12 +5,11 @@ import torch.amp as amp
 import torch.optim as optim
 from torchrl.data import CompositeSpec, UnboundedContinuousTensorSpec
 
-from .._utils import Batcher, StatTracker, assert_nd_spec, memory_stats, profile_ms
+from .._utils import Batcher, StatTracker, assert_nd_spec, profile_ms
 from ..data import (
     CollectStats,
     DataKeys,
     Device,
-    MemoryStats,
     RecurrentAlgorithmHparams,
     RecurrentAlgorithmState,
     StepStats,
@@ -397,22 +395,6 @@ class RecurrentAlgorithm(
         collect_stats["env/steps"] = self.hparams.num_envs * self.hparams.horizon
         collect_stats["profiling/collect_ms"] = collect_timer()
         return collect_stats
-
-    def memory_stats(self) -> MemoryStats:
-        """Return current algorithm memory usage."""
-        return memory_stats(self.hparams.device_type)
-
-    @property
-    def params(self) -> dict[str, Any]:
-        """Return algorithm parameters."""
-        return {
-            "env_cls": self.env.__class__.__name__,
-            "model_cls": self.policy.model.__class__.__name__,
-            "distribution_cls": self.policy.distribution_cls.__name__,
-            "optimizer_cls": self.optimizer.optimizer.__class__.__name__,
-            "entropy_coeff": self.entropy_scheduler.coeff,
-            **asdict(self.hparams),
-        }
 
     def step(self) -> StepStats:
         """Take a step with the algorithm, using collected environment

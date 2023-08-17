@@ -1,11 +1,13 @@
 import os
 from abc import ABCMeta, abstractmethod
+from dataclasses import asdict
 from typing import Any, Generic, TypeVar
 
 import cloudpickle
 from tensordict import TensorDict
 from torchrl.data import CompositeSpec
 
+from .._utils import memory_stats
 from ..data import (
     AlgorithmHparams,
     AlgorithmState,
@@ -51,7 +53,7 @@ class GenericAlgorithmBase(
     #: environment to make learning efficient by parallelizing simulations.
     env: Env
 
-    #: Feedforward PPO hyperparameters that're constant throughout training
+    #: PPO hyperparameters that're constant throughout training
     #: and can drastically affect training performance.
     hparams: _AlgorithmHparams
 
@@ -128,14 +130,21 @@ class GenericAlgorithmBase(
         """
         return self.hparams.horizons_per_env_reset
 
-    @abstractmethod
     def memory_stats(self) -> MemoryStats:
         """Return current algorithm memory usage."""
+        return memory_stats(self.hparams.device_type)
 
     @property
-    @abstractmethod
     def params(self) -> dict[str, Any]:
         """Return algorithm parameters."""
+        return {
+            "env_cls": self.env.__class__.__name__,
+            "model_cls": self.policy.model.__class__.__name__,
+            "distribution_cls": self.policy.distribution_cls.__name__,
+            "optimizer_cls": self.optimizer.optimizer.__class__.__name__,
+            "entropy_coeff": self.entropy_scheduler.coeff,
+            **asdict(self.hparams),
+        }
 
     def save_policy(self, path: str | os.PathLike[str], /) -> None:
         """Save the policy by cloud pickling it to ``path``.
