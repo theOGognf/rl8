@@ -122,10 +122,7 @@ class GenericAlgorithmBase(
     @property
     def horizons_per_env_reset(self) -> int:
         """Number of times :meth:`GenericAlgorithmBase.collect` can be
-        called before resetting :attr:`GenericAlgorithmBase.env`. Set this to
-        a higher number if you want learning to occur across horizons. Leave
-        this as the default ``1`` if it doesn't matter that experiences and
-        learning only occurs within one horizon.
+        called before resetting :attr:`GenericAlgorithmBase.env`.
 
         """
         return self.hparams.horizons_per_env_reset
