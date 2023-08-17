@@ -59,7 +59,7 @@ class GenericTrainerBase(Generic[_Algorithm]):
         """
         if (
             env_config
-            and self.algorithm.hparams.horizons_per_env_reset < 0
+            and self.algorithm.horizons_per_env_reset < 0
             and self.state["algorithm/collects"]
         ):
             raise ValueError(
@@ -71,9 +71,8 @@ class GenericTrainerBase(Generic[_Algorithm]):
             )
 
         if (
-            self.algorithm.hparams.horizons_per_env_reset > 0
-            and self.state["algorithm/collects"]
-            % self.algorithm.hparams.horizons_per_env_reset
+            self.algorithm.horizons_per_env_reset > 0
+            and self.state["algorithm/collects"] % self.algorithm.horizons_per_env_reset
         ):
             raise RuntimeError(
                 f"{self.eval.__qualname__} can only be called every"
@@ -82,7 +81,7 @@ class GenericTrainerBase(Generic[_Algorithm]):
                 " evaluation."
             )
         stats = defaultdict(list)
-        horizons_per_env_reset = max(1, self.algorithm.hparams.horizons_per_env_reset)
+        horizons_per_env_reset = max(1, self.algorithm.horizons_per_env_reset)
         for _ in range(horizons_per_env_reset):
             for k, v in self.algorithm.collect(
                 env_config=env_config, deterministic=deterministic
@@ -133,7 +132,7 @@ class GenericTrainerBase(Generic[_Algorithm]):
         """
         if (
             steps_per_eval
-            and self.algorithm.hparams.horizons_per_env_reset < 0
+            and self.algorithm.horizons_per_env_reset < 0
             and eval_env_config
         ):
             raise ValueError(
@@ -146,8 +145,8 @@ class GenericTrainerBase(Generic[_Algorithm]):
 
         if (
             steps_per_eval
-            and self.algorithm.hparams.horizons_per_env_reset > 0
-            and steps_per_eval % self.algorithm.hparams.horizons_per_env_reset
+            and self.algorithm.horizons_per_env_reset > 0
+            and steps_per_eval % self.algorithm.horizons_per_env_reset
         ):
             raise ValueError(
                 f"{self.eval.__qualname__} can only be called every"

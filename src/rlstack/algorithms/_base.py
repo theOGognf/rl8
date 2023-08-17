@@ -6,14 +6,20 @@ import cloudpickle
 from tensordict import TensorDict
 from torchrl.data import CompositeSpec
 
-from ..data import CollectStats, MemoryStats, StepStats
+from ..data import (
+    AlgorithmHparams,
+    AlgorithmState,
+    CollectStats,
+    MemoryStats,
+    StepStats,
+)
 from ..env import Env
 from ..optimizer import OptimizerWrapper
 from ..policies import GenericPolicyBase
 from ..schedulers import EntropyScheduler, LRScheduler
 
-_AlgorithmHparams = TypeVar("_AlgorithmHparams")
-_AlgorithmState = TypeVar("_AlgorithmState")
+_AlgorithmHparams = TypeVar("_AlgorithmHparams", bound=AlgorithmHparams)
+_AlgorithmState = TypeVar("_AlgorithmState", bound=AlgorithmState)
 _Policy = TypeVar("_Policy", bound=GenericPolicyBase[Any])
 
 
@@ -110,6 +116,17 @@ class GenericAlgorithmBase(
             policy samples.
 
         """
+
+    @property
+    def horizons_per_env_reset(self) -> int:
+        """Number of times :meth:`GenericAlgorithmBase.collect` can be
+        called before resetting :attr:`GenericAlgorithmBase.env`. Set this to
+        a higher number if you want learning to occur across horizons. Leave
+        this as the default ``1`` if it doesn't matter that experiences and
+        learning only occurs within one horizon.
+
+        """
+        return self.hparams.horizons_per_env_reset
 
     @abstractmethod
     def memory_stats(self) -> MemoryStats:
