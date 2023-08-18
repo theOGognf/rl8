@@ -28,9 +28,6 @@ class GenericPolicyBase(Generic[_Model]):
     #: consumed by an action distribution for action sampling.
     model: _Model
 
-    #: Model kwarg overrides when instantiating the model.
-    model_config: dict[str, Any]
-
     @property
     def action_spec(self) -> TensorSpec:
         """Return the action spec used for constructing the model."""
