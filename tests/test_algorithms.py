@@ -17,6 +17,10 @@ from rlstack import (
 from rlstack.data import DataKeys
 from rlstack.env import ContinuousDummyEnv, DiscreteDummyEnv, Env
 
+NUM_ENVS = 64
+HORIZON = 32
+HORIZONS_PER_ENV_RESET = 2
+
 
 @pytest.fixture
 def tmpdir() -> Iterator[TemporaryDirectory]:
@@ -28,8 +32,6 @@ def tmpdir() -> Iterator[TemporaryDirectory]:
 @pytest.mark.parametrize("env_cls", [ContinuousDummyEnv, DiscreteDummyEnv])
 def test_algorithm(algorithm_cls: type[Algorithm], env_cls: type[Env]) -> None:
     SEED = 42
-    NUM_ENVS = 64
-    HORIZON = 32
     ENTROPY_COEFF = 1e-2
     RTOL = 1e-5
     torch.manual_seed(SEED)
@@ -80,7 +82,10 @@ def test_algorithm(algorithm_cls: type[Algorithm], env_cls: type[Env]) -> None:
 
 def test_feedforward_algorithm_resets() -> None:
     algo = Algorithm(
-        DiscreteDummyEnv, horizon=32, num_envs=64, horizons_per_env_reset=2
+        DiscreteDummyEnv,
+        horizon=HORIZON,
+        num_envs=NUM_ENVS,
+        horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
     )
     with (patch.object(DiscreteDummyEnv, "reset", wraps=algo.env.reset) as reset,):
         algo.collect()
@@ -96,7 +101,10 @@ def test_feedforward_algorithm_resets() -> None:
 
 def test_feedforward_algorithm_save_policy(tmpdir: TemporaryDirectory) -> None:
     algo = Algorithm(
-        DiscreteDummyEnv, horizon=32, num_envs=64, horizons_per_env_reset=2
+        DiscreteDummyEnv,
+        horizon=HORIZON,
+        num_envs=NUM_ENVS,
+        horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
     )
     algo.save_policy(f"{tmpdir}/policy.pkl")
     mlflow.pyfunc.save_model(
@@ -112,7 +120,11 @@ def test_feedforward_algorithm_save_policy(tmpdir: TemporaryDirectory) -> None:
 
 def test_recurrent_algorithm_resets() -> None:
     algo = RecurrentAlgorithm(
-        DiscreteDummyEnv, horizon=32, num_envs=64, seq_len=4, seqs_per_state_reset=8
+        DiscreteDummyEnv,
+        horizon=HORIZON,
+        num_envs=NUM_ENVS,
+        seq_len=4,
+        seqs_per_state_reset=8,
     )
     with (
         patch.object(DiscreteDummyEnv, "reset", wraps=algo.env.reset) as reset,

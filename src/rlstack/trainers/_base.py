@@ -23,7 +23,8 @@ class GenericTrainerBase(Generic[_Algorithm]):
     #: can be evaluated, etc..
     state: TrainerState
 
-    def __init__(self) -> None:
+    def __init__(self, algorithm: _Algorithm, /) -> None:
+        self.algorithm = algorithm
         self.state = {
             "algorithm/collects": 0,
             "algorithm/steps": 0,
