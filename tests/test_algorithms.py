@@ -1,11 +1,27 @@
 import math
+from tempfile import TemporaryDirectory
+from typing import Iterator
 from unittest.mock import patch
 
+import mlflow
 import pytest
 import torch
 
-from rlstack import Algorithm, RecurrentAlgorithm, RecurrentPolicy
+from rlstack import (
+    Algorithm,
+    MLflowPolicyModel,
+    MLflowRecurrentPolicyModel,
+    RecurrentAlgorithm,
+    RecurrentPolicy,
+)
+from rlstack.data import DataKeys
 from rlstack.env import ContinuousDummyEnv, DiscreteDummyEnv, Env
+
+
+@pytest.fixture
+def tmpdir() -> Iterator[TemporaryDirectory]:
+    with TemporaryDirectory() as tmp:
+        yield tmp
 
 
 @pytest.mark.parametrize("algorithm_cls", [Algorithm, RecurrentAlgorithm])
@@ -78,6 +94,22 @@ def test_feedforward_algorithm_resets() -> None:
         assert reset.call_count == 2
 
 
+def test_feedforward_algorithm_save_policy(tmpdir: TemporaryDirectory) -> None:
+    algo = Algorithm(
+        DiscreteDummyEnv, horizon=32, num_envs=64, horizons_per_env_reset=2
+    )
+    algo.save_policy(f"{tmpdir}/policy.pkl")
+    mlflow.pyfunc.save_model(
+        f"{tmpdir}/model",
+        python_model=MLflowPolicyModel(),
+        artifacts={"policy": f"{tmpdir}/policy.pkl"},
+    )
+    model = mlflow.pyfunc.load_model(f"{tmpdir}/model")
+    obs = DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu().numpy()
+    df = model.predict({"obs": obs})
+    assert {DataKeys.ACTIONS, DataKeys.LOGP, DataKeys.VALUES} == set(df.columns)
+
+
 def test_recurrent_algorithm_resets() -> None:
     algo = RecurrentAlgorithm(
         DiscreteDummyEnv, horizon=32, num_envs=64, seq_len=4, seqs_per_state_reset=8
@@ -98,3 +130,25 @@ def test_recurrent_algorithm_resets() -> None:
         assert reset.call_count == 2
         assert algo.state.seqs == 16
         assert init_states.call_count == 2
+
+
+def test_recurrent_algorithm_save_policy(tmpdir: TemporaryDirectory) -> None:
+    algo = RecurrentAlgorithm(
+        DiscreteDummyEnv, horizon=32, num_envs=64, seq_len=4, seqs_per_state_reset=8
+    )
+    algo.save_policy(f"{tmpdir}/policy.pkl")
+    mlflow.pyfunc.save_model(
+        f"{tmpdir}/model",
+        python_model=MLflowRecurrentPolicyModel(),
+        artifacts={"policy": f"{tmpdir}/policy.pkl"},
+    )
+    model = mlflow.pyfunc.load_model(f"{tmpdir}/model")
+    obs = DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu().numpy()
+    df = model.predict({"obs": obs})
+    assert {
+        DataKeys.ACTIONS,
+        DataKeys.LOGP,
+        DataKeys.HIDDEN_STATES,
+        DataKeys.CELL_STATES,
+        DataKeys.VALUES,
+    } == set(df.columns)
