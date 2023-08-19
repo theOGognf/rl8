@@ -30,7 +30,7 @@ class GenericAlgorithmBase(
 ):
     #: Environment experience buffer used for aggregating environment
     #: transition data and policy sample data. The same buffer object
-    #: is shared whenever using :meth:`GenericAlgorithmBase.collect` Buffer
+    #: is shared whenever using :meth:`GenericAlgorithmBase.collect`. Buffer
     #: dimensions are determined by ``num_envs`` and ``horizon`` args.
     buffer: TensorDict
 
@@ -41,10 +41,10 @@ class GenericAlgorithmBase(
     buffer_spec: CompositeSpec
 
     #: Entropy scheduler for updating the ``entropy_coeff`` after each
-    #: :meth:`Algorithm.step` call based on the number environment transitions
-    #: collected and learned on. By default, the entropy scheduler does not
-    #: actually update the entropy coefficient. The entropy scheduler only
-    #: updates the entropy coefficient if an ``entropy_coeff_schedule`` is
+    #: :meth:`GenericAlgorithmBase.step` call based on the number environment
+    #: transitions collected and learned on. By default, the entropy scheduler
+    #: does not actually update the entropy coefficient. The entropy scheduler
+    #: only updates the entropy coefficient if an ``entropy_coeff_schedule`` is
     #: provided.
     entropy_scheduler: EntropyScheduler
 
@@ -80,8 +80,7 @@ class GenericAlgorithmBase(
     policy: _Policy
 
     #: Algorithm state for determining when to reset the environment, when
-    #: the policy can be updated, and for tracking additional algorithm
-    #: metrics like time elapsed within a method.
+    #: the policy can be updated, etc..
     state: _AlgorithmState
 
     @abstractmethod
@@ -103,7 +102,7 @@ class GenericAlgorithmBase(
         the initial observation.
 
         This method sets the ``buffered`` flag to enable calling
-        of :meth:`Algorithm.step` so it isn't called with dummy data.
+        of :meth:`GenericAlgorithmBase.step` so it isn't called with dummy data.
 
         Args:
             env_config: Optional config to pass to the environment's reset

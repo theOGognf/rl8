@@ -60,8 +60,8 @@ class GenericModelBase(Module[_P, _T], metaclass=ABCMeta):
     @abstractmethod
     def value_function(self) -> torch.Tensor:
         """Return the value function output for the most recent forward pass.
-        Note that a :meth`Model.forward` call has to be performed first before this
-        method can return anything.
+        Note that a :meth`GenericModelBase.forward` call has to be performed
+        first before this method can return anything.
 
         This helps prevent extra forward passes from being performed just to
         get a value function output in case the value function and action
