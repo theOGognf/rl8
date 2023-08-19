@@ -389,12 +389,14 @@ StepStats = TypedDict(
 )
 
 #: Values returned during training.
-class TrainStats(CollectStats, MemoryStats, StepStats):
+class TrainStats(CollectStats, MemoryStats, StepStats, TrainerState):
     ...
 
 
 #: All the keys from :class:`TrainStats`.
 TrainStatKey = Literal[
+    "algorithm/collects",
+    "algorithm/steps",
     "env/resets",
     "env/steps",
     "profiling/collect_ms",

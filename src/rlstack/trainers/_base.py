@@ -189,4 +189,5 @@ class GenericTrainerBase(Generic[_Algorithm]):
         self.state["algorithm/steps"] += 1
         self.state["env/steps"] += collect_stats["env/steps"]
         mlflow.log_metrics(train_stats, step=self.state["env/steps"])
+        train_stats.update(self.state)
         return train_stats  # type: ignore[return-value]

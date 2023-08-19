@@ -2,6 +2,7 @@ import mlflow
 import pytest
 
 from rlstack import RecurrentTrainer, Trainer
+from rlstack.conditions import HitsUpperBound
 from rlstack.env import DiscreteDummyEnv
 
 NUM_ENVS = 64
@@ -66,7 +67,39 @@ def test_feedforward_trainer_step() -> None:
 
 
 def test_feedforward_trainer_run() -> None:
-    ...
+    trainer = Trainer(
+        DiscreteDummyEnv,
+        num_envs=NUM_ENVS,
+        horizon=HORIZON,
+        horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
+    )
+    assert trainer.state["algorithm/collects"] == 0
+    assert trainer.state["algorithm/steps"] == 0
+    assert trainer.state["env/steps"] == 0
+
+    trainer.run(
+        steps_per_eval=HORIZONS_PER_ENV_RESET,
+        stop_conditions=[
+            HitsUpperBound("algorithm/collects", 2 * HORIZONS_PER_ENV_RESET + 1)
+        ],
+    )
+    assert trainer.state["algorithm/collects"] == (2 * HORIZONS_PER_ENV_RESET + 1)
+    assert trainer.state["algorithm/steps"] == (HORIZONS_PER_ENV_RESET + 1)
+
+
+def test_feedforward_trainer_run_value_error() -> None:
+    trainer = Trainer(
+        DiscreteDummyEnv,
+        num_envs=NUM_ENVS,
+        horizon=HORIZON,
+        horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
+    )
+    assert trainer.state["algorithm/collects"] == 0
+    assert trainer.state["algorithm/steps"] == 0
+    assert trainer.state["env/steps"] == 0
+
+    with pytest.raises(ValueError):
+        trainer.run(steps_per_eval=1)
 
 
 def test_recurrent_trainer_eval() -> None:
@@ -118,4 +151,36 @@ def test_recurrent_trainer_step() -> None:
 
 
 def test_recurrent_trainer_run() -> None:
-    ...
+    trainer = RecurrentTrainer(
+        DiscreteDummyEnv,
+        num_envs=NUM_ENVS,
+        horizon=HORIZON,
+        horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
+    )
+    assert trainer.state["algorithm/collects"] == 0
+    assert trainer.state["algorithm/steps"] == 0
+    assert trainer.state["env/steps"] == 0
+
+    trainer.run(
+        steps_per_eval=HORIZONS_PER_ENV_RESET,
+        stop_conditions=[
+            HitsUpperBound("algorithm/collects", 2 * HORIZONS_PER_ENV_RESET + 1)
+        ],
+    )
+    assert trainer.state["algorithm/collects"] == (2 * HORIZONS_PER_ENV_RESET + 1)
+    assert trainer.state["algorithm/steps"] == (HORIZONS_PER_ENV_RESET + 1)
+
+
+def test_recurrent_trainer_run_value_error() -> None:
+    trainer = RecurrentTrainer(
+        DiscreteDummyEnv,
+        num_envs=NUM_ENVS,
+        horizon=HORIZON,
+        horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
+    )
+    assert trainer.state["algorithm/collects"] == 0
+    assert trainer.state["algorithm/steps"] == 0
+    assert trainer.state["env/steps"] == 0
+
+    with pytest.raises(ValueError):
+        trainer.run(steps_per_eval=1)
