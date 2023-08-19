@@ -24,6 +24,7 @@ classifiers = [
 ]
 dependencies = [
     "mlflow-skinny",
+    "pandas",
     "psutil",
     "torchrl",
     "typing-extensions"
