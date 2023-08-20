@@ -1,9 +1,7 @@
-import os
 from abc import ABCMeta, abstractmethod
 from dataclasses import asdict
 from typing import Any, Generic, TypeVar
 
-import cloudpickle
 from tensordict import TensorDict
 from torchrl.data import CompositeSpec
 
@@ -141,19 +139,6 @@ class GenericAlgorithmBase(
             "entropy_coeff": self.entropy_scheduler.coeff,
             **asdict(self.hparams),
         }
-
-    def save_policy(self, path: str | os.PathLike[str], /) -> None:
-        """Save the policy by cloud pickling it to ``path``.
-
-        This method is only defined to expose a common interface between
-        different algorithms for saving the underlying policy through
-        the trainer interface. This is by no means the only way
-        to save a policy and isn't even a recommended way to save
-        a policy.
-
-        """
-        with open(path, "wb") as f:
-            cloudpickle.dump(self.policy, f)
 
     @abstractmethod
     def step(self) -> StepStats:

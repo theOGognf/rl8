@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 import cloudpickle
@@ -173,6 +174,20 @@ class Policy(GenericPolicyBase[Model]):
 
         return out
 
+    def save(self, path: str | os.PathLike[str], /) -> "MLflowPolicyModel":
+        """Save the policy by cloud pickling it to ``path`` and returning
+        the interface used for deploying it with MLflow.
+
+        This method is only defined to expose a common interface between
+        different algorithms. This is by no means the only way
+        to save a policy and isn't even the recommended way to save
+        a policy.
+
+        """
+        with open(path, "wb") as f:
+            cloudpickle.dump(self, f)
+        return MLflowPolicyModel()
+
 
 class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
     """A MLflow Python model implementation of a feedforward policy.
@@ -206,7 +221,6 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
         ...
         ... from rlstack import Trainer
         ... from rlstack.env import DiscreteDummyEnv
-        ... from rlstack.policies import MLflowPolicyModel
         ... # Create the trainer and step it once for the heck of it.
         ... trainer = Trainer(DiscreteDummyEnv)
         ... trainer.step()
@@ -214,7 +228,6 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
         ... # and the actual MLflow model. This'll get cleaned-up
         ... # once the context ends.
         ... with TemporaryDirectory() as tmp:
-        ...     trainer.algorithm.save_policy(f"{tmp}/policy.pkl")
         ...     # This is where you set options specific to your
         ...     # use case. At a bare minimum, the policy's
         ...     # artifact (the policy pickle file) is specified,
@@ -222,7 +235,7 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
         ...     # dependencies/requirements, etc..
         ...     mlflow.pyfunc.save_model(
         ...         f"{tmp}/model",
-        ...         python_model=MLflowPolicyModel(),
+        ...         python_model=trainer.algorithm.policy.save(f"{tmp}/policy.pkl"),
         ...         artifacts={"policy": f"{tmp}/policy.pkl"},
         ...     )
         ...     model = mlflow.pyfunc.load_model(f"{tmp}/model")

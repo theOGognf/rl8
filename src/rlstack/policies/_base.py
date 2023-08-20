@@ -1,5 +1,8 @@
+import os
+from abc import ABCMeta, abstractmethod
 from typing import Any, Generic, TypeVar
 
+import mlflow
 from torchrl.data import TensorSpec
 from typing_extensions import Self
 
@@ -18,7 +21,7 @@ _Model = TypeVar(
 )
 
 
-class GenericPolicyBase(Generic[_Model]):
+class GenericPolicyBase(Generic[_Model], metaclass=ABCMeta):
     #: Underlying policy action distribution that's parameterized by
     #: features produced by :attr:`GenericPolicyBase.model`.
     distribution_cls: type[Distribution]
@@ -42,6 +45,18 @@ class GenericPolicyBase(Generic[_Model]):
     def observation_spec(self) -> TensorSpec:
         """Return the observation spec used for constructing the model."""
         return self.model.observation_spec
+
+    @abstractmethod
+    def save(self, path: str | os.PathLike[str], /) -> mlflow.pyfunc.PythonModel:
+        """Save the policy by cloud pickling it to ``path`` and returning
+        the interface used for deploying it with MLflow.
+
+        This method is only defined to expose a common interface between
+        different algorithms. This is by no means the only way
+        to save a policy and isn't even the recommended way to save
+        a policy.
+
+        """
 
     def to(self, device: Device, /) -> Self:
         """Move the policy and its attributes to ``device``."""

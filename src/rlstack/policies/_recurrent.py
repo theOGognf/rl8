@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 import cloudpickle
@@ -168,6 +169,20 @@ class RecurrentPolicy(GenericPolicyBase[RecurrentModel]):  # type: ignore[type-v
 
         return out, out_states
 
+    def save(self, path: str | os.PathLike[str], /) -> "MLflowRecurrentPolicyModel":
+        """Save the policy by cloud pickling it to ``path`` and returning
+        the interface used for deploying it with MLflow.
+
+        This method is only defined to expose a common interface between
+        different algorithms. This is by no means the only way
+        to save a policy and isn't even the recommended way to save
+        a policy.
+
+        """
+        with open(path, "wb") as f:
+            cloudpickle.dump(self, f)
+        return MLflowRecurrentPolicyModel()
+
     @property
     def state_spec(self) -> CompositeSpec:
         """Return the policy's model's state spec for defining recurrent state
@@ -209,7 +224,6 @@ class MLflowRecurrentPolicyModel(mlflow.pyfunc.PythonModel):
         ...
         ... from rlstack import RecurrentAlgorithm, Trainer
         ... from rlstack.env import DiscreteDummyEnv
-        ... from rlstack.policies import MLflowRecurrentPolicyModel
         ... # Create the trainer and step it once for the heck of it.
         ... trainer = Trainer(DiscreteDummyEnv, algorithm_cls=RecurrentAlgorithm)
         ... trainer.step()
@@ -217,7 +231,6 @@ class MLflowRecurrentPolicyModel(mlflow.pyfunc.PythonModel):
         ... # and the actual MLflow model. This'll get cleaned-up
         ... # once the context ends.
         ... with TemporaryDirectory() as tmp:
-        ...     trainer.algorithm.save_policy(f"{tmp}/policy.pkl")
         ...     # This is where you set options specific to your
         ...     # use case. At a bare minimum, the policy's
         ...     # artifact (the policy pickle file) is specified,
@@ -225,7 +238,7 @@ class MLflowRecurrentPolicyModel(mlflow.pyfunc.PythonModel):
         ...     # dependencies/requirements, etc..
         ...     mlflow.pyfunc.save_model(
         ...         f"{tmp}/model",
-        ...         python_model=MLflowRecurrentPolicyModel(),
+        ...         python_model=trainer.algorithm.policy.save(f"{tmp}/policy.pkl"),
         ...         artifacts={"policy": f"{tmp}/policy.pkl"},
         ...     )
         ...     model = mlflow.pyfunc.load_model(f"{tmp}/model")
