@@ -72,7 +72,6 @@ class RecurrentPolicy(GenericPolicyBase[RecurrentModel]):  # type: ignore[type-v
         *,
         deterministic: bool = False,
         inplace: bool = False,
-        keepdim: bool = False,
         requires_grad: bool = False,
         return_actions: bool = True,
         return_logp: bool = False,
@@ -102,10 +101,6 @@ class RecurrentPolicy(GenericPolicyBase[RecurrentModel]):  # type: ignore[type-v
             inplace: Whether to store policy outputs in the given ``batch``
                 tensordict. Otherwise, create a separate tensordict that
                 will only contain policy outputs.
-            keepdim: Whether to reshape the output tensordict to have the same
-                batch size as the input tensordict batch. If ``False`` (the
-                default), the time dimension of the output tensordict will
-                be flattened into the first dimension.
             requires_grad: Whether to enable gradients for the underlying
                 model during forward passes. This should only be enabled during
                 a training loop or when requiring gradients for explainability
@@ -159,8 +154,6 @@ class RecurrentPolicy(GenericPolicyBase[RecurrentModel]):  # type: ignore[type-v
                 out[DataKeys.LOGP] = dist.logp(actions)
         if return_values:
             out[DataKeys.VALUES] = self.model.value_function()
-        if keepdim:
-            out = out.reshape(B, T)
 
         torch.set_grad_enabled(prev)
 
@@ -316,7 +309,6 @@ class MLflowRecurrentPolicyModel(mlflow.pyfunc.PythonModel):
             states,
             deterministic=True,
             inplace=False,
-            keepdim=False,
             requires_grad=False,
             return_actions=True,
             return_logp=True,

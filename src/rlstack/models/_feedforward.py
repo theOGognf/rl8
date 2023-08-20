@@ -259,6 +259,7 @@ class DefaultContinuousModel(
                 hiddens,
                 activation_fn=activation_fn,
                 bias=bias,
+                inplace=False,
             ),
             get_activation(activation_fn),
         )
@@ -274,6 +275,7 @@ class DefaultContinuousModel(
                 hiddens,
                 activation_fn=activation_fn,
                 bias=bias,
+                inplace=False,
             ),
             get_activation(activation_fn),
             nn.Linear(hiddens[-1], 1),
@@ -328,6 +330,7 @@ class DefaultDiscreteModel(
                 hiddens,
                 activation_fn=activation_fn,
                 bias=bias,
+                inplace=False,
             ),
             get_activation(activation_fn),
         )
@@ -343,6 +346,7 @@ class DefaultDiscreteModel(
                 hiddens,
                 activation_fn=activation_fn,
                 bias=bias,
+                inplace=False,
             ),
             get_activation(activation_fn),
             nn.Linear(hiddens[-1], 1),

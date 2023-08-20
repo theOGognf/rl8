@@ -70,6 +70,7 @@ class LazyLemur(RecurrentModel):
                 hiddens,
                 activation_fn=activation_fn,
                 norm_layer=nn.BatchNorm1d,
+                inplace=False,
             ),
             get_activation(activation_fn),
         )
@@ -83,6 +84,7 @@ class LazyLemur(RecurrentModel):
                 hiddens,
                 activation_fn=activation_fn,
                 norm_layer=nn.BatchNorm1d,
+                inplace=False,
             ),
             get_activation(activation_fn),
             nn.Linear(hiddens[-1], 1),
