@@ -222,10 +222,10 @@ class MLflowRecurrentPolicyModel(mlflow.pyfunc.PythonModel):
         ...
         ... import mlflow
         ...
-        ... from rlstack import RecurrentAlgorithm, Trainer
+        ... from rlstack import RecurrentTrainer
         ... from rlstack.env import DiscreteDummyEnv
         ... # Create the trainer and step it once for the heck of it.
-        ... trainer = Trainer(DiscreteDummyEnv, algorithm_cls=RecurrentAlgorithm)
+        ... trainer = RecurrentTrainer(DiscreteDummyEnv)
         ... trainer.step()
         ... # Create a temporary directory for storing model artifacts
         ... # and the actual MLflow model. This'll get cleaned-up
