@@ -156,11 +156,10 @@ def test_recurrent_algorithm_save_policy(tmpdir: TemporaryDirectory) -> None:
     )
     model = mlflow.pyfunc.load_model(f"{tmpdir}/model")
     obs = DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu().numpy()
-    df = model.predict({"obs": obs})
+    df1, df2 = model.predict({"obs": obs})
     assert {
         DataKeys.ACTIONS,
         DataKeys.LOGP,
-        DataKeys.HIDDEN_STATES,
-        DataKeys.CELL_STATES,
         DataKeys.VALUES,
-    } == set(df.columns)
+    } == set(df1.columns)
+    assert {DataKeys.HIDDEN_STATES, DataKeys.CELL_STATES} == set(df2.columns)

@@ -247,7 +247,7 @@ class MLflowRecurrentPolicyModel(mlflow.pyfunc.PythonModel):
         self,
         context: mlflow.pyfunc.PythonModelContext,
         model_input: dict[str, Any],
-    ) -> pd.DataFrame:
+    ) -> list[pd.DataFrame]:
         """Sample from the underlying policy using ``model_input`` as input.
 
         Args:
@@ -276,16 +276,11 @@ class MLflowRecurrentPolicyModel(mlflow.pyfunc.PythonModel):
                 states within the same dataframe as the model outputs.
 
         Returns:
-            A dataframe with ``B * T`` rows containing sampled actions, log
-            probabilities of sampling those actions, value estimates, and
-            updated recurrent model states. ``B`` is the model input's batch
-            dimension, and ``T`` is the model input's time or sequence dimension.
-            The recurrent states are a bit misleading as the model's recurrent
-            state doesn't represent the recurrent state for each time element,
-            but rather the recurrent state for just the last time element. The
-            recurrent state is simply repeated along the ``T`` dimension so
-            the recurrent state can be stored in the same dataframe as the
-            model's outputs.
+            Two dataframes: the first with ``B * T`` rows containing sampled
+            actions, log probabilities of sampling those actions, and value
+            estimates; the second with ``B`` rows containing updated recurrent
+            model states. ``B`` is the model input's batch dimension, and ``T``
+            is the model input's time or sequence dimension.
 
         """
         obs = model_input[DataKeys.OBS]
@@ -317,6 +312,4 @@ class MLflowRecurrentPolicyModel(mlflow.pyfunc.PythonModel):
         batch = batch.select(
             DataKeys.ACTIONS, DataKeys.LOGP, DataKeys.VALUES, inplace=True
         )
-        states = states.expand(*batch_size).reshape(-1)
-        batch = batch.update(states)
-        return td2df(batch)
+        return [td2df(batch), td2df(states)]
