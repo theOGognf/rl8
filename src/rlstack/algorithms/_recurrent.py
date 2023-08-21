@@ -19,7 +19,7 @@ from ..env import Env
 from ..models import RecurrentModel
 from ..nn import generalized_advantage_estimate, ppo_losses
 from ..optimizer import OptimizerWrapper
-from ..policies import RecurrentPolicy
+from ..policies import RecurrentModelFactory, RecurrentPolicy
 from ..schedulers import EntropyScheduler, LRScheduler, ScheduleKind
 from ._base import GenericAlgorithmBase
 
@@ -171,7 +171,7 @@ class RecurrentAlgorithm(
         *,
         env_config: None | dict[str, Any] = None,
         model: None | RecurrentModel = None,
-        model_cls: None | type[RecurrentModel] = None,
+        model_cls: None | RecurrentModelFactory = None,
         model_config: None | dict[str, Any] = None,
         distribution_cls: None | type[Distribution] = None,
         horizon: None | int = 32,

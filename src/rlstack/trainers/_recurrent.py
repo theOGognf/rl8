@@ -9,6 +9,7 @@ from ..data import Device
 from ..distributions import Distribution
 from ..env import Env
 from ..models import RecurrentModel
+from ..policies import RecurrentModelFactory
 from ..schedulers import ScheduleKind
 from ._base import GenericTrainerBase
 
@@ -147,7 +148,7 @@ class RecurrentTrainer(GenericTrainerBase[RecurrentAlgorithm]):
         *,
         env_config: None | dict[str, Any] = None,
         model: None | RecurrentModel = None,
-        model_cls: None | type[RecurrentModel] = None,
+        model_cls: None | RecurrentModelFactory = None,
         model_config: None | dict[str, Any] = None,
         distribution_cls: None | type[Distribution] = None,
         horizon: None | int = 32,

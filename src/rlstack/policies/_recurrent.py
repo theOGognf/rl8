@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, Protocol
 
 import cloudpickle
 import mlflow
@@ -15,6 +15,13 @@ from ..models import RecurrentModel
 from ._base import GenericPolicyBase
 
 
+class RecurrentModelFactory(Protocol):
+    def __call__(
+        self, observation_spec: TensorSpec, action_spec: TensorSpec, /, **config: Any
+    ) -> RecurrentModel:
+        ...
+
+
 class RecurrentPolicy(GenericPolicyBase[RecurrentModel]):  # type: ignore[type-var]
     """The union of a recurrent model and an action distribution.
 
@@ -24,7 +31,7 @@ class RecurrentPolicy(GenericPolicyBase[RecurrentModel]):  # type: ignore[type-v
         action_spec: Spec defining the action distribution's outputs
             and the inputs to the environment.
         model: Model instance to use. Mutually exclusive with ``model_cls``.
-        model_cls: Model class to use.
+        model_cls: Model class or class factory to use.
         model_config: Model class args.
         distribution_cls: Action distribution class.
 
@@ -37,7 +44,7 @@ class RecurrentPolicy(GenericPolicyBase[RecurrentModel]):  # type: ignore[type-v
         /,
         *,
         model: None | RecurrentModel = None,
-        model_cls: None | type[RecurrentModel] = None,
+        model_cls: None | RecurrentModelFactory = None,
         model_config: None | dict[str, Any] = None,
         distribution_cls: None | type[Distribution] = None,
         device: Device = "cpu",
