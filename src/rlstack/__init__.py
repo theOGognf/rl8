@@ -20,7 +20,9 @@ from .policies import (
     GenericPolicyBase,
     MLflowPolicyModel,
     MLflowRecurrentPolicyModel,
+    ModelFactory,
     Policy,
+    RecurrentModelFactory,
     RecurrentPolicy,
 )
 from .trainers import GenericTrainerBase, RecurrentTrainer, Trainer
