@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Generic, Sequence, TypeVar
+from typing import Any, Generic, Protocol, Sequence, TypeVar
 
 import torch
 import torch.nn as nn
@@ -201,6 +201,15 @@ class Model(
 
                 """
             )
+
+
+class ModelFactory(Protocol):
+    """Factory protocol describing how to create a model instance."""
+
+    def __call__(
+        self, observation_spec: TensorSpec, action_spec: TensorSpec, /, **config: Any
+    ) -> Model:
+        ...
 
 
 class GenericModel(Model, Generic[_ObservationSpec, _ActionSpec]):

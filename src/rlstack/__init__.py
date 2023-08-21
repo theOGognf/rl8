@@ -14,15 +14,15 @@ from .models import (
     GenericModelBase,
     GenericRecurrentModel,
     Model,
+    ModelFactory,
     RecurrentModel,
+    RecurrentModelFactory,
 )
 from .policies import (
     GenericPolicyBase,
     MLflowPolicyModel,
     MLflowRecurrentPolicyModel,
-    ModelFactory,
     Policy,
-    RecurrentModelFactory,
     RecurrentPolicy,
 )
 from .trainers import GenericTrainerBase, RecurrentTrainer, Trainer

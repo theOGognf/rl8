@@ -97,6 +97,8 @@ class Env(ABC):
 
 
 class EnvFactory(Protocol):
+    """Factory protocol describing how to create an environment instance."""
+
     def __call__(
         self,
         num_envs: int,

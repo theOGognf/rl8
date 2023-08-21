@@ -9,19 +9,13 @@ inference are properly handled.
 """
 
 from ._base import GenericPolicyBase
-from ._feedforward import MLflowPolicyModel, ModelFactory, Policy
-from ._recurrent import (
-    MLflowRecurrentPolicyModel,
-    RecurrentModelFactory,
-    RecurrentPolicy,
-)
+from ._feedforward import MLflowPolicyModel, Policy
+from ._recurrent import MLflowRecurrentPolicyModel, RecurrentPolicy
 
 __all__ = [
     "GenericPolicyBase",
     "MLflowPolicyModel",
     "MLflowRecurrentPolicyModel",
-    "ModelFactory",
     "Policy",
-    "RecurrentModelFactory",
     "RecurrentPolicy",
 ]

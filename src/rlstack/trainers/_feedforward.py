@@ -8,8 +8,7 @@ from ..algorithms import Algorithm
 from ..data import Device
 from ..distributions import Distribution
 from ..env import EnvFactory
-from ..models import Model
-from ..policies import ModelFactory
+from ..models import Model, ModelFactory
 from ..schedulers import ScheduleKind
 from ._base import GenericTrainerBase
 

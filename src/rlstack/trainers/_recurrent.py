@@ -8,8 +8,7 @@ from ..algorithms import RecurrentAlgorithm
 from ..data import Device
 from ..distributions import Distribution
 from ..env import EnvFactory
-from ..models import RecurrentModel
-from ..policies import RecurrentModelFactory
+from ..models import RecurrentModel, RecurrentModelFactory
 from ..schedulers import ScheduleKind
 from ._base import GenericTrainerBase
 

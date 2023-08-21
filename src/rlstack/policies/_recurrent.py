@@ -1,5 +1,5 @@
 import os
-from typing import Any, Protocol
+from typing import Any
 
 import cloudpickle
 import mlflow
@@ -11,15 +11,8 @@ from torchrl.data import CompositeSpec, TensorSpec
 from .._utils import get_batch_size_from_model_input, td2df
 from ..data import DataKeys, Device
 from ..distributions import Distribution
-from ..models import RecurrentModel
+from ..models import RecurrentModel, RecurrentModelFactory
 from ._base import GenericPolicyBase
-
-
-class RecurrentModelFactory(Protocol):
-    def __call__(
-        self, observation_spec: TensorSpec, action_spec: TensorSpec, /, **config: Any
-    ) -> RecurrentModel:
-        ...
 
 
 class RecurrentPolicy(GenericPolicyBase[RecurrentModel]):  # type: ignore[type-var]

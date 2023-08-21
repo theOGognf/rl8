@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, Protocol, TypeVar
 
 import torch
 import torch.nn as nn
@@ -141,6 +141,15 @@ class RecurrentModel(
         self.action_spec = self.action_spec.to(device)
         self.state_spec = self.state_spec.to(device)
         return Module.to(self, device)
+
+
+class RecurrentModelFactory(Protocol):
+    """Factory protocol describing how to create a model instance."""
+
+    def __call__(
+        self, observation_spec: TensorSpec, action_spec: TensorSpec, /, **config: Any
+    ) -> RecurrentModel:
+        ...
 
 
 class GenericRecurrentModel(RecurrentModel, Generic[_ObservationSpec, _ActionSpec]):

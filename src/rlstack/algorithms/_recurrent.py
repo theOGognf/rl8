@@ -16,10 +16,10 @@ from ..data import (
 )
 from ..distributions import Distribution
 from ..env import EnvFactory
-from ..models import RecurrentModel
+from ..models import RecurrentModel, RecurrentModelFactory
 from ..nn import generalized_advantage_estimate, ppo_losses
 from ..optimizer import OptimizerWrapper
-from ..policies import RecurrentModelFactory, RecurrentPolicy
+from ..policies import RecurrentPolicy
 from ..schedulers import EntropyScheduler, LRScheduler, ScheduleKind
 from ._base import GenericAlgorithmBase
 

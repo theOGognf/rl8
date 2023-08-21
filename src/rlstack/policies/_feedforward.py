@@ -1,5 +1,5 @@
 import os
-from typing import Any, Protocol
+from typing import Any
 
 import cloudpickle
 import mlflow
@@ -12,16 +12,9 @@ from rlstack.distributions import Distribution
 
 from .._utils import get_batch_size_from_model_input, td2df
 from ..data import DataKeys, Device
-from ..models import Model
+from ..models import Model, ModelFactory
 from ..views import ViewKind
 from ._base import GenericPolicyBase
-
-
-class ModelFactory(Protocol):
-    def __call__(
-        self, observation_spec: TensorSpec, action_spec: TensorSpec, /, **config: Any
-    ) -> Model:
-        ...
 
 
 class Policy(GenericPolicyBase[Model]):

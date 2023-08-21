@@ -19,12 +19,14 @@ from ._feedforward import (
     DefaultDiscreteModel,
     GenericModel,
     Model,
+    ModelFactory,
 )
 from ._recurrent import (
     DefaultContinuousRecurrentModel,
     DefaultDiscreteRecurrentModel,
     GenericRecurrentModel,
     RecurrentModel,
+    RecurrentModelFactory,
 )
 
 __all__ = [
@@ -33,8 +35,10 @@ __all__ = [
     "GenericModel",
     "GenericModelBase",
     "Model",
+    "ModelFactory",
     "DefaultContinuousRecurrentModel",
     "DefaultDiscreteRecurrentModel",
     "GenericRecurrentModel",
     "RecurrentModel",
+    "RecurrentModelFactory",
 ]
