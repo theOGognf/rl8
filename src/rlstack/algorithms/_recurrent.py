@@ -15,7 +15,7 @@ from ..data import (
     StepStats,
 )
 from ..distributions import Distribution
-from ..env import Env
+from ..env import EnvFactory
 from ..models import RecurrentModel
 from ..nn import generalized_advantage_estimate, ppo_losses
 from ..optimizer import OptimizerWrapper
@@ -166,7 +166,7 @@ class RecurrentAlgorithm(
 
     def __init__(
         self,
-        env_cls: type[Env],
+        env_cls: EnvFactory,
         /,
         *,
         env_config: None | dict[str, Any] = None,

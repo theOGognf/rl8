@@ -7,7 +7,7 @@ import torch.optim as optim
 from ..algorithms import RecurrentAlgorithm
 from ..data import Device
 from ..distributions import Distribution
-from ..env import Env
+from ..env import EnvFactory
 from ..models import RecurrentModel
 from ..policies import RecurrentModelFactory
 from ..schedulers import ScheduleKind
@@ -143,7 +143,7 @@ class RecurrentTrainer(GenericTrainerBase[RecurrentAlgorithm]):
 
     def __init__(
         self,
-        env_cls: type[Env],
+        env_cls: EnvFactory,
         /,
         *,
         env_config: None | dict[str, Any] = None,

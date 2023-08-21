@@ -1,7 +1,7 @@
 """Environment protocol definition and helper dummy environment definitions."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, Protocol, TypeVar
 
 import torch
 from tensordict import TensorDict
@@ -94,6 +94,18 @@ class Env(ABC):
             A tensordict containing "obs" and "rewards" keys and values.
 
         """
+
+
+class EnvFactory(Protocol):
+    def __call__(
+        self,
+        num_envs: int,
+        /,
+        *,
+        config: None | dict[str, Any] = None,
+        device: Device = "cpu",
+    ) -> Env:
+        ...
 
 
 class GenericEnv(Env, Generic[_ObservationSpec, _ActionSpec]):
