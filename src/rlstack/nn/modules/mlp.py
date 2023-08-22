@@ -35,7 +35,7 @@ class MLP(nn.Sequential, Module[[torch.Tensor], torch.Tensor]):
         norm_layer: None | type[nn.BatchNorm1d | nn.LayerNorm] = None,
         bias: bool = True,
         dropout: float = 0.0,
-        inplace: bool = True,
+        inplace: bool = False,
     ) -> None:
         params = {"inplace": inplace} if inplace else {}
         layers: list[nn.Module] = []
@@ -46,7 +46,7 @@ class MLP(nn.Sequential, Module[[torch.Tensor], torch.Tensor]):
                 layers.append(norm_layer(hidden_dim))
             layers.append(get_activation(activation_fn, **params))
             if dropout:
-                layers.append(nn.Dropout(p=dropout, **params))
+                layers.append(nn.Dropout(p=dropout))
             in_dim = hidden_dim
         layers.append(nn.Linear(in_dim, hiddens[-1], bias=bias))
         super().__init__(*layers)
