@@ -22,7 +22,7 @@ def tmpdir() -> Iterator[TemporaryDirectory]:
 
 @pytest.mark.parametrize("env_cls", [ContinuousDummyEnv, DiscreteDummyEnv])
 def test_default_feedforward_policy_sample(env_cls: type[Env]) -> None:
-    ENV = env_cls(1)
+    ENV = env_cls(1, HORIZON)
     INPUT_BATCH = TensorDict(
         {DataKeys.OBS: ENV.observation_spec.rand([NUM_ENVS, HORIZON])},
         batch_size=[NUM_ENVS, HORIZON],
@@ -65,7 +65,7 @@ def test_default_feedforward_policy_sample(env_cls: type[Env]) -> None:
 
 @pytest.mark.parametrize("env_cls", [ContinuousDummyEnv, DiscreteDummyEnv])
 def test_default_recurrent_policy_sample(env_cls: type[Env]) -> None:
-    ENV = env_cls(1)
+    ENV = env_cls(1, HORIZON)
     INPUT_BATCH = TensorDict(
         {DataKeys.OBS: ENV.observation_spec.rand([NUM_ENVS, HORIZON])},
         batch_size=[NUM_ENVS, HORIZON],
@@ -101,7 +101,7 @@ def test_default_recurrent_policy_sample(env_cls: type[Env]) -> None:
 
 
 def test_feedforward_policy_save(tmpdir: TemporaryDirectory) -> None:
-    ENV = DiscreteDummyEnv(NUM_ENVS)
+    ENV = DiscreteDummyEnv(NUM_ENVS, HORIZON)
     policy = Policy(ENV.observation_spec, ENV.action_spec)
     mlflow.pyfunc.save_model(
         f"{tmpdir}/model",
@@ -115,7 +115,7 @@ def test_feedforward_policy_save(tmpdir: TemporaryDirectory) -> None:
 
 
 def test_recurrent_policy_save(tmpdir: TemporaryDirectory) -> None:
-    ENV = DiscreteDummyEnv(NUM_ENVS)
+    ENV = DiscreteDummyEnv(NUM_ENVS, HORIZON)
     policy = RecurrentPolicy(ENV.observation_spec, ENV.action_spec)
     mlflow.pyfunc.save_model(
         f"{tmpdir}/model",

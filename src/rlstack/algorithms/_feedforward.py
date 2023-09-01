@@ -185,7 +185,9 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
         max_grad_norm: float = 5.0,
         device: Device = "cpu",
     ) -> None:
-        self.env = env_cls(num_envs, config=env_config, device=device)
+        max_horizon = env_cls.max_horizon if hasattr(env_cls, "max_horizon") else 32
+        horizon = min(horizon, max_horizon) if horizon else max_horizon
+        self.env = env_cls(num_envs, horizon, config=env_config, device=device)
         assert_nd_spec(self.env.observation_spec)
         assert_nd_spec(self.env.action_spec)
         self.policy = Policy(
@@ -197,8 +199,6 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
             distribution_cls=distribution_cls,
             device=device,
         )
-        max_horizon = self.env.max_horizon if hasattr(self.env, "max_horizon") else 32
-        horizon = min(horizon, max_horizon) if horizon else max_horizon
         self.buffer_spec = CompositeSpec(
             {
                 DataKeys.OBS: self.env.observation_spec,

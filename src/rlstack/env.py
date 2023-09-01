@@ -1,7 +1,7 @@
 """Environment protocol definition and helper dummy environment definitions."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Generic, Protocol, TypeVar
+from typing import Any, ClassVar, Generic, Protocol, TypeVar
 
 import torch
 from tensordict import TensorDict
@@ -41,9 +41,14 @@ class Env(ABC):
     #: on.
     device: Device
 
+    #: The number of steps the environment expects to be taken before being
+    #: reset. ``None`` suggests the environment may never be reset, but
+    #: this convention is not consistent.
+    horizon: None | int
+
     #: An optional attribute denoting the max number of steps an environment
     #: may take before being reset.
-    max_horizon: int
+    max_horizon: ClassVar[int]
 
     #: Number of parallel and independent environments being simulated.
     num_envs: int
@@ -57,11 +62,13 @@ class Env(ABC):
         self,
         num_envs: int,
         /,
+        horizon: None | int = None,
         *,
         config: None | dict[str, Any] = None,
         device: Device = "cpu",
     ) -> None:
         self.num_envs = num_envs
+        self.horizon = horizon
         self.config = config or {}
         self.device = device
 
@@ -99,10 +106,15 @@ class Env(ABC):
 class EnvFactory(Protocol):
     """Factory protocol describing how to create an environment instance."""
 
+    #: An optional attribute denoting the max number of steps an environment
+    #: may take before being reset.
+    max_horizon: ClassVar[int]
+
     def __call__(
         self,
         num_envs: int,
         /,
+        horizon: None | int = None,
         *,
         config: None | dict[str, Any] = None,
         device: Device = "cpu",
@@ -145,11 +157,12 @@ class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
         self,
         num_envs: int,
         /,
+        horizon: None | int = None,
         *,
         config: None | dict[str, Any] = None,
         device: Device = "cpu",
     ) -> None:
-        super().__init__(num_envs, config=config, device=device)
+        super().__init__(num_envs, horizon, config=config, device=device)
         self.observation_spec = UnboundedContinuousTensorSpec(1, device=self.device)
         self.bounds = self.config.get("bounds", 100.0)
 
@@ -173,11 +186,12 @@ class ContinuousDummyEnv(DummyEnv[UnboundedContinuousTensorSpec]):
         self,
         num_envs: int,
         /,
+        horizon: None | int = None,
         *,
         config: dict[str, Any] | None = None,
         device: Device = "cpu",
     ) -> None:
-        super().__init__(num_envs, config=config, device=device)
+        super().__init__(num_envs, horizon, config=config, device=device)
         self.action_spec = UnboundedContinuousTensorSpec(
             shape=torch.Size([1]), device=device
         )
@@ -204,11 +218,12 @@ class DiscreteDummyEnv(DummyEnv[DiscreteTensorSpec]):
         self,
         num_envs: int,
         /,
+        horizon: None | int = None,
         *,
         config: dict[str, Any] | None = None,
         device: Device = "cpu",
     ) -> None:
-        super().__init__(num_envs, config=config, device=device)
+        super().__init__(num_envs, horizon, config=config, device=device)
         self.action_spec = DiscreteTensorSpec(2, shape=torch.Size([1]), device=device)
 
     def step(self, action: torch.Tensor) -> TensorDict:

@@ -45,6 +45,8 @@ class AlgoTrading(Env):
 
     """
 
+    max_horizon = 128
+
     # Environment state that's reset when the environment is reset and is
     # updated when the environment is stepped.
     state: TensorDict
@@ -53,12 +55,12 @@ class AlgoTrading(Env):
         self,
         num_envs: int,
         /,
+        horizon: None | int = None,
         *,
         config: dict[str, Any] | None = None,
         device: Device = "cpu",
     ) -> None:
-        super().__init__(num_envs, config=config, device=device)
-        self.max_horizon = 128
+        super().__init__(num_envs, horizon, config=config, device=device)
         self.observation_spec = CompositeSpec(
             {
                 "action_mask": DiscreteTensorSpec(
