@@ -200,6 +200,10 @@ class RecurrentAlgorithm(
         max_grad_norm: float = 5.0,
         device: Device = "cpu",
     ) -> None:
+        max_num_envs = (
+            env_cls.max_num_envs if hasattr(env_cls, "max_num_envs") else num_envs
+        )
+        num_envs = min(num_envs, max_num_envs)
         max_horizon = env_cls.max_horizon if hasattr(env_cls, "max_horizon") else 32
         horizon = min(horizon, max_horizon) if horizon else max_horizon
         self.env = env_cls(num_envs, horizon, config=env_config, device=device)

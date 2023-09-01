@@ -47,8 +47,13 @@ class Env(ABC):
     horizon: None | int
 
     #: An optional attribute denoting the max number of steps an environment
-    #: may take before being reset.
+    #: may take before being reset. Used to validate environment instantiation.
     max_horizon: ClassVar[int]
+
+    #: An optional attribute denoting the max number of parallel environments
+    #: an environment instance may hold at any given time. Used to validate
+    #: environment instantiation.
+    max_num_envs: ClassVar[int]
 
     #: Number of parallel and independent environments being simulated.
     num_envs: int
@@ -72,6 +77,12 @@ class Env(ABC):
                 raise ValueError(
                     f"{self.__class__.__name__} `horizon` must be <="
                     f" {self.max_horizon}."
+                )
+        if hasattr(self, "max_num_envs"):
+            if not (num_envs <= self.max_num_envs):
+                raise ValueError(
+                    f"{self.__class__.__name__} `num_envs` must be <="
+                    f" {self.max_num_envs}."
                 )
         self.num_envs = num_envs
         self.horizon = horizon
@@ -113,8 +124,13 @@ class EnvFactory(Protocol):
     """Factory protocol describing how to create an environment instance."""
 
     #: An optional attribute denoting the max number of steps an environment
-    #: may take before being reset.
+    #: may take before being reset. Used to validate environment instantiation.
     max_horizon: ClassVar[int]
+
+    #: An optional attribute denoting the max number of parallel environments
+    #: an environment instance may hold at any given time. Used to validate
+    #: environment instantiation.
+    max_num_envs: ClassVar[int]
 
     def __call__(
         self,
