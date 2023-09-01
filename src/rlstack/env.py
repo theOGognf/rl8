@@ -67,6 +67,12 @@ class Env(ABC):
         config: None | dict[str, Any] = None,
         device: Device = "cpu",
     ) -> None:
+        if hasattr(self, "max_horizon") and horizon is not None:
+            if not (horizon <= self.max_horizon):
+                raise ValueError(
+                    f"{self.__class__.__name__} `horizon` must be <="
+                    f" {self.max_horizon}."
+                )
         self.num_envs = num_envs
         self.horizon = horizon
         self.config = config or {}
