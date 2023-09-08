@@ -141,7 +141,7 @@ class Trainer(GenericTrainerBase[Algorithm]):
         model_cls: None | ModelFactory = None,
         model_config: None | dict[str, Any] = None,
         distribution_cls: None | type[Distribution] = None,
-        horizon: None | int = 32,
+        horizon: int = 32,
         horizons_per_env_reset: int = 1,
         num_envs: int = 8192,
         optimizer_cls: type[optim.Optimizer] = optim.Adam,
