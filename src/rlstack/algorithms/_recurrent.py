@@ -205,7 +205,7 @@ class RecurrentAlgorithm(
         )
         num_envs = min(num_envs, max_num_envs)
         max_horizon = (
-            env_cls.max_horizon if hasattr(env_cls, "max_horizon") else float("inf")
+            env_cls.max_horizon if hasattr(env_cls, "max_horizon") else 1_000_000
         )
         horizon = min(horizon, max_horizon)
         self.env = env_cls(num_envs, horizon, config=env_config, device=device)
