@@ -161,7 +161,7 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
         model_cls: None | ModelFactory = None,
         model_config: None | dict[str, Any] = None,
         distribution_cls: None | type[Distribution] = None,
-        horizon: None | int = 32,
+        horizon: int = 32,
         horizons_per_env_reset: int = 1,
         num_envs: int = 8192,
         optimizer_cls: type[optim.Optimizer] = optim.Adam,
@@ -189,8 +189,10 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
             env_cls.max_num_envs if hasattr(env_cls, "max_num_envs") else num_envs
         )
         num_envs = min(num_envs, max_num_envs)
-        max_horizon = env_cls.max_horizon if hasattr(env_cls, "max_horizon") else 32
-        horizon = min(horizon, max_horizon) if horizon else max_horizon
+        max_horizon = (
+            env_cls.max_horizon if hasattr(env_cls, "max_horizon") else float("inf")
+        )
+        horizon = min(horizon, max_horizon)
         self.env = env_cls(num_envs, horizon, config=env_config, device=device)
         assert_nd_spec(self.env.observation_spec)
         assert_nd_spec(self.env.action_spec)
