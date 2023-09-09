@@ -532,8 +532,8 @@ class RecurrentAlgorithm(
                     )
 
             # Update schedulers.
-            self.lr_scheduler.step(self.hparams.num_envs * self.hparams.horizon)
-            self.entropy_scheduler.step(self.hparams.num_envs * self.hparams.horizon)
+            self.lr_scheduler.step(self.hparams.num_envs * self.state.horizons)
+            self.entropy_scheduler.step(self.hparams.num_envs * self.state.horizons)
 
             # Reset the buffer and buffered flag.
             self.buffer = self.buffer_spec.zero(
