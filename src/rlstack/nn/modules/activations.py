@@ -34,6 +34,7 @@ ACTIVATIONS: dict[str, type[nn.Module]] = {
     "log_softmax": nn.LogSoftmax,
     "relu": nn.ReLU,
     "relu6": nn.ReLU6,
+    "selu": nn.SELU,
     "sigmoid": nn.Sigmoid,
     "squared_relu": SquaredReLU,
     "softmax": nn.Softmax,

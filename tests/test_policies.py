@@ -1,3 +1,4 @@
+import math
 from tempfile import TemporaryDirectory
 from typing import Iterator
 
@@ -103,31 +104,57 @@ def test_default_recurrent_policy_sample(env_cls: type[Env]) -> None:
 def test_feedforward_policy_save(tmpdir: TemporaryDirectory) -> None:
     ENV = DiscreteDummyEnv(NUM_ENVS, HORIZON)
     policy = Policy(ENV.observation_spec, ENV.action_spec)
+    obs_pt = TensorDict(
+        {DataKeys.OBS: DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu()},
+        batch_size=[1, 1],
+    )
+    out = policy.sample(
+        obs_pt, deterministic=True, return_logp=True, return_values=True
+    )
     mlflow.pyfunc.save_model(
         f"{tmpdir}/model",
         python_model=policy.save(f"{tmpdir}/policy.pkl"),
         artifacts={"policy": f"{tmpdir}/policy.pkl"},
     )
     model = mlflow.pyfunc.load_model(f"{tmpdir}/model")
-    obs = DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu().numpy()
-    df = model.predict({"obs": obs})
-    assert {DataKeys.ACTIONS, DataKeys.LOGP, DataKeys.VALUES} == set(df.columns)
+    obs_np = obs_pt[DataKeys.OBS].numpy()
+    out_df = model.predict({"obs": obs_np})
+    assert {DataKeys.ACTIONS, DataKeys.LOGP, DataKeys.VALUES} == set(out_df.columns)
+    assert math.isclose(
+        out_df.iloc[0][DataKeys.LOGP][0], out[DataKeys.LOGP].flatten()[0]
+    )
+    assert math.isclose(
+        out_df.iloc[0][DataKeys.VALUES][0], out[DataKeys.VALUES].flatten()[0]
+    )
 
 
 def test_recurrent_policy_save(tmpdir: TemporaryDirectory) -> None:
     ENV = DiscreteDummyEnv(NUM_ENVS, HORIZON)
     policy = RecurrentPolicy(ENV.observation_spec, ENV.action_spec)
+    obs_pt = TensorDict(
+        {DataKeys.OBS: DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu()},
+        batch_size=[1, 1],
+    )
+    out, _ = policy.sample(
+        obs_pt, deterministic=True, return_logp=True, return_values=True
+    )
     mlflow.pyfunc.save_model(
         f"{tmpdir}/model",
         python_model=policy.save(f"{tmpdir}/policy.pkl"),
         artifacts={"policy": f"{tmpdir}/policy.pkl"},
     )
     model = mlflow.pyfunc.load_model(f"{tmpdir}/model")
-    obs = DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu().numpy()
-    df1, df2 = model.predict({"obs": obs})
+    obs_np = obs_pt[DataKeys.OBS].numpy()
+    out_df, state_df = model.predict({"obs": obs_np})
     assert {
         DataKeys.ACTIONS,
         DataKeys.LOGP,
         DataKeys.VALUES,
-    } == set(df1.columns)
-    assert {DataKeys.HIDDEN_STATES, DataKeys.CELL_STATES} == set(df2.columns)
+    } == set(out_df.columns)
+    assert {DataKeys.HIDDEN_STATES, DataKeys.CELL_STATES} == set(state_df.columns)
+    assert math.isclose(
+        out_df.iloc[0][DataKeys.LOGP][0], out[DataKeys.LOGP].flatten()[0]
+    )
+    assert math.isclose(
+        out_df.iloc[0][DataKeys.VALUES][0], out[DataKeys.VALUES].flatten()[0]
+    )
