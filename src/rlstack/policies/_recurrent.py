@@ -293,15 +293,17 @@ class MLflowRecurrentPolicyModel(mlflow.pyfunc.PythonModel):
         batch_size = get_batch_size_from_model_input(obs)
         batch = TensorDict(
             {DataKeys.OBS: self.policy.observation_spec.encode(obs)},
-            batch_size=batch_size,
+            batch_size=[],
             device=self.policy.device,
         )
+        batch = batch.reshape(*batch_size)
         if DataKeys.STATES in model_input:
             states = TensorDict(
                 self.policy.model.state_spec.encode(model_input[DataKeys.STATES]),
-                batch_size=torch.Size([batch_size[0], 1]),
+                batch_size=[],
                 device=self.policy.device,
             )
+            states = states.reshape(batch_size[0], 1)
         else:
             states = None
         batch, states = self.policy.sample(

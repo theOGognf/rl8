@@ -287,9 +287,10 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
         batch_size = get_batch_size_from_model_input(obs)
         batch = TensorDict(
             {DataKeys.OBS: self.policy.observation_spec.encode(obs)},
-            batch_size=batch_size,
+            batch_size=[],
             device=self.policy.device,
         )
+        batch = batch.reshape(*batch_size)
         batch = self.policy.sample(
             batch,
             kind="all",
