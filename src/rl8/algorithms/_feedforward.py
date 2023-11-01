@@ -141,8 +141,8 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
         Instantiate an algorithm for a dummy environment and update the underlying
         policy once.
 
-        >>> from rlstack import Algorithm
-        >>> from rlstack.env import DiscreteDummyEnv
+        >>> from rl8 import Algorithm
+        >>> from rl8.env import DiscreteDummyEnv
         >>> algo = Algorithm(DiscreteDummyEnv)
         >>> algo.collect()  # doctest: +SKIP
         >>> algo.step()  # doctest: +SKIP

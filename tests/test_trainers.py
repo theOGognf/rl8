@@ -1,9 +1,9 @@
 import mlflow
 import pytest
 
-from rlstack import RecurrentTrainer, Trainer
-from rlstack.conditions import HitsUpperBound
-from rlstack.env import DiscreteDummyEnv
+from rl8 import RecurrentTrainer, Trainer
+from rl8.conditions import HitsUpperBound
+from rl8.env import DiscreteDummyEnv
 
 NUM_ENVS = 64
 HORIZON = 32

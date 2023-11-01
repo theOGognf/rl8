@@ -1,4 +1,4 @@
-from rlstack.conditions import (
+from rl8.conditions import (
     And,
     HitsLowerBound,
     HitsUpperBound,

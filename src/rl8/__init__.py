@@ -28,6 +28,6 @@ from .policies import (
 from .trainers import GenericTrainerBase, RecurrentTrainer, Trainer
 
 try:
-    __version__ = version("rlstack")
+    __version__ = version("rl8")
 except PackageNotFoundError:
     pass

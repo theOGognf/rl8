@@ -30,7 +30,7 @@ except ImportError:
     from sphinx import apidoc
 
 output_dir = os.path.join(__location__, "api")
-module_dir = os.path.join(__location__, "../src/rlstack")
+module_dir = os.path.join(__location__, "../src/rl8")
 try:
     shutil.rmtree(output_dir)
 except FileNotFoundError:
@@ -56,7 +56,7 @@ except Exception as e:
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "rlstack"
+project = "rl8"
 copyright = "Andrew B"
 author = "Andrew B"
 
@@ -86,13 +86,13 @@ exclude_patterns = ["_build", "build", "Thumbs.db", ".DS_Store"]
 nitpicky = True
 nitpick_ignore = [
     ("py:class", "typing_extensions.Self"),
-    ("py:obj", "rlstack.nn.modules.module._P"),
-    ("py:obj", "rlstack.nn.modules.module._T"),
+    ("py:obj", "rl8.nn.modules.module._P"),
+    ("py:obj", "rl8.nn.modules.module._T"),
 ]
 nitpick_ignore_regex = [
-    (r"py:.*", r"rlstack.*\._.*"),
-    (r"py:.*", r"rlstack\.data.*"),
-    (r"py:.*", r"rlstack\.specs.*"),
+    (r"py:.*", r"rl8.*\._.*"),
+    (r"py:.*", r"rl8\.data.*"),
+    (r"py:.*", r"rl8\.specs.*"),
 ]
 
 # -- Autodoc options ---------------------------------------------------------
@@ -102,7 +102,7 @@ autodoc_member_order = "bysource"
 # -- doctest options ---------------------------------------------------------
 
 doctest_global_setup = """
-import rlstack
+import rl8
 """
 
 # -- Options for HTML output -------------------------------------------------

@@ -3,10 +3,10 @@ import torch.nn as nn
 from tensordict import TensorDict
 from torchrl.data import TensorSpec
 
-from rlstack import Model
-from rlstack.data import DataKeys
-from rlstack.nn import MLP, get_activation
-from rlstack.views import ViewRequirement
+from rl8 import Model
+from rl8.data import DataKeys
+from rl8.nn import MLP, get_activation
+from rl8.views import ViewRequirement
 
 FINFO = torch.finfo()
 

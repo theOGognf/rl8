@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.optim import Adam
 
-from rlstack.schedulers import EntropyScheduler, LRScheduler
+from rl8.schedulers import EntropyScheduler, LRScheduler
 
 
 def test_interp_entropy_scheduler() -> None:

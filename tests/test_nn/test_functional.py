@@ -1,8 +1,8 @@
 import torch
 from tensordict import TensorDict
 
-from rlstack.data import DataKeys
-from rlstack.nn.functional import (
+from rl8.data import DataKeys
+from rl8.nn.functional import (
     generalized_advantage_estimate,
     mask_from_lengths,
     masked_avg,

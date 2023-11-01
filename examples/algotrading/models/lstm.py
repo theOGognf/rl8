@@ -3,9 +3,9 @@ import torch.nn as nn
 from tensordict import TensorDict
 from torchrl.data import CompositeSpec, TensorSpec, UnboundedContinuousTensorSpec
 
-from rlstack import RecurrentModel
-from rlstack.data import DataKeys
-from rlstack.nn import MLP, get_activation
+from rl8 import RecurrentModel
+from rl8.data import DataKeys
+from rl8.nn import MLP, get_activation
 
 FINFO = torch.finfo()
 

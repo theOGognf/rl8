@@ -3,16 +3,10 @@ import torch.nn as nn
 from tensordict import TensorDict
 from torchrl.data import TensorSpec
 
-from rlstack import Model
-from rlstack.data import DataKeys
-from rlstack.nn import (
-    MLP,
-    SelfAttention,
-    SelfAttentionStack,
-    get_activation,
-    masked_avg,
-)
-from rlstack.views import ViewRequirement
+from rl8 import Model
+from rl8.data import DataKeys
+from rl8.nn import MLP, SelfAttention, SelfAttentionStack, get_activation, masked_avg
+from rl8.views import ViewRequirement
 
 FINFO = torch.finfo()
 

@@ -191,7 +191,7 @@ class Batcher:
 
     #: List of indices for each batch. Instantiated each time the batcher
     #: is iterated over.
-    indices: list[torch.Tensor]
+    indices: tuple[torch.Tensor, ...]
 
     #: Whether to shuffle samples before batching for each iteration.
     shuffle: bool
@@ -231,7 +231,7 @@ class CumulativeAverage:
     Useful for keeping track of statistics temporarily.
 
     Examples:
-        >>> from rlstack.data import CumulativeAverage
+        >>> from rl8.data import CumulativeAverage
         >>> ca = CumulativeAverage()
         >>> ca.update(0.0)
         0.0

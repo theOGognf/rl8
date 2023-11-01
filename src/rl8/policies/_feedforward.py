@@ -8,7 +8,7 @@ import torch
 from tensordict import TensorDict
 from torchrl.data import TensorSpec
 
-from rlstack.distributions import Distribution
+from rl8.distributions import Distribution
 
 from .._utils import get_batch_size_from_model_input, td2df
 from ..data import DataKeys, Device
@@ -204,7 +204,7 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
 
     On top of this implementation being minimal and in "maintenance mode",
     it doesn't support all the many kinds of policy models one could
-    define with ``rlstack``. This implementation supports many observation
+    define with ``rl8``. This implementation supports many observation
     spaces, but this implementation does not support all action spaces.
     Action spaces are limited to (flattened) 1D spaces; more than 1D is
     possible, but it's likely it will experience inconsistent behavior
@@ -219,8 +219,8 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
         ...
         ... import mlflow
         ...
-        ... from rlstack import Trainer
-        ... from rlstack.env import DiscreteDummyEnv
+        ... from rl8 import Trainer
+        ... from rl8.env import DiscreteDummyEnv
         ... # Create the trainer and step it once for the heck of it.
         ... trainer = Trainer(DiscreteDummyEnv)
         ... trainer.step()

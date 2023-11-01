@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    uses: theOGognf/rlstack/.github/workflows/test.yml@main
+    uses: theOGognf/rl8/.github/workflows/test.yml@main
     secrets: inherit
 
   publish:

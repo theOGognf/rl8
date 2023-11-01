@@ -154,8 +154,8 @@ class RecurrentAlgorithm(
         Instantiate an algorithm for a dummy environment and update tne underlying
         policy once.
 
-        >>> from rlstack import RecurrentAlgorithm
-        >>> from rlstack.env import DiscreteDummyEnv
+        >>> from rl8 import RecurrentAlgorithm
+        >>> from rl8.env import DiscreteDummyEnv
         >>> algo = RecurrentAlgorithm(DiscreteDummyEnv)
         >>> algo.collect()  # doctest: +SKIP
         >>> algo.step()  # doctest: +SKIP

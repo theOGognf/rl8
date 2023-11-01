@@ -6,11 +6,10 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "rlstack"
-description = "A minimal RL library for infinite horizon tasks."
+name = "rl8"
+description = "A minimal end-to-end RL library for infinite horizon tasks."
 authors = [{name = "Andrew B."}]
 classifiers = [
-    "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
@@ -35,7 +34,7 @@ readme = "README.rst"
 requires-python = ">=3.10"
 
 [project.urls]
-Repository = "https://github.com/theOGognf/rlstack"
+Repository = "https://github.com/theOGognf/rl8"
 
 [project.optional-dependencies]
 dev = [

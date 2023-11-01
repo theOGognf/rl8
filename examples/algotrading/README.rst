@@ -2,7 +2,7 @@ AlgoTrading
 ===========
 
 An example containing a custom environment with three custom models that
-showcase the speed and utility of **rlstack** when it comes to learning
+showcase the speed and utility of **rl8** when it comes to learning
 complex behaviors based on historical data.
 
 The environment simulates an asset's price according to the equation
@@ -27,7 +27,7 @@ Organization
 
 It's recommended that you browse the example's files to gain an understanding
 of how custom environments and models should be defined to get the most
-benefit out of **rlstack**'s design. The example is organized as follows:
+benefit out of **rl8**'s design. The example is organized as follows:
 
 * ``./__main__.py`` is the main script.
 * ``./env.py`` contains the environment's definition.

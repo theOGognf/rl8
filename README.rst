@@ -1,14 +1,14 @@
-rlstack: A Minimal RL Library
-=============================
+rl8: A Minimal End-to-End RL Library
+====================================
 
-**rlstack** is a minimal RL library that can simulate highly parallelized,
-infinite horizon environments, and can train a PPO policy using those
-environments, achieving up to 1M environment transitions (and one policy
-update) per second using a single NVIDIA RTX 2080.
+**rl8** is a minimal end-to-end RL library that can simulate highly
+parallelized, infinite horizon environments, and can train a PPO policy
+using those environments, achieving up to 1M environment transitions
+(and one policy update) per second using a single NVIDIA RTX 2080.
 
-* **Documentation**: https://theogognf.github.io/rlstack/
-* **PyPI**: https://pypi.org/project/rlstack/
-* **Repository**: https://github.com/theOGognf/rlstack
+* **Documentation**: https://theogognf.github.io/rl8/
+* **PyPI**: https://pypi.org/project/rl8/
+* **Repository**: https://github.com/theOGognf/rl8
 
 Quick Start
 ===========
@@ -20,14 +20,14 @@ Install with pip for the latest (stable) version.
 
 .. code:: console
 
-    pip install rlstack
+    pip install rl8
 
 Install from GitHub for the latest (unstable) version.
 
 .. code:: console
 
-    git clone https://github.com/theOGognf/rlstack.git
-    pip install ./rlstack/
+    git clone https://github.com/theOGognf/rl8.git
+    pip install ./rl8/
 
 Basic Usage
 -----------
@@ -37,8 +37,8 @@ high-level trainer interface (this updates the policy indefinitely).
 
 .. code:: python
 
-    from rlstack import Trainer
-    from rlstack.env import DiscreteDummyEnv
+    from rl8 import Trainer
+    from rl8.env import DiscreteDummyEnv
 
     trainer = Trainer(DiscreteDummyEnv)
     trainer.run()
@@ -48,8 +48,8 @@ low-level algorithm interface (this updates the policy once).
 
 .. code:: python
 
-    from rlstack import Algorithm
-    from rlstack.env import DiscreteDummyEnv
+    from rl8 import Algorithm
+    from rl8.env import DiscreteDummyEnv
 
     algo = Algorithm(DiscreteDummyEnv)
     algo.collect()
@@ -62,12 +62,12 @@ customization of policy training workflows.
 Concepts
 ========
 
-**rlstack** is minimal in that it limits the number of interfaces required for
+**rl8** is minimal in that it limits the number of interfaces required for
 training a policy with PPO, even for customized policies, without restrictions
 on observation and action specs, custom models, and custom action
 distributions.
 
-**rlstack** is built around six key concepts:
+**rl8** is built around six key concepts:
 
 * **The environment**: The simulation that the policy learns to interact with.
   The environment is *always user-defined*.
@@ -93,7 +93,7 @@ distributions.
   user-defined*.
 * **The trainer**: The high-level interface for using the algorithm to train
   indefinitely or until some condition is met. The trainer directly integrates
-  with MLflow to track experiments and training progress. The trainer is *never
+  with MLflow to track experiments and training progress. The trainer is *rarely
   user-defined*.
 
 Quick Examples
@@ -107,8 +107,8 @@ options to the trainer (or algorithm) interface.
 
 .. code:: python
 
-    from rlstack import SquashedNormal, Trainer
-    from rlstack.env import ContinuousDummyEnv
+    from rl8 import SquashedNormal, Trainer
+    from rl8.env import ContinuousDummyEnv
 
     trainer = Trainer(
         ContinuousDummyEnv,
@@ -128,8 +128,8 @@ observation and action specs.
 
 .. code:: python
 
-    from rlstack import RecurrentTrainer
-    from rlstack.env import DiscreteDummyEnv
+    from rl8 import RecurrentTrainer
+    from rl8.env import DiscreteDummyEnv
 
     trainer = RecurrentTrainer(DiscreteDummyEnv)
     trainer.run()
@@ -142,8 +142,8 @@ algorithm.
 
 .. code:: python
 
-    from rlstack import Trainer
-    from rlstack.env import DiscreteDummyEnv
+    from rl8 import Trainer
+    from rl8.env import DiscreteDummyEnv
 
     trainer = Trainer(DiscreteDummyEnv, device="cuda")
     trainer.run()
@@ -159,8 +159,8 @@ usage so you can simulate more environments or use larger models.
 
     import torch.optim as optim
 
-    from rlstack import Trainer
-    from rlstack.env import DiscreteDummyEnv
+    from rl8 import Trainer
+    from rl8.env import DiscreteDummyEnv
 
     trainer = Trainer(
         DiscreteDummyEnv,
@@ -181,17 +181,17 @@ increasing or decreasing, etc..
 
 .. code:: python
 
-    from rlstack import Trainer
-    from rlstack.conditions import Plateaus
-    from rlstack.env import DiscreteDummyEnv
+    from rl8 import Trainer
+    from rl8.conditions import Plateaus
+    from rl8.env import DiscreteDummyEnv
 
     trainer = Trainer(DiscreteDummyEnv)
     trainer.run(stop_conditions=[Plateaus("returns/mean", rtol=0.05)])
 
-Why rlstack?
+Why rl8?
 ============
 
-**TL;DR: rlstack focuses on a niche subset of RL that simplifies the overall
+**TL;DR: rl8 focuses on a niche subset of RL that simplifies the overall
 library while allowing fast and fully customizable environments, models, and
 action distributions.**
 
@@ -211,24 +211,24 @@ richness to reduce these drawbacks. However, each library still doesn't provide
 enough speed benefit to warrant the switch from a monolithic repo, or is still
 too complex to adapt to a specific use case.
 
-**rlstack** is a niche RL library that finds a goldilocks zone between the
+**rl8** is a niche RL library that finds a goldilocks zone between the
 feature support and speed/complexity tradeoff by making some key assumptions:
 
 * Environments are highly parallelized and their parallelization is entirely
-  managed within the environment. This allows **rlstack** to ignore distributed
+  managed within the environment. This allows **rl8** to ignore distributed
   computing design considerations.
 * Environments are infinite horizon (i.e., they have no terminal conditions).
-  This allows **rlstack** to reset environments at the same, fixed horizon
+  This allows **rl8** to reset environments at the same, fixed horizon
   intervals, greatly simplifying environment and algorithm implementations.
 * The only supported ML framework is PyTorch and the only supported algorithm
-  is PPO. This allows **rlstack** to ignore layers upon layers of abstraction,
+  is PPO. This allows **rl8** to ignore layers upon layers of abstraction,
   greatly simplifying the overall library implementation.
 
 The end result is a minimal and high throughput library that can train policies
 to solve complex tasks on a single NVIDIA RTX 2080 within minutes.
 
-Unfortunately, this means **rlstack** doesn't support as many use cases as
-a monolithic RL library might. In fact, **rlstack** is probably a bad fit for
+Unfortunately, this means **rl8** doesn't support as many use cases as
+a monolithic RL library might. In fact, **rl8** is probably a bad fit for
 your use case if:
 
 * Your environment isn't parallelizable.
@@ -237,7 +237,7 @@ your use case if:
 * You want to use an ML framework that isn't PyTorch or you want to use an
   algorithm that isn't a variant of PPO.
 
-However, if **rlstack** does fit your use case, it can do wonders for your
+However, if **rl8** does fit your use case, it can do wonders for your
 RL workflow.
 
 Related Projects
@@ -258,7 +258,7 @@ Related Projects
   by most practitioners and use cases.
 * `TorchRL`_: TorchRL is PyTorch's RL library that's focused on efficient, modular,
   documented, and tested RL building blocks and algorithm implementations aimed
-  at supporting research in RL. TorchRL is a direct dependency of **rlstack**.
+  at supporting research in RL. TorchRL is a direct dependency of **rl8**.
 
 .. _`Automatic Mixed Precision (AMP)`: https://pytorch.org/docs/stable/amp.html
 .. _`RL Games`: https://github.com/Denys88/rl_games

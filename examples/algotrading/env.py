@@ -10,8 +10,8 @@ from torchrl.data import (
     UnboundedContinuousTensorSpec,
 )
 
-from rlstack import Env
-from rlstack.data import DataKeys, Device
+from rl8 import Env
+from rl8.data import DataKeys, Device
 
 
 class Action(IntEnum):

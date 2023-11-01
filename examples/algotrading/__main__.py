@@ -3,8 +3,8 @@ import argparse
 import mlflow
 import torch
 
-from rlstack import RecurrentTrainer, Trainer
-from rlstack.conditions import Plateaus
+from rl8 import RecurrentTrainer, Trainer
+from rl8.conditions import Plateaus
 
 from .env import AlgoTrading
 from .models import AttentiveAlpaca, LazyLemur, MischievousMule
@@ -36,7 +36,7 @@ if __name__ == "__main__":
             trainer_cls = Trainer
             model_cls = AttentiveAlpaca
 
-    experiment = mlflow.set_experiment("rlstack.examples.algotrading")
+    experiment = mlflow.set_experiment("rl8.examples.algotrading")
     print(f"Logging run under MLflow experiment {experiment.experiment_id}")
     trainer = trainer_cls(
         AlgoTrading,
