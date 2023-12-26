@@ -45,6 +45,8 @@ class AlgoTrading(Env):
 
     """
 
+    # Max number of steps that can be taken with the environment before
+    # requiring a reset.
     max_horizon = 128
 
     # Environment state that's reset when the environment is reset and is

@@ -550,3 +550,107 @@ class RecurrentAlgorithm(
             step_stats = stat_tracker.items()
         step_stats["profiling/step_ms"] = step_timer()
         return step_stats  # type: ignore[return-value]
+
+    def validate(self) -> None:
+        """Do some validation on all the tensor/tensordict shapes within
+        the algorithm.
+
+        Helpful when the algorithm is throwing an error on mismatched tensor/tensordict
+        sizes. Call this at least once before running the algorithm for peace of
+        mind.
+
+        """
+        # Check initial observation and policy states.
+        obs = self.env.reset()
+
+        self.env.observation_spec.assert_is_in(obs)
+        try:
+            self.buffer[DataKeys.OBS][:, 0, ...] = obs
+        except RuntimeError as e:
+            raise AssertionError(
+                f"The observation from {self.env.reset.__qualname__} doesn't match the"
+                " observation spec shape."
+            ) from e
+
+        states = self.policy.init_states(self.hparams.num_envs)
+        self.policy.state_spec.assert_is_in(states)
+        try:
+            self.buffer[DataKeys.STATES][:, 0, ...] = states
+        except RuntimeError as e:
+            raise AssertionError(
+                "The policy state from"
+                f" {self.policy.model.init_states.__qualname__} doesn't match the"
+                " policy state spec."
+            ) from e
+
+        # Sample the policy and check all outputs.
+        in_batch = self.buffer[:, :1, ...]
+        in_states = self.buffer[DataKeys.STATES][:, :1, ...]
+        sample_batch, sample_states = self.policy.sample(
+            in_batch,
+            in_states,
+            deterministic=False,
+            inplace=False,
+            requires_grad=False,
+            return_actions=True,
+            return_logp=True,
+            return_values=True,
+        )
+
+        actions = sample_batch[DataKeys.ACTIONS]
+        assert actions.ndim >= 2, (
+            "Actions must be at least 2D and have shape ``[N, ...]`` (where ``N`` is"
+            " the number of independent elements or environment instances, and ``...``"
+            " is any number of additional dimensions)."
+        )
+        self.env.action_spec.assert_is_in(actions)
+        try:
+            self.buffer[DataKeys.ACTIONS][:, 0, ...] = sample_batch[DataKeys.ACTIONS]
+        except RuntimeError as e:
+            raise AssertionError(
+                "The action sampled from the policy doesn't match the action spec."
+            ) from e
+
+        self.policy.state_spec.assert_is_in(sample_states)
+        try:
+            self.buffer[DataKeys.STATES][:, 1, ...] = sample_states
+        except RuntimeError as e:
+            raise AssertionError(
+                "The policy state from"
+                f" {self.policy.model.forward.__qualname__} doesn't match the policy"
+                " state spec."
+            ) from e
+
+        assert sample_batch[DataKeys.LOGP].shape == torch.Size(
+            [self.hparams.num_envs, 1]
+        ), (
+            "Action log probabilities must be 2D and have shape ``[N, 1]`` (where ``N``"
+            " is the number of independent elements or environment instances)."
+        )
+
+        assert sample_batch[DataKeys.VALUES].shape == torch.Size(
+            [self.hparams.num_envs, 1]
+        ), (
+            "Expected value estimates must be 2D and have shape ``[N, 1]`` (where ``N``"
+            " is the number of independent elements or environment instances)."
+        )
+
+        # Step the environment and check everything once more.
+        out_batch = self.env.step(actions)
+
+        obs = out_batch[DataKeys.OBS]
+        self.env.observation_spec.assert_is_in(obs)
+        try:
+            self.buffer[DataKeys.OBS][:, 1, ...] = obs
+        except RuntimeError as e:
+            raise AssertionError(
+                f"The observation from {self.env.step.__qualname__} doesn't match the"
+                " observation spec shape."
+            ) from e
+
+        assert out_batch[DataKeys.REWARDS].shape == torch.Size(
+            [self.hparams.num_envs, 1]
+        ), (
+            "Rewards must be 2D and have shape ``[N, 1]`` (where ``N`` is the number of"
+            " independent elements or environment instances)."
+        )
