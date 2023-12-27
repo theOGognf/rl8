@@ -63,38 +63,26 @@ Concepts
 ========
 
 **rl8** is minimal in that it limits the number of interfaces required for
-training a policy with PPO, even for customized policies, without restrictions
-on observation and action specs, custom models, and custom action
-distributions.
+training a policy with PPO without restrictions on observation and action
+specs, custom models, and custom action distributions.
 
 **rl8** is built around six key concepts:
 
 * **The environment**: The simulation that the policy learns to interact with.
-  The environment is *always user-defined*.
 * **The model**: The policy parameterization that determines how the policy
   processes environment observations and how parameters for the action
-  distribution are generated. The model is *usually user-defined*
-  (default models are sometimes sufficient depending on the environment's
-  observation and action specs).
+  distribution are generated.
 * **The action distribution**: The mechanism for representing actions
   conditioned on environment observations and model outputs. Environment
   actions are ultimately sampled from the action distribution.
-  The action distribution is *sometimes user-defined* (default action
-  distributions are usually sufficient depending on the environment's
-  observation and action specs).
 * **The policy**: The union of the model and the action distribution that
   actually calls and samples from the model and action distribution,
-  respectively. The policy handles some pre/post -processing on its I/O
-  to make it more convenient to sample from the model and action distribution
-  together. The policy is *rarely user-defined*.
+  respectively.
 * **The algorithm**: The PPO implementation that uses the environment to train
-  the policy (i.e., update the model's parameters). All hyperparameters and
-  customizations are set with the algorithm. The algorithm is *rarely
-  user-defined*.
+  the policy (i.e., update the model's parameters).
 * **The trainer**: The high-level interface for using the algorithm to train
   indefinitely or until some condition is met. The trainer directly integrates
-  with MLflow to track experiments and training progress. The trainer is *rarely
-  user-defined*.
+  with MLflow to track experiments and training progress.
 
 Quick Examples
 ==============
@@ -122,9 +110,7 @@ Training a Recurrent Policy
 ---------------------------
 
 Swap to the recurrent flavor of the trainer (or algorithm) interface
-to train a recurrent model and policy. The recurrent interfaces use
-canned and default recurrent models depending on the environment's
-observation and action specs.
+to train a recurrent model and policy.
 
 .. code:: python
 
@@ -175,9 +161,7 @@ usage so you can simulate more environments or use larger models.
 Specifying Training Stop Conditions
 -----------------------------------
 
-Specify training stop conditions based on training statistics to stop
-training early when statistics plateau, hit a limit, stop
-increasing or decreasing, etc..
+Specify conditions based on training statistics to stop training early.
 
 .. code:: python
 
@@ -206,13 +190,8 @@ Naturely, this monolothic goal has some drawbacks:
   typically end up accepting the cost of transitioning to expensive and
   difficult-to-manage compute clusters to get results faster.
 
-There's a handful of high quality, open-sourced RL libraries that tradeoff feature
-richness to reduce these drawbacks. However, each library still doesn't provide
-enough speed benefit to warrant the switch from a monolithic repo, or is still
-too complex to adapt to a specific use case.
-
-**rl8** is a niche RL library that finds a goldilocks zone between the
-feature support and speed/complexity tradeoff by making some key assumptions:
+Rather than focusing on being a monolithic RL library, **rl8** fills the niche
+of maximizing training performance for a few key assumptions:
 
 * Environments are highly parallelized and their parallelization is entirely
   managed within the environment. This allows **rl8** to ignore distributed
@@ -225,7 +204,7 @@ feature support and speed/complexity tradeoff by making some key assumptions:
   greatly simplifying the overall library implementation.
 
 The end result is a minimal and high throughput library that can train policies
-to solve complex tasks on a single NVIDIA RTX 2080 within minutes.
+to solve complex tasks within minutes on consumer grade compute devices.
 
 Unfortunately, this means **rl8** doesn't support as many use cases as
 a monolithic RL library might. In fact, **rl8** is probably a bad fit for

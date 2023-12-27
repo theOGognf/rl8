@@ -254,6 +254,10 @@ class DefaultContinuousRecurrentModel(
             batch_size=batch.size(0),
         )
 
+    def to(self, device: Device) -> Self:  # type: ignore[override]
+        self._value = None
+        return super().to(device)
+
     def value_function(self) -> torch.Tensor:
         assert self._value is not None
         return self._value
@@ -336,6 +340,10 @@ class DefaultDiscreteRecurrentModel(
             },
             batch_size=batch.size(0),
         )
+
+    def to(self, device: Device) -> Self:  # type: ignore[override]
+        self._value = None
+        return super().to(device)
 
     def value_function(self) -> torch.Tensor:
         assert self._value is not None

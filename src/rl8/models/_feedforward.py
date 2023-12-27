@@ -303,6 +303,10 @@ class DefaultContinuousModel(
             device=obs.device,
         )
 
+    def to(self, device: Device) -> Self:  # type: ignore[override]
+        self._value = None
+        return super().to(device)
+
     def value_function(self) -> torch.Tensor:
         assert self._value is not None
         return self._value
@@ -373,6 +377,10 @@ class DefaultDiscreteModel(
             batch_size=batch.batch_size,
             device=obs.device,
         )
+
+    def to(self, device: Device) -> Self:  # type: ignore[override]
+        self._value = None
+        return super().to(device)
 
     def value_function(self) -> torch.Tensor:
         assert self._value is not None

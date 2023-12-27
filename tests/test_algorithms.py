@@ -64,6 +64,17 @@ def test_algorithm(algorithm_cls: type[Algorithm], env_cls: type[Env]) -> None:
     )
 
 
+@pytest.mark.parametrize("algorithm_cls", [Algorithm, RecurrentAlgorithm])
+@pytest.mark.parametrize("env_cls", [ContinuousDummyEnv, DiscreteDummyEnv])
+def test_algorithm_validate(algorithm_cls: type[Algorithm], env_cls: type[Env]) -> None:
+    algo = algorithm_cls(
+        env_cls,
+        horizon=HORIZON,
+        num_envs=NUM_ENVS,
+    )
+    algo.validate()
+
+
 def test_feedforward_algorithm_resets() -> None:
     algo = Algorithm(
         DiscreteDummyEnv,
