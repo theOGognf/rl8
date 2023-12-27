@@ -190,13 +190,8 @@ Naturely, this monolothic goal has some drawbacks:
   typically end up accepting the cost of transitioning to expensive and
   difficult-to-manage compute clusters to get results faster.
 
-There's a handful of high quality, open-sourced RL libraries that tradeoff feature
-richness to reduce these drawbacks. However, each library still doesn't provide
-enough speed benefit to warrant the switch from a monolithic repo, or is still
-too complex to adapt to a specific use case.
-
-**rl8** is a niche RL library that finds a goldilocks zone between the
-feature support and speed/complexity tradeoff by making some key assumptions:
+Rather than focusing on being a monolithic RL library, **rl8** fills the niche
+of maximizing training performance for a few key assumptions:
 
 * Environments are highly parallelized and their parallelization is entirely
   managed within the environment. This allows **rl8** to ignore distributed
@@ -209,7 +204,7 @@ feature support and speed/complexity tradeoff by making some key assumptions:
   greatly simplifying the overall library implementation.
 
 The end result is a minimal and high throughput library that can train policies
-to solve complex tasks on a single NVIDIA RTX 2080 within minutes.
+to solve complex tasks within minutes on consumer grade compute devices.
 
 Unfortunately, this means **rl8** doesn't support as many use cases as
 a monolithic RL library might. In fact, **rl8** is probably a bad fit for
