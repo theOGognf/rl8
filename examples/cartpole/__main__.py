@@ -6,19 +6,18 @@ from rl8.conditions import HitsUpperBound
 
 from .env import CartPole
 
-if __name__ == "__main__":
-    experiment = mlflow.set_experiment("rl8.examples.cartpole")
-    print(f"Logging runs under MLflow experiment {experiment.experiment_id}")
-    trainer = Trainer(
-        CartPole,
-        horizon=64,
-        enable_amp=torch.cuda.is_available(),
-        device="cuda" if torch.cuda.is_available() else "cpu",
-    )
-    trainer.algorithm.validate()
-    run = mlflow.active_run()
-    print(f"Logging metrics under MLflow run {run.info.run_id}")
-    trainer.run(
-        steps_per_eval=5,
-        stop_conditions=[HitsUpperBound("algorithm/steps", 40)],
-    )
+experiment = mlflow.set_experiment("rl8.examples.cartpole")
+print(f"Logging runs under MLflow experiment {experiment.experiment_id}")
+trainer = Trainer(
+    CartPole,
+    horizon=64,
+    enable_amp=torch.cuda.is_available(),
+    device="cuda" if torch.cuda.is_available() else "cpu",
+)
+trainer.algorithm.validate()
+run = mlflow.active_run()
+print(f"Logging metrics under MLflow run {run.info.run_id}")
+trainer.run(
+    steps_per_eval=5,
+    stop_conditions=[HitsUpperBound("algorithm/steps", 40)],
+)
