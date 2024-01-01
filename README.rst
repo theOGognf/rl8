@@ -6,16 +6,17 @@ parallelized, infinite horizon environments, and can train a PPO policy
 using those environments, achieving up to 1M environment transitions
 (and one policy update) per second using a single NVIDIA RTX 2080.
 
-All in all, **rl8** enables solving of reinforcement learning problems within
-seconds using consumer grade compute devices with minimal fuss.
+* **Documentation**: https://theogognf.github.io/rl8/
+* **PyPI**: https://pypi.org/project/rl8/
+* **Repository**: https://github.com/theOGognf/rl8
+
+The figure below depicts **rl8**'s experiment tracking integration with
+MLflow and **rl8**'s ability to solve reinforcement learning problems
+within seconds.
 
 .. figure:: https://raw.githubusercontent.com/theOGognf/rl8/mountain-car/docs/_static/rl8-examples-solving-cartpole.PNG
     :align: center
     :alt: Consistently solving CartPole within seconds.
-
-* **Documentation**: https://theogognf.github.io/rl8/
-* **PyPI**: https://pypi.org/project/rl8/
-* **Repository**: https://github.com/theOGognf/rl8
 
 Quick Start
 ===========
@@ -93,6 +94,10 @@ specs, custom models, and custom action distributions.
 
 Quick Examples
 ==============
+
+These are short snippets that showcase **rl8**'s main features. See the
+`examples`_ for complete implementations of **rl8**-compatible environments
+and custom **rl8** models.
 
 Customizing Training Runs
 -------------------------
@@ -247,6 +252,7 @@ Related Projects
   at supporting research in RL. TorchRL is a direct dependency of **rl8**.
 
 .. _`Automatic Mixed Precision (AMP)`: https://pytorch.org/docs/stable/amp.html
+.. _`examples`: https://github.com/theOGognf/rl8/tree/main/examples
 .. _`RL Games`: https://github.com/Denys88/rl_games
 .. _`RLlib`: https://docs.ray.io/en/latest/rllib/index.html
 .. _`Sample Factory`: https://github.com/alex-petrenko/sample-factory
