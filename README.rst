@@ -10,7 +10,7 @@ using those environments, achieving up to 1M environment transitions
 * **PyPI**: https://pypi.org/project/rl8/
 * **Repository**: https://github.com/theOGognf/rl8
 
-.. figure:: https://raw.githubusercontent.com/theOGogf/rl8/mountain-car/docs/_static/rl8-examples-solving-cartpole.PNG
+.. figure:: https://raw.githubusercontent.com/theOGognf/rl8/mountain-car/docs/_static/rl8-examples-solving-cartpole.PNG
     :align: center
 
     Consistently solving CartPole in seconds.
