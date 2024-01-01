@@ -12,7 +12,9 @@ using those environments, achieving up to 1M environment transitions
 
 .. figure:: https://raw.githubusercontent.com/theOGognf/rl8/mountain-car/docs/_static/rl8-examples-solving-cartpole.PNG
     :align: center
-    :alt: Consistently solving CartPole in seconds.
+    :alt: Consitently solving CartPole in seconds.
+
+    Consistently solving CartPole in seconds.
 
 Quick Start
 ===========
