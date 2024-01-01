@@ -1,8 +1,7 @@
 Setup
 =====
 
-Install the full version of MLflow to make the most of **rl8**'s
-integration with its experiment tracking.
+Install the full version of MLflow to use its UI with **rl8**.
 
 .. code:: console
 

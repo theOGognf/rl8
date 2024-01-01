@@ -6,16 +6,16 @@ parallelized, infinite horizon environments, and can train a PPO policy
 using those environments, achieving up to 1M environment transitions
 (and one policy update) per second using a single NVIDIA RTX 2080.
 
-* **Documentation**: https://theogognf.github.io/rl8/
-* **PyPI**: https://pypi.org/project/rl8/
-* **Repository**: https://github.com/theOGognf/rl8
+All in all, **rl8** enables solving of reinforcement learning problems within
+seconds using consumer grade compute devices with minimal fuss.
 
 .. figure:: https://raw.githubusercontent.com/theOGognf/rl8/mountain-car/docs/_static/rl8-examples-solving-cartpole.PNG
     :align: center
-    :alt: Consitently solving CartPole in seconds.
-    :scale: 200%
+    :alt: Consistently solving CartPole within seconds.
 
-    Consistently solving CartPole in seconds.
+* **Documentation**: https://theogognf.github.io/rl8/
+* **PyPI**: https://pypi.org/project/rl8/
+* **Repository**: https://github.com/theOGognf/rl8
 
 Quick Start
 ===========
