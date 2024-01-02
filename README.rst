@@ -10,6 +10,14 @@ using those environments, achieving up to 1M environment transitions
 * **PyPI**: https://pypi.org/project/rl8/
 * **Repository**: https://github.com/theOGognf/rl8
 
+The figure below depicts **rl8**'s experiment tracking integration with
+`MLflow`_ and **rl8**'s ability to solve reinforcement learning problems
+within seconds.
+
+.. figure:: https://raw.githubusercontent.com/theOGognf/rl8/mountain-car/docs/_static/rl8-examples-solving-cartpole.PNG
+    :align: center
+    :alt: Consistently solving CartPole within seconds.
+
 Quick Start
 ===========
 
@@ -86,6 +94,9 @@ specs, custom models, and custom action distributions.
 
 Quick Examples
 ==============
+
+These short snippets showcase **rl8**'s main features. See the `examples`_
+for complete implementations of **rl8**-compatible environments and models.
 
 Customizing Training Runs
 -------------------------
@@ -240,6 +251,8 @@ Related Projects
   at supporting research in RL. TorchRL is a direct dependency of **rl8**.
 
 .. _`Automatic Mixed Precision (AMP)`: https://pytorch.org/docs/stable/amp.html
+.. _`examples`: https://github.com/theOGognf/rl8/tree/main/examples
+.. _`MLflow`: https://github.com/mlflow/mlflow
 .. _`RL Games`: https://github.com/Denys88/rl_games
 .. _`RLlib`: https://docs.ray.io/en/latest/rllib/index.html
 .. _`Sample Factory`: https://github.com/alex-petrenko/sample-factory

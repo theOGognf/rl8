@@ -1,5 +1,5 @@
 CartPole
-===========
+========
 
 A simple reimplementation of the classic `CartPole`_ environment.
 
