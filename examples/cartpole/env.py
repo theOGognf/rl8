@@ -68,7 +68,7 @@ class CartPole(Env):
 
     def step(self, action: torch.Tensor) -> TensorDict:
         x, x_dot, theta, theta_dot = self.state
-        force = torch.sign(action.flatten() - 1) * self.force_mag
+        force = (action.flatten() - 1) * self.force_mag
         costheta = torch.cos(theta)
         sintheta = torch.sin(theta)
 
