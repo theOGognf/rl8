@@ -1,7 +1,4 @@
-.. raw:: html
-
-   <img src="https://raw.githubusercontent.com/theOGognf/rl8/mountain-car/docs/_static/rl8-logo.PNG" align="center" width="300px" alt="Center-aligned logo in README">
-
+.. image:: https://raw.githubusercontent.com/theOGognf/rl8/mountain-car/docs/_static/rl8-logo.PNG
 
 ====================================
 
@@ -19,7 +16,6 @@ The figure below depicts **rl8**'s experiment tracking integration with
 within seconds.
 
 .. figure:: https://raw.githubusercontent.com/theOGognf/rl8/mountain-car/docs/_static/rl8-examples-solving-cartpole.PNG
-    :align: center
     :alt: Consistently solving CartPole within seconds.
 
 Quick Start
