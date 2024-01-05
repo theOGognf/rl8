@@ -15,7 +15,8 @@ The figure below depicts **rl8**'s experiment tracking integration with
 `MLflow`_ and **rl8**'s ability to solve reinforcement learning problems
 within seconds.
 
-.. figure:: https://raw.githubusercontent.com/theOGognf/rl8/mountain-car/docs/_static/rl8-examples-solving-cartpole.PNG
+.. figure:: https://raw.githubusercontent.com/theOGognf/rl8/main/docs/_static/rl8-examples-solving-cartpole.PNG
+    :align: center
     :alt: Consistently solving CartPole within seconds.
 
 Quick Start
