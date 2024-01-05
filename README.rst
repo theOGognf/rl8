@@ -1,6 +1,7 @@
-.. figure:: https://raw.githubusercontent.com/theOGognf/rl8/mountain-car/docs/_static/rl8-logo.PNG
-    :align: center
-    :scale: 200%
+.. raw:: html
+
+   <img src="https://raw.githubusercontent.com/theOGognf/rl8/mountain-car/docs/_static/rl8-logo.PNG" align="center" width="300px" alt="Center-aligned logo in README">
+
 
 ====================================
 
