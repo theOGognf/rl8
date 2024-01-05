@@ -1,4 +1,7 @@
-rl8: A Minimal End-to-End RL Library
+.. image:: https://raw.githubusercontent.com/theOGognf/rl8/mountain-car/docs/_static/rl8-logo.PNG
+    :align: center
+    :scale: 200%
+
 ====================================
 
 **rl8** is a minimal end-to-end RL library that can simulate highly

@@ -63,8 +63,8 @@ class CartPole(Env):
             0, 0.01, size=(4, self.num_envs), device=self.device, dtype=torch.float32
         )
         x, x_dot, theta, theta_dot = self.state
-        obs = torch.vstack((x, x_dot, torch.cos(theta), torch.sin(theta), theta_dot)).T
-        return obs
+        obs = torch.vstack((x, x_dot, torch.cos(theta), torch.sin(theta), theta_dot))
+        return obs.T
 
     def step(self, action: torch.Tensor) -> TensorDict:
         x, x_dot, theta, theta_dot = self.state
