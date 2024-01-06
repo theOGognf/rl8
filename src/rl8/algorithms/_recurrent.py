@@ -147,6 +147,13 @@ class RecurrentAlgorithm(
             when the policy and value function share parameters.
         max_grad_norm: Max gradient norm allowed when updating the policy's model
             within :meth:`RecurrentAlgorithm.step`.
+        normalize_advantages: Whether to normalize advantages computed for GAE using the batch's
+            mean and standard deviation. This has been shown to generally improve
+            convergence speed and performance and should usually be ``True``.
+        normalize_rewards: Whether to normalize rewards using reversed discounted returns as
+            from https://arxiv.org/pdf/2005.12729.pdf. Reward normalization,
+            although not exactly correct and optimal, typically improves
+            convergence speed and performance and should usually be ``True``.
         device: Device :attr:`RecurrentAlgorithm.env`, :attr:`RecurrentAlgorithm.buffer`, and
             :attr:`RecurrentAlgorithm.policy` all reside on.
 
@@ -198,6 +205,8 @@ class RecurrentAlgorithm(
         dual_clip_param: None | float = None,
         vf_coeff: float = 1.0,
         max_grad_norm: float = 5.0,
+        normalize_advantages: bool = True,
+        normalize_rewards: bool = True,
         device: Device = "cpu",
     ) -> None:
         max_num_envs = (
@@ -231,7 +240,13 @@ class RecurrentAlgorithm(
                 DataKeys.ADVANTAGES: UnboundedContinuousTensorSpec(1, device=device),
                 DataKeys.RETURNS: UnboundedContinuousTensorSpec(1, device=device),
             },
-        ).to(device)
+        )
+        if normalize_rewards:
+            self.buffer_spec.set(
+                DataKeys.REVERSED_DISCOUNTED_RETURNS,
+                UnboundedContinuousTensorSpec(1, device=device),
+            )
+        self.buffer_spec = self.buffer_spec.to(device)
         self.buffer = self.buffer_spec.zero([num_envs, horizon + 1])
         optimizer_config = optimizer_config or {"lr": 1e-3}
         optimizer = optimizer_cls(self.policy.model.parameters(), **optimizer_config)
@@ -314,13 +329,24 @@ class RecurrentAlgorithm(
                 self.buffer[DataKeys.OBS][:, 0, ...] = self.buffer[DataKeys.OBS][
                     :, -1, ...
                 ]
+                if self.hparams.normalize_rewards:
+                    self.buffer[DataKeys.REVERSED_DISCOUNTED_RETURNS][
+                        :, 0, ...
+                    ] = self.buffer[DataKeys.REVERSED_DISCOUNTED_RETURNS][:, -1, ...]
             elif not (self.state.horizons % self.hparams.horizons_per_env_reset):
                 self.buffer[DataKeys.OBS][:, 0, ...] = self.env.reset(config=env_config)
                 env_was_reset = True
+                if self.hparams.normalize_rewards:
+                    self.buffer[DataKeys.REVERSED_DISCOUNTED_RETURNS][:, 0, ...] = 0.0
             else:
                 self.buffer[DataKeys.OBS][:, 0, ...] = self.buffer[DataKeys.OBS][
                     :, -1, ...
                 ]
+                if self.hparams.normalize_rewards:
+                    self.buffer[DataKeys.REVERSED_DISCOUNTED_RETURNS][
+                        :, 0, ...
+                    ] = self.buffer[DataKeys.REVERSED_DISCOUNTED_RETURNS][:, -1, ...]
+
             self.buffer[DataKeys.STATES][:, 0, ...] = self.buffer[DataKeys.STATES][
                 :, -1, ...
             ]
@@ -349,6 +375,16 @@ class RecurrentAlgorithm(
                     return_values=True,
                 )
                 out_batch = self.env.step(sample_batch[DataKeys.ACTIONS])
+
+                # Getting reversed discounted returns for normalizing reward
+                # scale during GAE. This isn't exactly correct according to
+                # theory but works in practice.
+                if self.hparams.normalize_rewards:
+                    self.buffer[DataKeys.REVERSED_DISCOUNTED_RETURNS][:, t + 1, ...] = (
+                        self.hparams.gamma
+                        * self.buffer[DataKeys.REVERSED_DISCOUNTED_RETURNS][:, t, ...]
+                        + out_batch[DataKeys.REWARDS]
+                    )
 
                 # Update the buffer using sampled policy data and environment
                 # transition data.
@@ -379,22 +415,34 @@ class RecurrentAlgorithm(
             )
             self.buffer[DataKeys.VALUES][:, -1, ...] = sample_batch[DataKeys.VALUES]
 
-            self.state.horizons += 1
-            self.state.buffered = True
-
             # Aggregate some metrics.
             rewards = self.buffer[DataKeys.REWARDS][:, 1:-1, ...]
             returns = torch.sum(rewards, dim=1)
+            returns_std, returns_mean = torch.std_mean(returns)
+            rewards_std, rewards_mean = torch.std_mean(rewards)
             collect_stats: CollectStats = {
                 "returns/min": float(torch.min(returns)),
                 "returns/max": float(torch.max(returns)),
-                "returns/mean": float(torch.mean(returns)),
-                "returns/std": float(torch.std(returns)),
+                "returns/mean": float(returns_mean),
+                "returns/std": float(returns_std),
                 "rewards/min": float(torch.min(rewards)),
                 "rewards/max": float(torch.max(rewards)),
-                "rewards/mean": float(torch.mean(rewards)),
-                "rewards/std": float(torch.std(rewards)),
+                "rewards/mean": float(rewards_mean),
+                "rewards/std": float(rewards_std),
             }
+
+            self.state.horizons += 1
+            self.state.buffered = True
+            self.state.reward_scale = (
+                float(
+                    torch.std(
+                        self.buffer[DataKeys.REVERSED_DISCOUNTED_RETURNS][:, 1:, ...]
+                    )
+                )
+                if self.hparams.normalize_rewards
+                else 1.0
+            )
+
         collect_stats["env/resets"] = self.hparams.num_envs * int(env_was_reset)
         collect_stats["env/steps"] = self.hparams.num_envs * self.hparams.horizon
         collect_stats["profiling/collect_ms"] = collect_timer()
@@ -421,8 +469,9 @@ class RecurrentAlgorithm(
                 gae_lambda=self.hparams.gae_lambda,
                 gamma=self.hparams.gamma,
                 inplace=True,
-                normalize=True,
+                normalize_advantages=self.hparams.normalize_advantages,
                 return_returns=True,
+                reward_scale=self.state.reward_scale,
             )
 
             # Batchify the buffer. Save the last sample for adding it back to the

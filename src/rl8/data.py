@@ -70,6 +70,11 @@ class DataKeys:
     #: used as recurrent model inputs and recurrent model outputs.
     CELL_STATES = "cell_states"
 
+    #: Key denoting reversed discounted returns (returns from the past
+    #: are more discounted instead of returns from the future). This key
+    #: is used for scaling rewards during reward normalization.
+    REVERSED_DISCOUNTED_RETURNS = "reversed_discounted_returns"
+
 
 @dataclass(frozen=True, kw_only=True)
 class AlgorithmHparams:
@@ -139,13 +144,24 @@ class AlgorithmHparams:
     #: :meth:`Algorithm.step`.
     max_grad_norm: float
 
+    #: Whether to normalize advantages computed for GAE using the batch's
+    #: mean and standard deviation. This has been shown to generally improve
+    #: convergence speed and performance and should usually be ``True``.
+    normalize_advantages: bool
+
+    #: Whether to normalize rewards using reversed discounted returns as
+    #: from https://arxiv.org/pdf/2005.12729.pdf. Reward normalization,
+    #: although not exactly correct and optimal, typically improves
+    #: convergence speed and performance and should usually be ``True``.
+    normalize_rewards: bool
+
     #: Number of environments being simulated in parallel. This should
     #: typically be maximized, but there are eventually diminishing
     #: returns when increasing it.
     num_envs: int
 
     #: PPO hyperparameter indicating the number of gradient steps to take
-    #: with the whole :attr:`Algorithm.buffer` when calling `step`.
+    #: with the whole :attr:`Algorithm.buffer` when calling :meth:`Algorithm.step`.
     num_sgd_iters: int
 
     #: PPO hyperparameter indicating the minibatc size :attr:`Algorithm.buffer`
@@ -302,6 +318,10 @@ class AlgorithmState:
     #: tracking when to reset :attr:`Algorithm.env` based on
     #: :attr:`Algorithm.horizons_per_env_reset`.
     horizons: int = 0
+
+    #: Reward scale used when normalizing rewards. This is computed during
+    #: :meth:`Algorithm.collect` if rewards are being normalized.
+    reward_scale: float = 1.0
 
 
 @dataclass(kw_only=True)

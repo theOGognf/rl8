@@ -29,7 +29,7 @@ def test_generalized_advantage_estimate() -> None:
         gae_lambda=1,
         gamma=1,
         inplace=False,
-        normalize=False,
+        normalize_advantages=False,
         return_returns=True,
     )
     assert out is not INPUT_BATCH
@@ -41,7 +41,7 @@ def test_generalized_advantage_estimate() -> None:
         gae_lambda=1,
         gamma=1,
         inplace=True,
-        normalize=False,
+        normalize_advantages=False,
         return_returns=True,
     )
     assert out is INPUT_BATCH

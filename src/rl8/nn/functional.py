@@ -54,8 +54,9 @@ def generalized_advantage_estimate(
     gae_lambda: float = 0.95,
     gamma: float = 0.95,
     inplace: bool = False,
-    normalize: bool = True,
+    normalize_advantages: bool = True,
     return_returns: bool = True,
+    reward_scale: float = 1.0,
 ) -> TensorDict:
     """Compute a Generalized Advantage Estimate (GAE) and, optionally,
     returns using value function estimates and rewards.
@@ -83,11 +84,13 @@ def generalized_advantage_estimate(
         inplace: Whether to store advantage and, optionally, return estimates
             in the given tensordict or whether to allocate a separate tensordict
             for the returned values.
-        normalize: Whether to normalize advantages using the mean and standard
-            deviation of the advantage batch before storing in the returned
-            tensordict.
+        normalize_advantages: Whether to normalize advantages using the mean and
+            standard deviation of the advantage batch before storing in the
+            returned tensordict.
         return_returns: Whether to compute and return Monte Carlo return
             estimates with GAE.
+        reward_scale: Reward scale to use; useful for normalizing rewards
+            for stabilizing learning and improving overall performance.
 
     Returns:
         A tensordict with at least advantages and, optionally, discounted
@@ -100,6 +103,7 @@ def generalized_advantage_estimate(
         out = TensorDict({}, batch_size=batch.batch_size, device=batch.device)
     if DataKeys.ADVANTAGES not in out.keys():
         out[DataKeys.ADVANTAGES] = torch.zeros_like(batch[DataKeys.REWARDS])
+    batch[DataKeys.REWARDS] = batch[DataKeys.REWARDS] / (reward_scale + 1e-8)
     prev_advantage = 0.0
     for t in reversed(range(batch.size(1) - 1)):
         delta = batch[DataKeys.REWARDS][:, t, ...] + (
@@ -111,7 +115,7 @@ def generalized_advantage_estimate(
         )
     if return_returns:
         out[DataKeys.RETURNS] = out[DataKeys.ADVANTAGES] + batch[DataKeys.VALUES]
-    if normalize:
+    if normalize_advantages:
         std, mean = torch.std_mean(out[DataKeys.ADVANTAGES][:, :-1, ...])
         out[DataKeys.ADVANTAGES][:, :-1, ...] = (
             out[DataKeys.ADVANTAGES][:, :-1, ...] - mean
