@@ -1,4 +1,4 @@
-.. image:: https://raw.githubusercontent.com/theOGognf/rl8/mountain-car/docs/_static/rl8-logo.png
+.. image:: https://raw.githubusercontent.com/theOGognf/rl8/main/docs/_static/rl8-logo.png
 
 ====================================
 
