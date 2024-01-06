@@ -274,6 +274,8 @@ class RecurrentAlgorithm(
             horizon=horizon,
             horizons_per_env_reset=horizons_per_env_reset,
             max_grad_norm=max_grad_norm,
+            normalize_advantages=normalize_advantages,
+            normalize_rewards=normalize_rewards,
             num_envs=num_envs,
             num_sgd_iters=num_sgd_iters,
             seq_len=seq_len,
