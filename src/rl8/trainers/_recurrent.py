@@ -135,6 +135,13 @@ class RecurrentTrainer(GenericTrainerBase[RecurrentAlgorithm]):
             when the policy and value function share parameters.
         max_grad_norm: Max gradient norm allowed when updating the policy's model
             within :meth:`RecurrentAlgorithm.step`.
+        normalize_advantages: Whether to normalize advantages computed for GAE using the batch's
+            mean and standard deviation. This has been shown to generally improve
+            convergence speed and performance and should usually be ``True``.
+        normalize_rewards: Whether to normalize rewards using reversed discounted returns as
+            from https://arxiv.org/pdf/2005.12729.pdf. Reward normalization,
+            although not exactly correct and optimal, typically improves
+            convergence speed and performance and should usually be ``True``.
         device: Device :attr:`RecurrentAlgorithm.env`, :attr:`RecurrentAlgorithm.buffer`, and
             :attr:`RecurrentAlgorithm.policy` all reside on.
 
@@ -174,6 +181,8 @@ class RecurrentTrainer(GenericTrainerBase[RecurrentAlgorithm]):
         dual_clip_param: None | float = None,
         vf_coeff: float = 1.0,
         max_grad_norm: float = 5.0,
+        normalize_advantages: bool = True,
+        normalize_rewards: bool = True,
         device: Device = "cpu",
     ) -> None:
         super().__init__(
@@ -208,6 +217,8 @@ class RecurrentTrainer(GenericTrainerBase[RecurrentAlgorithm]):
                 dual_clip_param=dual_clip_param,
                 vf_coeff=vf_coeff,
                 max_grad_norm=max_grad_norm,
+                normalize_advantages=normalize_advantages,
+                normalize_rewards=normalize_rewards,
                 device=device,
             )
         )
