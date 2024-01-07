@@ -176,6 +176,13 @@ class AlgorithmHparams:
     #: (e.g., the buffer is the batch).
     shuffle_minibatches: bool
 
+    #: Target maximum KL divergence when updating the policy. If approximate
+    #: KL divergence is greater than this value, then policy updates stop
+    #: early for that :meth:`Algorithm.step`. If this is left ``None`` then
+    #: early stopping doesn't occur. A higher value means the policy is allowed
+    #: to diverge more from the previous policy during updates.
+    target_kl_div: None | float
+
     #: PPO hyperparameter similar to :attr:`Algorithm.clip_param` but for
     #: the value function estimate. A measure of max distance the model's
     #: value function is allowed to update away from previous value
@@ -216,6 +223,9 @@ class AlgorithmHparams:
 
         if not (self.sgd_minibatch_size > 0):
             raise ValueError("`sgd_minibatch_size` must be > 0.")
+
+        if self.target_kl_div is not None and not (self.target_kl_div > 0):
+            raise ValueError("`target_kl_div` must be > 0.")
 
         if not (self.vf_clip_param > 0):
             raise ValueError("`vf_clip_param` must be > 0.")

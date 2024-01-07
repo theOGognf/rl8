@@ -132,6 +132,11 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
             are around ``5``.
         vf_coeff: Value function loss component weight. Only needs to be tuned
             when the policy and value function share parameters.
+        target_kl_div: Target maximum KL divergence when updating the policy. If approximate
+            KL divergence is greater than this value, then policy updates stop
+            early for that algorithm step. If this is left ``None`` then
+            early stopping doesn't occur. A higher value means the policy is allowed
+            to diverge more from the previous policy during updates.
         max_grad_norm: Max gradient norm allowed when updating the policy's model
             within :meth:`Algorithm.step`.
         normalize_advantages: Whether to normalize advantages computed for GAE using the batch's
@@ -189,6 +194,7 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
         vf_clip_param: float = 5.0,
         dual_clip_param: None | float = None,
         vf_coeff: float = 1.0,
+        target_kl_div: None | float = None,
         max_grad_norm: float = 5.0,
         normalize_advantages: bool = True,
         normalize_rewards: bool = True,
@@ -262,6 +268,7 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
             num_sgd_iters=num_sgd_iters,
             sgd_minibatch_size=sgd_minibatch_size,
             shuffle_minibatches=shuffle_minibatches,
+            target_kl_div=target_kl_div,
             vf_clip_param=vf_clip_param,
             vf_coeff=vf_coeff,
         ).validate()
@@ -484,6 +491,7 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
                 batch_size=self.hparams.sgd_minibatch_size,
                 shuffle=self.hparams.shuffle_minibatches,
             )
+            stop_early = False
             for _ in range(self.hparams.num_sgd_iters):
                 for buffer_batch in batcher:
                     with amp.autocast(
@@ -524,7 +532,7 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
                             curr_action_dist.logp(buffer_batch[DataKeys.ACTIONS])
                             - buffer_batch[DataKeys.LOGP]
                         )
-                        kl_div = (
+                        approximate_kl_div = float(
                             torch.mean((torch.exp(logp_ratio) - 1) - logp_ratio)
                             / grad_accumulation_steps
                         )
@@ -545,10 +553,22 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
                             "losses/policy": float(losses["policy"]),
                             "losses/vf": float(losses["vf"]),
                             "losses/total": float(losses["total"]),
-                            "monitors/kl_div": float(kl_div),
+                            "monitors/kl_div": approximate_kl_div,
                         },
                         reduce=stepped,
                     )
+
+                    # Early stopping using approximate KL divergence.
+                    if (
+                        self.hparams.target_kl_div is not None
+                        and stepped
+                        and approximate_kl_div > self.hparams.target_kl_div
+                    ):
+                        stop_early = True
+                        break
+
+                if stop_early:
+                    break
 
             # Update schedulers.
             self.lr_scheduler.step(self.hparams.num_envs * self.state.horizons)

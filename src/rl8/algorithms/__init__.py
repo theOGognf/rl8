@@ -20,4 +20,8 @@ from ._base import GenericAlgorithmBase
 from ._feedforward import Algorithm
 from ._recurrent import RecurrentAlgorithm
 
-__all__ = ["Algorithm", "GenericAlgorithmBase", "RecurrentAlgorithm"]
+__all__ = [
+    "Algorithm",
+    "GenericAlgorithmBase",
+    "RecurrentAlgorithm",
+]
