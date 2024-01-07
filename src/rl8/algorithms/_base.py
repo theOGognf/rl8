@@ -2,7 +2,9 @@ from abc import ABCMeta, abstractmethod
 from dataclasses import asdict
 from typing import Any, Generic, TypeVar
 
+import torch.optim as optim
 from tensordict import TensorDict
+from torch.cuda.amp.grad_scaler import GradScaler
 from torchrl.data import CompositeSpec
 
 from .._utils import memory_stats
@@ -14,7 +16,6 @@ from ..data import (
     StepStats,
 )
 from ..env import Env
-from ..optimizer import OptimizerWrapper
 from ..policies import GenericPolicyBase
 from ..schedulers import EntropyScheduler, LRScheduler
 
@@ -51,6 +52,11 @@ class GenericAlgorithmBase(
     #: environment to make learning efficient by parallelizing simulations.
     env: Env
 
+    #: Used for enabling Automatic Mixed Precision (AMP). Handles gradient
+    #: scaling for the optimizer. Not all optimizers and hyperparameters are
+    #: compatible with gradient scaling.
+    grad_scaler: GradScaler
+
     #: PPO hyperparameters that're constant throughout training
     #: and can drastically affect training performance.
     hparams: _AlgorithmHparams
@@ -63,11 +69,10 @@ class GenericAlgorithmBase(
     #: if a ``learning_rate_schedule`` is provided.
     lr_scheduler: LRScheduler
 
-    #: Wrapper around the underlying optimizer for updating the policy's model
-    #: that was constructed from ``optimizer_cls`` and ``optimizer_config``.
-    #: Handles gradient accumulation and Automatic Mixed Precision (AMP) model
-    #: updates. ``optimizer_cls`` defaults to a the Adam optimizer.
-    optimizer: OptimizerWrapper
+    #: Underlying optimizer for updating the policy's model parameters.
+    #: Instantiated from an ``optimizer_cls`` and ``optimizer_config``.
+    #: Defaults to the Adam optimizer with generally well-performing parameters.
+    optimizer: optim.Optimizer
 
     #: Policy constructed from the ``model_cls``, ``model_config``, and
     #: ``distribution_cls`` kwargs. A default policy is constructed according to
@@ -135,7 +140,7 @@ class GenericAlgorithmBase(
             "env_cls": self.env.__class__.__name__,
             "model_cls": self.policy.model.__class__.__name__,
             "distribution_cls": self.policy.distribution_cls.__name__,
-            "optimizer_cls": self.optimizer.optimizer.__class__.__name__,
+            "optimizer_cls": self.optimizer.__class__.__name__,
             "entropy_coeff": self.entropy_scheduler.coeff,
             **asdict(self.hparams),
         }

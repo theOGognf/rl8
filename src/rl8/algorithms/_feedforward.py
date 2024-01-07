@@ -2,7 +2,9 @@ from typing import Any
 
 import torch
 import torch.amp as amp
+import torch.nn as nn
 import torch.optim as optim
+from torch.cuda.amp.grad_scaler import GradScaler
 from torchrl.data import CompositeSpec, UnboundedContinuousTensorSpec
 
 from .._utils import Batcher, StatTracker, assert_nd_spec, profile_ms
@@ -18,7 +20,6 @@ from ..distributions import Distribution
 from ..env import EnvFactory
 from ..models import Model, ModelFactory
 from ..nn import generalized_advantage_estimate, ppo_losses
-from ..optimizer import OptimizerWrapper
 from ..policies import Policy
 from ..schedulers import EntropyScheduler, LRScheduler, ScheduleKind
 from ._base import GenericAlgorithmBase
@@ -273,13 +274,8 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
             vf_coeff=vf_coeff,
         ).validate()
         self.state = AlgorithmState()
-        self.optimizer = OptimizerWrapper(
-            optimizer,
-            enable_amp=enable_amp,
-            grad_accumulation_steps=self.hparams.num_minibatches
-            if accumulate_grads
-            else 1,
-        )
+        self.optimizer = optimizer
+        self.grad_scaler = GradScaler(enabled=enable_amp)
 
     def collect(
         self,
@@ -493,7 +489,8 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
             )
             stop_early = False
             for _ in range(self.hparams.num_sgd_iters):
-                for buffer_batch in batcher:
+                for i, buffer_batch in enumerate(batcher):
+                    step_this_batch = (i + 1) % grad_accumulation_steps == 0
                     with amp.autocast(
                         self.hparams.device_type,
                         enabled=self.hparams.enable_amp,
@@ -526,7 +523,11 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
                         )
                         losses = losses.apply(lambda x: x / grad_accumulation_steps)
 
-                    # Calculate approximate KL divergence for debugging.
+                    # Calculate approximate KL divergence for early-stopping and
+                    # debugging. Early-stopping is per-batch and can't be done with
+                    # gradient accumulation (hence approximate KL isn't compared to
+                    # target KL with the number of gradient accumulation steps
+                    # factor).
                     with torch.no_grad():
                         logp_ratio = (
                             curr_action_dist.logp(buffer_batch[DataKeys.ACTIONS])
@@ -534,15 +535,7 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
                         )
                         approximate_kl_div = float(
                             torch.mean((torch.exp(logp_ratio) - 1) - logp_ratio)
-                            / grad_accumulation_steps
                         )
-
-                    # Optimize.
-                    stepped = self.optimizer.step(
-                        losses["total"],
-                        self.policy.model.parameters(),
-                        max_grad_norm=self.hparams.max_grad_norm,
-                    )
 
                     # Update step data.
                     stat_tracker.update(
@@ -553,20 +546,30 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
                             "losses/policy": float(losses["policy"]),
                             "losses/vf": float(losses["vf"]),
                             "losses/total": float(losses["total"]),
-                            "monitors/kl_div": approximate_kl_div,
+                            "monitors/kl_div": approximate_kl_div
+                            / grad_accumulation_steps,
                         },
-                        reduce=stepped,
+                        reduce=step_this_batch,
                     )
 
                     # Early stopping using approximate KL divergence.
                     if (
                         self.hparams.target_kl_div is not None
-                        and stepped
-                        and stat_tracker.cumulative_averages["monitors/kl_div"].avg
-                        > self.hparams.target_kl_div
+                        and approximate_kl_div > 1.5 * self.hparams.target_kl_div
                     ):
                         stop_early = True
                         break
+
+                    # Optimize.
+                    self.grad_scaler.scale(losses["total"]).backward()
+                    if step_this_batch:
+                        self.grad_scaler.unscale_(self.optimizer)
+                        nn.utils.clip_grad_norm_(
+                            self.policy.model.parameters(), self.hparams.max_grad_norm
+                        )
+                        self.grad_scaler.step(self.optimizer)
+                        self.grad_scaler.update()
+                        self.optimizer.zero_grad()
 
                 if stop_early:
                     break

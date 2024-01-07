@@ -224,6 +224,17 @@ class AlgorithmHparams:
         if not (self.sgd_minibatch_size > 0):
             raise ValueError("`sgd_minibatch_size` must be > 0.")
 
+        if self.target_kl_div is not None and self.accumulate_grads:
+            raise ValueError(
+                "Early-stopping using `target_kl_div` is not compatible with gradient"
+                " accumulation."
+            )
+
+        if self.target_kl_div is not None and self.enable_amp:
+            raise ValueError(
+                "Early-stopping using `target_kl_div` is not compatible with AMP."
+            )
+
         if self.target_kl_div is not None and not (self.target_kl_div > 0):
             raise ValueError("`target_kl_div` must be > 0.")
 
