@@ -564,7 +564,7 @@ class RecurrentAlgorithm(
                             curr_action_dist.logp(buffer_batch[DataKeys.ACTIONS])
                             - buffer_batch[DataKeys.LOGP]
                         )
-                        approximate_kl_div = (
+                        approximate_kl_div = float(
                             torch.mean((torch.exp(logp_ratio) - 1) - logp_ratio)
                             / grad_accumulation_steps
                         )
@@ -585,7 +585,7 @@ class RecurrentAlgorithm(
                             "losses/policy": float(losses["policy"]),
                             "losses/vf": float(losses["vf"]),
                             "losses/total": float(losses["total"]),
-                            "monitors/kl_div": float(approximate_kl_div),
+                            "monitors/kl_div": approximate_kl_div,
                         },
                         reduce=stepped,
                     )
@@ -594,7 +594,8 @@ class RecurrentAlgorithm(
                     if (
                         self.hparams.target_kl_div is not None
                         and stepped
-                        and approximate_kl_div > self.hparams.target_kl_div
+                        and stat_tracker.cumulative_averages["monitors/kl_div"].avg
+                        > self.hparams.target_kl_div
                     ):
                         stop_early = True
                         break

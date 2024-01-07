@@ -562,7 +562,8 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
                     if (
                         self.hparams.target_kl_div is not None
                         and stepped
-                        and approximate_kl_div > self.hparams.target_kl_div
+                        and stat_tracker.cumulative_averages["monitors/kl_div"].avg
+                        > self.hparams.target_kl_div
                     ):
                         stop_early = True
                         break
