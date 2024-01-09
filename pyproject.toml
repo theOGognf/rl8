@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rl8"
-description = "A minimal end-to-end RL library for infinite horizon tasks."
+description = "A high throughput, end-to-end RL library for infinite horizon tasks."
 authors = [{name = "Andrew B."}]
 classifiers = [
     "Intended Audience :: Science/Research",
