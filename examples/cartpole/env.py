@@ -56,11 +56,9 @@ def step(
     theta_vector = obs[2:-1, :]
     theta_ref = torch.zeros_like(theta_vector)
     theta_ref[0, :] = 1.0
-    theta_error = torch.abs(theta_vector - theta_ref).sum(axis=0, keepdim=True).T
+    theta_error = (theta_vector - theta_ref).abs_().sum(axis=0, keepdim=True).T
     other_errors = (
-        torch.abs(torch.vstack((state[0], state[1], state[-1])))
-        .sum(axis=0, keepdim=True)
-        .T
+        torch.vstack((state[0], state[1], state[-1])).abs_().sum(axis=0, keepdim=True).T
     )
     reward = theta_error + other_errors
     return state, obs.T, -reward

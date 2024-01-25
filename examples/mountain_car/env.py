@@ -30,7 +30,8 @@ def step(
     position = position.clip_(min_position, max_position)
     velocity[(position == min_position) & (velocity < 0)] = 0.0
 
-    reward = -torch.abs(position - goal_position)
+    reward = (position - goal_position).abs_()
+    reward *= -1
     reward[(position >= goal_position) & (velocity >= goal_velocity)] = 1.0
     state = torch.vstack((position, velocity))
     obs = state.T

@@ -53,7 +53,7 @@ class PendulumConfig:
     # System mass.
     m: float = 1.0
 
-    # Max cart speed.
+    # Pendulum max angular speed.
     max_speed: float = 8.0
 
     # Max torque that can be applied to the pendulum.
