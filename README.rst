@@ -234,6 +234,9 @@ RL workflow.
 Related Projects
 ================
 
+* `PureJaxRL`_: PureJaxRL is a high-performance, end-to-end RL library. Think of
+  it like **rl8**'s Jax equivalent, but more general in that it doesn't focus
+  on infinite horizon tasks.
 * `RL Games`_: RL Games is a high performance RL library built around popular
   environment protocols.
 * `RLlib`_: Ray's RLlib is the industry standard RL library that supports many
@@ -250,13 +253,19 @@ Related Projects
 * `TorchRL`_: TorchRL is PyTorch's RL library that's focused on efficient, modular,
   documented, and tested RL building blocks and algorithm implementations aimed
   at supporting research in RL. TorchRL is a direct dependency of **rl8**.
+* `WarpDrive`_: WarpDrive is a flexible, lightweight, and easy-to-use open-source
+  RL framework that implements end-to-end multi-agent RL on a single or multiple
+  GPUs. Think of it like **rl8**, but with an emphasis on support for multi-agent
+  RL and without a focus on infinite horizon tasks.
 
 .. _`Automatic Mixed Precision (AMP)`: https://pytorch.org/docs/stable/amp.html
 .. _`examples`: https://github.com/theOGognf/rl8/tree/main/examples
 .. _`MLflow`: https://github.com/mlflow/mlflow
+.. _`PureJaxRL`: https://github.com/luchris429/purejaxrl
 .. _`RL Games`: https://github.com/Denys88/rl_games
 .. _`RLlib`: https://docs.ray.io/en/latest/rllib/index.html
 .. _`Sample Factory`: https://github.com/alex-petrenko/sample-factory
 .. _`SKRL`: https://github.com/Toni-SM/skrl
 .. _`Stable Baselines 3`: https://github.com/DLR-RM/stable-baselines3
 .. _`TorchRL`: https://github.com/pytorch/rl
+.. _`WarpDrive`: https://github.com/salesforce/warp-drive
