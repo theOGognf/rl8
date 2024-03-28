@@ -1,5 +1,4 @@
-![rl8 logo.][13]
-====================================
+# ![rl8 logo.][13]
 
 **rl8** is a minimal end-to-end RL library that can simulate highly
 parallelized, infinite horizon environments, and can train a PPO policy
@@ -16,11 +15,9 @@ within seconds.
 
 ![Consistently solving CartPole within seconds.][12]
 
-Quick Start
-===========
+# Quick Start
 
-Installation
-------------
+## Installation
 
 Install with pip for the latest stable version.
 
@@ -35,8 +32,7 @@ git clone https://github.com/theOGognf/rl8.git
 pip install ./rl8/
 ```
 
-Basic Usage
------------
+## Basic Usage
 
 Train a policy with PPO and log training progress with MLflow using the
 high-level trainer interface (this updates the policy indefinitely).
@@ -65,8 +61,7 @@ The trainer interface is the most popular interface for policy training
 workflows, whereas the algorithm interface is useful for lower-level
 customization of policy training workflows.
 
-Concepts
-========
+# Concepts
 
 **rl8** is minimal in that it limits the number of interfaces required for
 training a policy with PPO without restrictions on observation and action
@@ -90,14 +85,12 @@ specs, custom models, and custom action distributions.
   indefinitely or until some condition is met. The trainer directly integrates
   with MLflow to track experiments and training progress.
 
-Quick Examples
-==============
+# Quick Examples
 
 These short snippets showcase **rl8**'s main features. See the [examples][2]
 for complete implementations of **rl8**-compatible environments and models.
 
-Customizing Training Runs
--------------------------
+## Customizing Training Runs
 
 Use a custom distribution and custom hyperparameters by passing
 options to the trainer (or algorithm) interface.
@@ -115,8 +108,7 @@ trainer = Trainer(
 trainer.run()
 ```
 
-Training a Recurrent Policy
----------------------------
+## Training a Recurrent Policy
 
 Swap to the recurrent flavor of the trainer (or algorithm) interface
 to train a recurrent model and policy.
@@ -129,8 +121,7 @@ trainer = RecurrentTrainer(DiscreteDummyEnv)
 trainer.run()
 ```
 
-Training on a GPU
------------------
+## Training on a GPU
 
 Specify the device used across the environment, model, and
 algorithm.
@@ -143,8 +134,7 @@ trainer = Trainer(DiscreteDummyEnv, device="cuda")
 trainer.run()
 ```
 
-Minimizing GPU Memory Usage
----------------------------
+## Minimizing GPU Memory Usage
 
 Enable policy updates with gradient accumulation and/or
 [Automatic Mixed Precision (AMP)][1] to minimize GPU memory
@@ -167,8 +157,7 @@ trainer = Trainer(
 trainer.run()
 ```
 
-Specifying Training Stop Conditions
------------------------------------
+## Specifying Training Stop Conditions
 
 Specify conditions based on training statistics to stop training early.
 
@@ -181,8 +170,7 @@ trainer = Trainer(DiscreteDummyEnv)
 trainer.run(stop_conditions=[Plateaus("returns/mean", rtol=0.05)])
 ```
 
-Why rl8?
-============
+# Why rl8?
 
 **TL;DR: rl8 focuses on a niche subset of RL that simplifies the overall
 library while allowing fast and fully customizable environments, models, and
@@ -228,8 +216,7 @@ your use case if:
 However, if **rl8** does fit your use case, it can do wonders for your
 RL workflow.
 
-Related Projects
-================
+# Related Projects
 
 * [PureJaxRL][4]: PureJaxRL is a high-performance, end-to-end RL library. Think of
   it like **rl8**'s Jax equivalent, but more general in that it doesn't focus
