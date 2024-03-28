@@ -1,3 +1,4 @@
+m2r
 sphinx==6.*
 sphinx-copybutton
 sphinx_rtd_theme
