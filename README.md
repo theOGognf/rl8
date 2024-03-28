@@ -1,5 +1,4 @@
-.. image:: https://raw.githubusercontent.com/theOGognf/rl8/main/docs/_static/rl8-logo.png
-
+![rl8 logo.][13]
 ====================================
 
 **rl8** is a minimal end-to-end RL library that can simulate highly
@@ -12,12 +11,10 @@ using those environments, achieving up to 1M environment transitions
 * **Repository**: https://github.com/theOGognf/rl8
 
 The figure below depicts **rl8**'s experiment tracking integration with
-`MLflow`_ and **rl8**'s ability to solve reinforcement learning problems
+[MLflow][3] and **rl8**'s ability to solve reinforcement learning problems
 within seconds.
 
-.. figure:: https://raw.githubusercontent.com/theOGognf/rl8/main/docs/_static/rl8-examples-solving-cartpole.png
-    :align: center
-    :alt: Consistently solving CartPole within seconds.
+![Consistently solving CartPole within seconds.][12]
 
 Quick Start
 ===========
@@ -27,16 +24,16 @@ Installation
 
 Install with pip for the latest stable version.
 
-.. code:: console
-
-    pip install rl8
+```console
+pip install rl8
+```
 
 Install from GitHub for the latest unstable version.
 
-.. code:: console
-
-    git clone https://github.com/theOGognf/rl8.git
-    pip install ./rl8/
+```console
+git clone https://github.com/theOGognf/rl8.git
+pip install ./rl8/
+```
 
 Basic Usage
 -----------
@@ -44,25 +41,25 @@ Basic Usage
 Train a policy with PPO and log training progress with MLflow using the
 high-level trainer interface (this updates the policy indefinitely).
 
-.. code:: python
+```python
+from rl8 import Trainer
+from rl8.env import DiscreteDummyEnv
 
-    from rl8 import Trainer
-    from rl8.env import DiscreteDummyEnv
-
-    trainer = Trainer(DiscreteDummyEnv)
-    trainer.run()
+trainer = Trainer(DiscreteDummyEnv)
+trainer.run()
+```
 
 Collect environment transitions and update a policy directly using the
 low-level algorithm interface (this updates the policy once).
 
-.. code:: python
+```python
+from rl8 import Algorithm
+from rl8.env import DiscreteDummyEnv
 
-    from rl8 import Algorithm
-    from rl8.env import DiscreteDummyEnv
-
-    algo = Algorithm(DiscreteDummyEnv)
-    algo.collect()
-    algo.step()
+algo = Algorithm(DiscreteDummyEnv)
+algo.collect()
+algo.step()
+```
 
 The trainer interface is the most popular interface for policy training
 workflows, whereas the algorithm interface is useful for lower-level
@@ -96,7 +93,7 @@ specs, custom models, and custom action distributions.
 Quick Examples
 ==============
 
-These short snippets showcase **rl8**'s main features. See the `examples`_
+These short snippets showcase **rl8**'s main features. See the [examples][2]
 for complete implementations of **rl8**-compatible environments and models.
 
 Customizing Training Runs
@@ -105,18 +102,18 @@ Customizing Training Runs
 Use a custom distribution and custom hyperparameters by passing
 options to the trainer (or algorithm) interface.
 
-.. code:: python
+```python
+from rl8 import SquashedNormal, Trainer
+from rl8.env import ContinuousDummyEnv
 
-    from rl8 import SquashedNormal, Trainer
-    from rl8.env import ContinuousDummyEnv
-
-    trainer = Trainer(
-        ContinuousDummyEnv,
-        distribution_cls=SquashedNormal,
-        gae_lambda=0.99,
-        gamma=0.99,
-    )
-    trainer.run()
+trainer = Trainer(
+    ContinuousDummyEnv,
+    distribution_cls=SquashedNormal,
+    gae_lambda=0.99,
+    gamma=0.99,
+)
+trainer.run()
+```
 
 Training a Recurrent Policy
 ---------------------------
@@ -124,13 +121,13 @@ Training a Recurrent Policy
 Swap to the recurrent flavor of the trainer (or algorithm) interface
 to train a recurrent model and policy.
 
-.. code:: python
+```python
+from rl8 import RecurrentTrainer
+from rl8.env import DiscreteDummyEnv
 
-    from rl8 import RecurrentTrainer
-    from rl8.env import DiscreteDummyEnv
-
-    trainer = RecurrentTrainer(DiscreteDummyEnv)
-    trainer.run()
+trainer = RecurrentTrainer(DiscreteDummyEnv)
+trainer.run()
+```
 
 Training on a GPU
 -----------------
@@ -138,51 +135,51 @@ Training on a GPU
 Specify the device used across the environment, model, and
 algorithm.
 
-.. code:: python
+```python
+from rl8 import Trainer
+from rl8.env import DiscreteDummyEnv
 
-    from rl8 import Trainer
-    from rl8.env import DiscreteDummyEnv
-
-    trainer = Trainer(DiscreteDummyEnv, device="cuda")
-    trainer.run()
+trainer = Trainer(DiscreteDummyEnv, device="cuda")
+trainer.run()
+```
 
 Minimizing GPU Memory Usage
 ---------------------------
 
 Enable policy updates with gradient accumulation and/or
-`Automatic Mixed Precision (AMP)`_ to minimize GPU memory
+[Automatic Mixed Precision (AMP)][1] to minimize GPU memory
 usage so you can simulate more environments or use larger models.
 
-.. code:: python
+```python
+import torch.optim as optim
 
-    import torch.optim as optim
+from rl8 import Trainer
+from rl8.env import DiscreteDummyEnv
 
-    from rl8 import Trainer
-    from rl8.env import DiscreteDummyEnv
-
-    trainer = Trainer(
-        DiscreteDummyEnv,
-        optimizer_cls=optim.SGD,
-        accumulate_grads=True,
-        enable_amp=True,
-        sgd_minibatch_size=8192,
-        device="cuda",
-    )
-    trainer.run()
+trainer = Trainer(
+    DiscreteDummyEnv,
+    optimizer_cls=optim.SGD,
+    accumulate_grads=True,
+    enable_amp=True,
+    sgd_minibatch_size=8192,
+    device="cuda",
+)
+trainer.run()
+```
 
 Specifying Training Stop Conditions
 -----------------------------------
 
 Specify conditions based on training statistics to stop training early.
 
-.. code:: python
+```python
+from rl8 import Trainer
+from rl8.conditions import Plateaus
+from rl8.env import DiscreteDummyEnv
 
-    from rl8 import Trainer
-    from rl8.conditions import Plateaus
-    from rl8.env import DiscreteDummyEnv
-
-    trainer = Trainer(DiscreteDummyEnv)
-    trainer.run(stop_conditions=[Plateaus("returns/mean", rtol=0.05)])
+trainer = Trainer(DiscreteDummyEnv)
+trainer.run(stop_conditions=[Plateaus("returns/mean", rtol=0.05)])
+```
 
 Why rl8?
 ============
@@ -234,38 +231,40 @@ RL workflow.
 Related Projects
 ================
 
-* `PureJaxRL`_: PureJaxRL is a high-performance, end-to-end RL library. Think of
+* [PureJaxRL][4]: PureJaxRL is a high-performance, end-to-end RL library. Think of
   it like **rl8**'s Jax equivalent, but more general in that it doesn't focus
   on infinite horizon tasks.
-* `RL Games`_: RL Games is a high performance RL library built around popular
+* [RL Games][5]: RL Games is a high performance RL library built around popular
   environment protocols.
-* `RLlib`_: Ray's RLlib is the industry standard RL library that supports many
+* [RLlib][6]: Ray's RLlib is the industry standard RL library that supports many
   popular RL algorithms. RLlib can scale RL workloads from your laptop all the
   way to the cloud with little-to-no changes to your code.
-* `Sample Factory`_: Sample Factory provides an efficient and high quality
+* [Sample Factory][7]: Sample Factory provides an efficient and high quality
   implementation of PPO with a focus on accelerating training for a single machine
   with support for a wide variety of environment protocols.
-* `SKRL`_: SKRL focuses on readability, simplicity, and transparency of RL algorithm
+* [SKRL][8]: SKRL focuses on readability, simplicity, and transparency of RL algorithm
   implementations with support for a wide variety of environment protocols.
-* `Stable Baselines 3`_: Stable Baselines 3 is a set of reliable and user-friendly
+* [Stable Baselines 3][9]: Stable Baselines 3 is a set of reliable and user-friendly
   RL algorithm implementations that integrate with a rich set of features desirable
   by most practitioners and use cases.
-* `TorchRL`_: TorchRL is PyTorch's RL library that's focused on efficient, modular,
+* [TorchRL][10]: TorchRL is PyTorch's RL library that's focused on efficient, modular,
   documented, and tested RL building blocks and algorithm implementations aimed
   at supporting research in RL. TorchRL is a direct dependency of **rl8**.
-* `WarpDrive`_: WarpDrive is a flexible, lightweight, and easy-to-use open-source
+* [WarpDrive][11]: WarpDrive is a flexible, lightweight, and easy-to-use open-source
   RL framework that implements end-to-end multi-agent RL on a single or multiple
   GPUs. Think of it like **rl8**, but with an emphasis on support for multi-agent
   RL and without a focus on infinite horizon tasks.
 
-.. _`Automatic Mixed Precision (AMP)`: https://pytorch.org/docs/stable/amp.html
-.. _`examples`: https://github.com/theOGognf/rl8/tree/main/examples
-.. _`MLflow`: https://github.com/mlflow/mlflow
-.. _`PureJaxRL`: https://github.com/luchris429/purejaxrl
-.. _`RL Games`: https://github.com/Denys88/rl_games
-.. _`RLlib`: https://docs.ray.io/en/latest/rllib/index.html
-.. _`Sample Factory`: https://github.com/alex-petrenko/sample-factory
-.. _`SKRL`: https://github.com/Toni-SM/skrl
-.. _`Stable Baselines 3`: https://github.com/DLR-RM/stable-baselines3
-.. _`TorchRL`: https://github.com/pytorch/rl
-.. _`WarpDrive`: https://github.com/salesforce/warp-drive
+[1]: https://pytorch.org/docs/stable/amp.html
+[2]: https://github.com/theOGognf/rl8/tree/main/examples
+[3]: https://github.com/mlflow/mlflow
+[4]: https://github.com/luchris429/purejaxrl
+[5]: https://github.com/Denys88/rl_games
+[6]: https://docs.ray.io/en/latest/rllib/index.html
+[7]: https://github.com/alex-petrenko/sample-factory
+[8]: https://github.com/Toni-SM/skrl
+[9]: https://github.com/DLR-RM/stable-baselines3
+[10]: https://github.com/pytorch/rl
+[11]: https://github.com/salesforce/warp-drive
+[12]: https://raw.githubusercontent.com/theOGognf/rl8/main/docs/_static/rl8-examples-solving-cartpole.png
+[13]: https://raw.githubusercontent.com/theOGognf/rl8/main/docs/_static/rl8-logo.png
