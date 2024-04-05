@@ -22,10 +22,10 @@ classifiers = [
     "Typing :: Typed"
 ]
 dependencies = [
-    "mlflow-skinny",
-    "pandas",
-    "psutil",
-    "torchrl",
+    "mlflow-skinny==2.*",
+    "pandas==2.*",
+    "psutil==5.*",
+    "torchrl==0.*",
     "typing-extensions"
 ]
 dynamic = ["version"]
