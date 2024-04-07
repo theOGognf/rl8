@@ -1,6 +1,6 @@
 """High-level training interfaces."""
 
-from typing import Any, TypedDict
+from typing import Any, Literal, TypedDict
 
 import torch.optim as optim
 from typing_extensions import Unpack
@@ -52,7 +52,7 @@ class RecurrentAlgorithmConfig(TypedDict, total=False):
     max_grad_norm: float
     normalize_advantages: bool
     normalize_rewards: bool
-    device: Device
+    device: Device | Literal["auto"]
 
 
 class RecurrentTrainer(GenericTrainerBase[RecurrentAlgorithm]):

@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 
 import torch
 import torch.amp as amp
@@ -199,8 +199,9 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
         max_grad_norm: float = 5.0,
         normalize_advantages: bool = True,
         normalize_rewards: bool = True,
-        device: Device = "cpu",
+        device: Device | Literal["auto"] = "auto",
     ) -> None:
+        device = "cuda" if device == "auto" and torch.cuda.is_available() else "cpu"
         max_num_envs = (
             env_cls.max_num_envs if hasattr(env_cls, "max_num_envs") else num_envs
         )

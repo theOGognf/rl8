@@ -41,7 +41,7 @@ trainer = trainer_cls(
     AlgoTrading,
     model_cls=model_cls,
     enable_amp=torch.cuda.is_available(),
-    device="cuda" if torch.cuda.is_available() else "cpu",
+    device="auto",
 )
 trainer.algorithm.validate()
 run = mlflow.active_run()
