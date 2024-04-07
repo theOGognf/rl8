@@ -1,5 +1,9 @@
 # ![rl8 logo.][13]
 
+![PyPI Downloads](https://img.shields.io/pypi/dm/rl8)
+![PyPI Version](https://img.shields.io/pypi/v/rl8)
+![Python Versions](https://img.shields.io/pypi/pyversions/rl8)
+
 **rl8** is a minimal end-to-end RL library that can simulate highly
 parallelized, infinite horizon environments, and can train a PPO policy
 using those environments, achieving up to 1M environment transitions
