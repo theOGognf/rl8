@@ -25,7 +25,7 @@ from .policies import (
     Policy,
     RecurrentPolicy,
 )
-from .trainers import GenericTrainerBase, RecurrentTrainer, Trainer
+from .trainers import GenericTrainerBase, RecurrentTrainer, TrainConfig, Trainer
 
 try:
     __version__ = version("rl8")
