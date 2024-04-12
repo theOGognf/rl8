@@ -73,19 +73,21 @@ specs, custom models, and custom action distributions.
 
 **rl8** is built around six key concepts:
 
-* **The environment**: The simulation that the policy learns to interact with.
-* **The model**: The policy parameterization that determines how the policy
+* **[The environment][14]**: The simulation that the policy learns to interact with.
+  The environment definition is a bit different from your typical environment
+  definition from other RL libraries.
+* **[The model][15]**: The policy parameterization that determines how the policy
   processes environment observations and how parameters for the action
   distribution are generated.
-* **The action distribution**: The mechanism for representing actions
+* **[The action distribution][16]**: The mechanism for representing actions
   conditioned on environment observations and model outputs. Environment
   actions are ultimately sampled from the action distribution.
-* **The policy**: The union of the model and the action distribution that
+* **[The policy][17]**: The union of the model and the action distribution that
   actually calls and samples from the model and action distribution,
   respectively.
-* **The algorithm**: The PPO implementation that uses the environment to train
+* **[The algorithm][18]**: The PPO implementation that uses the environment to train
   the policy (i.e., update the model's parameters).
-* **The trainer**: The high-level interface for using the algorithm to train
+* **[The trainer][19]**: The high-level interface for using the algorithm to train
   indefinitely or until some condition is met. The trainer directly integrates
   with MLflow to track experiments and training progress.
 
@@ -93,6 +95,25 @@ specs, custom models, and custom action distributions.
 
 These short snippets showcase **rl8**'s main features. See the [examples][2]
 for complete implementations of **rl8**-compatible environments and models.
+
+## Train with the CLI
+
+Suppose `./config.yaml` contains the following.
+
+```yaml
+# Fully qualified path to the environment's definition.
+env_cls: rl8.env.ContinuousDummyEnv
+
+# Some custom parameters.
+gamma: 0.75
+horizon: 8
+```
+
+Train a policy with the `rl8 train` CLI.
+
+```console
+rl8 train -f config.yaml
+```
 
 ## Customizing Training Runs
 
@@ -259,3 +280,9 @@ RL workflow.
 [11]: https://github.com/salesforce/warp-drive
 [12]: https://raw.githubusercontent.com/theOGognf/rl8/main/docs/_static/rl8-examples-solving-cartpole.png
 [13]: https://raw.githubusercontent.com/theOGognf/rl8/main/docs/_static/rl8-logo.png
+[14]: https://theogognf.github.io/rl8/build/html/_modules/rl8/env.html#Env
+[15]: https://theogognf.github.io/rl8/build/html/_modules/rl8/models/_base.html#GenericModelBase
+[16]: https://theogognf.github.io/rl8/build/html/_modules/rl8/distributions.html#Distribution
+[17]: https://theogognf.github.io/rl8/build/html/_modules/rl8/policies/_base.html#GenericPolicyBase
+[18]: https://theogognf.github.io/rl8/build/html/_modules/rl8/algorithms/_base.html#GenericAlgorithmBase
+[19]: https://theogognf.github.io/rl8/build/html/_modules/rl8/trainers/_base.html#GenericTrainerBase
