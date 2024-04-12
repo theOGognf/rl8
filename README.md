@@ -96,7 +96,7 @@ specs, custom models, and custom action distributions.
 These short snippets showcase **rl8**'s main features. See the [examples][2]
 for complete implementations of **rl8**-compatible environments and models.
 
-## Train with the CLI
+## Training with the CLI
 
 Suppose `./config.yaml` contains the following.
 
