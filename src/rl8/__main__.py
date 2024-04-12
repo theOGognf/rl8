@@ -10,7 +10,7 @@ from .conditions import HitsUpperBound
 from .trainers import TrainConfig
 
 
-def _fullname(o: type) -> str:
+def _fullname(o):  # type: ignore[no-untyped-def]
     # Credit: https://stackoverflow.com/a/13653312
     module = o.__module__
     if module is None or module == str.__class__.__module__:
