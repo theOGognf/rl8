@@ -17,9 +17,26 @@ class Env(ABC):
     """Protocol defining the IsaacGym -like environments for supporting
     highly parallelized simulation.
 
+    To define your own custom environment, you must define the following
+    instance attributes:
+
+        - :attr:`Env.action_spec`: The spec defining the environment's
+          inputs for its step function.
+        - :attr:`Env.observation_spec`: The spec defining part of the
+          environment's outputs for its reset and step functions.
+
+    You must also define the following methods:
+
+        - :meth:`Env.reset`: Returns the initial observation.
+        - :meth:`Env.step`: Takes an action and returns the updated
+          environment observation and the new environment reward.
+
     Args:
         num_envs: Number of parallel and independent environments being
             simulated by one :class:`Env` instance.
+        horizon: Number of steps the environment expects to take before
+            being reset. ``None`` suggests the environment may never
+            reset.
         config: Config detailing simulation options/parameters for the
             environment's initialization.
         device: Device the environment's underlying data should be

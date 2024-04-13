@@ -14,6 +14,14 @@ _Algorithm = TypeVar("_Algorithm", bound=GenericAlgorithmBase[Any, Any, Any])
 
 
 class GenericTrainerBase(Generic[_Algorithm]):
+    """The base trainer interface.
+
+    All trainers (the higher-level training interfaces) inherit from this
+    class and are bound to a particular algorithm (i.e., one trainer per
+    algorithm).
+
+    """
+
     #: Underlying PPO algorithm, including the environment, model,
     #: action distribution, and hyperparameters.
     algorithm: _Algorithm

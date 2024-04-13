@@ -13,6 +13,21 @@ _T = TypeVar("_T")
 
 
 class GenericModelBase(Module[_P, _T], metaclass=ABCMeta):
+    """The base for the policy component that processes environment
+    observations into a value function approximation and features
+    to be consumed by an action distribution for action sampling.
+
+    All model flavors (i.e., feedforward or recurrent) inherit from this
+    base. This just provides a common interface for different model flavors.
+
+    Args:
+        observation_spec: Spec defining the forward pass input.
+        action_spec: Spec defining the outputs of the policy's action
+            distribution that this model is a component of.
+        config: Model-specific configuration.
+
+    """
+
     #: Spec defining the outputs of the policy's action distribution that
     #: this model is a component of. Useful for defining the model as a
     #: function of the action spec.

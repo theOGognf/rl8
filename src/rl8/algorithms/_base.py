@@ -27,6 +27,8 @@ _Policy = TypeVar("_Policy", bound=GenericPolicyBase[Any])
 class GenericAlgorithmBase(
     Generic[_AlgorithmHparams, _AlgorithmState, _Policy], metaclass=ABCMeta
 ):
+    """The base class for PPO algorithm flavors."""
+
     #: Environment experience buffer used for aggregating environment
     #: transition data and policy sample data. The same buffer object
     #: is shared whenever using :meth:`GenericAlgorithmBase.collect`. Buffer

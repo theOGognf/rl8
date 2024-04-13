@@ -22,6 +22,13 @@ _Model = TypeVar(
 
 
 class GenericPolicyBase(Generic[_Model], metaclass=ABCMeta):
+    """The base policy, defining the interfaces for the union of a feedforward
+    model and an action distribution.
+
+    All policies inherit from this base class.
+
+    """
+
     #: Underlying policy action distribution that's parameterized by
     #: features produced by :attr:`GenericPolicyBase.model`.
     distribution_cls: type[Distribution]
