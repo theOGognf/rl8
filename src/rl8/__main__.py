@@ -22,7 +22,15 @@ def main() -> Literal[0]:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command")
 
-    train_parser = subparsers.add_parser("train", help="Train a policy from a config.")
+    train_parser = subparsers.add_parser(
+        "train",
+        help=(
+            "Training command to train a policy using the trainer interface. Provides a"
+            " common training workflow that satisfies most use cases. Includes training"
+            " from a config file, MLflow experiment/run setup, training validation,"
+            " policy saving, and more."
+        ),
+    )
     train_parser.add_argument(
         "-f",
         "--file",

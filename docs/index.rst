@@ -4,6 +4,7 @@
    :maxdepth: 2
    :caption: Contents
 
+   CLI <cli>
    API <api/modules>
 
 :ref:`genindex`

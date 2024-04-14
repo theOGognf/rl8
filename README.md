@@ -96,25 +96,6 @@ specs, custom models, and custom action distributions.
 These short snippets showcase **rl8**'s main features. See the [examples][2]
 for complete implementations of **rl8**-compatible environments and models.
 
-## Training with the CLI
-
-Suppose `./config.yaml` contains the following.
-
-```yaml
-# Fully qualified path to the environment's definition.
-env_cls: rl8.env.ContinuousDummyEnv
-
-# Some custom parameters.
-gamma: 0.75
-horizon: 8
-```
-
-Train a policy with the `rl8 train` CLI.
-
-```console
-rl8 train -f config.yaml
-```
-
 ## Customizing Training Runs
 
 Use a custom distribution and custom hyperparameters by passing
@@ -193,6 +174,25 @@ from rl8.env import DiscreteDummyEnv
 
 trainer = Trainer(DiscreteDummyEnv)
 trainer.run(stop_conditions=[Plateaus("returns/mean", rtol=0.05)])
+```
+
+## Training with the CLI
+
+Suppose `./config.yaml` contains the following.
+
+```yaml
+# Fully qualified path to the environment's definition.
+env_cls: rl8.env.ContinuousDummyEnv
+
+# Some custom parameters.
+gamma: 0.75
+horizon: 8
+```
+
+Train a policy with the trainer interface using the `rl8 train` CLI.
+
+```console
+rl8 train -f config.yaml
 ```
 
 # Why rl8?
