@@ -27,6 +27,7 @@ class RecurrentPolicy(GenericPolicyBase[RecurrentModel]):  # type: ignore[type-v
         model_cls: Model class or class factory to use.
         model_config: Model class args.
         distribution_cls: Action distribution class.
+        device: Device the policy resides on.
 
     """
 
