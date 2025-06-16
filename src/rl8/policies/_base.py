@@ -2,7 +2,7 @@ import os
 from abc import ABCMeta, abstractmethod
 from typing import Any, Generic, TypeVar
 
-import mlflow
+from mlflow.pyfunc import PythonModel
 from torchrl.data import TensorSpec
 from typing_extensions import Self
 
@@ -54,7 +54,7 @@ class GenericPolicyBase(Generic[_Model], metaclass=ABCMeta):
         return self.model.observation_spec
 
     @abstractmethod
-    def save(self, path: str | os.PathLike[str], /) -> mlflow.pyfunc.PythonModel:
+    def save(self, path: str | os.PathLike[str], /) -> PythonModel:
         """Save the policy by cloud pickling it to ``path`` and returning
         the interface used for deploying it with MLflow.
 

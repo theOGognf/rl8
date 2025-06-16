@@ -75,27 +75,28 @@ def main() -> Literal[0]:
             trainer = config.build()
             trainer.algorithm.validate()
             run = mlflow.active_run()
-            print(f"Logging metrics under MLflow run {run.info.run_name}")
-            trainer.run(
-                steps_per_eval=args.steps_per_eval,
-                stop_conditions=[HitsUpperBound("algorithm/steps", args.max_steps)],
-            )
-            if args.save:
-                pathlib.Path(args.save).mkdir(exist_ok=True)
-                trainer.algorithm.policy.model.eval()
-                trainer.algorithm.policy.to("cpu")
-                mlflow.pyfunc.save_model(
-                    f"{args.save}/model",
-                    python_model=trainer.algorithm.policy.save(
-                        f"{args.save}/policy.pkl"
-                    ),
-                    artifacts={"policy": f"{args.save}/policy.pkl"},
-                    metadata={
-                        "experiment_name": experiment.name,
-                        "run_name": run.info.run_name,
-                    },
+            if run is not None:
+                print(f"Logging metrics under MLflow run {run.info.run_name}")
+                trainer.run(
+                    steps_per_eval=args.steps_per_eval,
+                    stop_conditions=[HitsUpperBound("algorithm/steps", args.max_steps)],
                 )
-            mlflow.end_run()
+                if args.save:
+                    pathlib.Path(args.save).mkdir(exist_ok=True)
+                    trainer.algorithm.policy.model.eval()
+                    trainer.algorithm.policy.to("cpu")
+                    mlflow.pyfunc.save_model(
+                        f"{args.save}/model",
+                        python_model=trainer.algorithm.policy.save(
+                            f"{args.save}/policy.pkl"
+                        ),
+                        artifacts={"policy": f"{args.save}/policy.pkl"},
+                        metadata={
+                            "experiment_name": experiment.name,
+                            "run_name": run.info.run_name,
+                        },
+                    )
+                mlflow.end_run()
     return 0
 
 

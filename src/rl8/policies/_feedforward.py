@@ -2,9 +2,9 @@ import os
 from typing import Any
 
 import cloudpickle
-import mlflow
 import pandas as pd
 import torch
+from mlflow.pyfunc import PythonModel, PythonModelContext
 from tensordict import TensorDict
 from torchrl.data import TensorSpec
 
@@ -190,7 +190,7 @@ class Policy(GenericPolicyBase[Model]):
         return MLflowPolicyModel()
 
 
-class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
+class MLflowPolicyModel(PythonModel):
     """A MLflow Python model implementation of a feedforward policy.
 
     This is by no means the only way to define a MLflow interface for
@@ -248,14 +248,15 @@ class MLflowPolicyModel(mlflow.pyfunc.PythonModel):
 
     """
 
-    def load_context(self, context: mlflow.pyfunc.PythonModelContext) -> None:
+    def load_context(self, context: PythonModelContext) -> None:
         """Loads the saved policy on model instantiation."""
         self.policy: Policy = cloudpickle.load(open(context.artifacts["policy"], "rb"))
 
     def predict(
         self,
-        context: mlflow.pyfunc.PythonModelContext,
+        context: PythonModelContext,
         model_input: dict[str, Any],
+        params: None | dict[str, Any] = None,
     ) -> pd.DataFrame:
         """Sample from the underlying policy using ``model_input`` as input.
 
