@@ -1,6 +1,5 @@
 # ![rl8 logo.][13]
 
-![PyPI Downloads](https://img.shields.io/pypi/dm/rl8)
 ![PyPI Version](https://img.shields.io/pypi/v/rl8)
 ![Python Versions](https://img.shields.io/pypi/pyversions/rl8)
 
