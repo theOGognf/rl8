@@ -5,9 +5,9 @@
 ![Python Versions](https://img.shields.io/pypi/pyversions/rl8)
 
 **rl8** is a minimal, end-to-end RL library that can simulate highly
-parallelized, infinite horizon environments, and can train a PPO policy
+parallelized, infinite-horizon environments, and can train a PPO policy
 using those environments, achieving up to 1M environment transitions
-(and one policy update) per second using a single NVIDIA RTX 2080.
+(and one policy update) per second with a single NVIDIA RTX 2080.
 
 * **Documentation**: https://theogognf.github.io/rl8/
 * **PyPI**: https://pypi.org/project/rl8/
@@ -218,7 +218,7 @@ of maximizing training performance for a few key assumptions:
 * Environments are highly parallelized and their parallelization is entirely
   managed within the environment. This allows **rl8** to ignore distributed
   computing design considerations.
-* Environments are infinite horizon (i.e., they have no terminal conditions).
+* Environments are infinite-horizon (i.e., they have no terminal conditions).
   This allows **rl8** to reset environments at the same, fixed horizon
   intervals, greatly simplifying environment and algorithm implementations.
 * The only supported ML framework is PyTorch and the only supported algorithm
@@ -234,7 +234,7 @@ your use case if:
 
 * Your environment isn't parallelizable.
 * Your environment must contain terminal conditions and can't be reformulated
-  as an infinite horizon task.
+  as an infinite-horizon task.
 * You want to use an ML framework that isn't PyTorch or you want to use an
   algorithm that isn't a variant of PPO.
 
@@ -245,7 +245,7 @@ RL workflow.
 
 * [PureJaxRL][4]: PureJaxRL is a high-performance, end-to-end RL library. Think of
   it like **rl8**'s Jax equivalent, but more general in that it doesn't focus
-  on infinite horizon tasks.
+  on infinite-horizon tasks.
 * [RL Games][5]: RL Games is a high performance RL library built around popular
   environment protocols.
 * [RLlib][6]: Ray's RLlib is the industry standard RL library that supports many
@@ -265,7 +265,7 @@ RL workflow.
 * [WarpDrive][11]: WarpDrive is a flexible, lightweight, and easy-to-use open-source
   RL framework that implements end-to-end multi-agent RL on a single or multiple
   GPUs. Think of it like **rl8**, but with an emphasis on support for multi-agent
-  RL and without a focus on infinite horizon tasks.
+  RL and without a focus on infinite-horizon tasks.
 
 [1]: https://pytorch.org/docs/stable/amp.html
 [2]: https://github.com/theOGognf/rl8/tree/main/examples

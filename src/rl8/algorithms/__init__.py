@@ -1,7 +1,7 @@
 """Definitions related to PPO algorithms (data collection and training steps).
 
 Algorithms assume environments are parallelized much like
-`IsaacGym environments`_ and are infinite horizon with no terminal
+`IsaacGym environments`_ and are infinite-horizon with no terminal
 conditions. These assumptions allow the learning procedure to occur
 extremely fast even for complex, sequence-based models because:
 
