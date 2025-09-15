@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rl8.trainers._base &mdash; rl8  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            rl8
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">rl8</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">rl8.trainers._base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rl8.trainers._base</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;High-level training interfaces.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">TypeVar</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce_stats</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericAlgorithmBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..conditions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Condition</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..data</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvalCollectStats</span><span class="p">,</span> <span class="n">TrainerState</span><span class="p">,</span> <span class="n">TrainStats</span>
+
+<span class="n">_Algorithm</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_Algorithm&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">GenericAlgorithmBase</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="GenericTrainerBase"><a class="viewcode-back" href="../../../api/rl8.trainers.html#rl8.trainers.GenericTrainerBase">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">GenericTrainerBase</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">_Algorithm</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The base trainer interface.</span>
+
+<span class="sd">    All trainers (the higher-level training interfaces) inherit from this</span>
+<span class="sd">    class and are bound to a particular algorithm (i.e., one trainer per</span>
+<span class="sd">    algorithm).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#: Underlying PPO algorithm, including the environment, model,</span>
+    <span class="c1">#: action distribution, and hyperparameters.</span>
+    <span class="n">algorithm</span><span class="p">:</span> <span class="n">_Algorithm</span>
+
+    <span class="c1">#: Trainer state used for tracking a handful of running totals</span>
+    <span class="c1">#: necessary for logging metrics, determining when a policy</span>
+    <span class="c1">#: can be evaluated, etc..</span>
+    <span class="n">state</span><span class="p">:</span> <span class="n">TrainerState</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">:</span> <span class="n">_Algorithm</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span> <span class="o">=</span> <span class="n">algorithm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;algorithm/collects&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;algorithm/steps&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;env/steps&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">log_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GenericTrainerBase.eval"><a class="viewcode-back" href="../../../api/rl8.trainers.html#rl8.trainers.GenericTrainerBase.eval">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">env_config</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EvalCollectStats</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run a single evaluation step, collecting environment transitions</span>
+<span class="sd">        for several horizons with potentially different environment configs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            env_config: Environment config override. Useful for evaluating a</span>
+<span class="sd">                policy&#39;s generalizability by setting the environment config</span>
+<span class="sd">                to something different from the environment config during</span>
+<span class="sd">                training.</span>
+<span class="sd">            deterministic: Whether to sample from the policy deterministically.</span>
+<span class="sd">                This is usally ``False`` during learning and ``True`` during</span>
+<span class="sd">                evaluation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Eval stats from the collection buffer.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If this method is called outside of the underlying</span>
+<span class="sd">                algorithm&#39;s ``horizons_per_env_reset`` interval.</span>
+<span class="sd">            ValueError: If the an eval environment config is provided but</span>
+<span class="sd">                the environment isn&#39;t expected to use that eval environment</span>
+<span class="sd">                config.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">env_config</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">horizons_per_env_reset</span> <span class="o">&lt;</span> <span class="mi">0</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;algorithm/collects&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;An eval environment config was provided even though the environment is&quot;</span>
+                <span class="s2">&quot; not expected to use the config because `horizons_per_env_reset` is &lt;&quot;</span>
+                <span class="s2">&quot; 0 (indicating the environment is reset just once at the beginning of&quot;</span>
+                <span class="s2">&quot; training). Either 1) do not provide an eval environment config, or 2)&quot;</span>
+                <span class="s2">&quot; set `horizons_per_env_reset` &gt; 0.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">horizons_per_env_reset</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;algorithm/collects&quot;</span><span class="p">]</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">horizons_per_env_reset</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eval</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> can only be called every&quot;</span>
+                <span class="s2">&quot; `horizons_per_env_reset`. This is necessary because algorithms share&quot;</span>
+                <span class="s2">&quot; the same buffer when collecting experiences for training and for&quot;</span>
+                <span class="s2">&quot; evaluation.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="n">horizons_per_env_reset</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">horizons_per_env_reset</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">horizons_per_env_reset</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span>
+                <span class="n">env_config</span><span class="o">=</span><span class="n">env_config</span><span class="p">,</span> <span class="n">deterministic</span><span class="o">=</span><span class="n">deterministic</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">stats</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;algorithm/collects&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">eval_stats</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;eval/</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">reduce_stats</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metrics</span><span class="p">(</span><span class="n">eval_stats</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;env/steps&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">eval_stats</span>  <span class="c1"># type: ignore[return-value]</span></div>
+
+<div class="viewcode-block" id="GenericTrainerBase.run"><a class="viewcode-back" href="../../../api/rl8.trainers.html#rl8.trainers.GenericTrainerBase.run">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">env_config</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">eval_env_config</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">steps_per_eval</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stop_conditions</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">Condition</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TrainStats</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the trainer and underlying algorithm until at least of of the</span>
+<span class="sd">        ``stop_conditions`` is satisfied.</span>
+
+<span class="sd">        This method runs indefinitely unless at least one stop condition is</span>
+<span class="sd">        provided.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            env_config: Environment config override. Useful for scheduling</span>
+<span class="sd">                domain randomization.</span>
+<span class="sd">            eval_env_config: Environment config override during evaluations.</span>
+<span class="sd">                Defaults to the config provided by ``env_config`` if not</span>
+<span class="sd">                provided. Useful for evaluating a policy&#39;s generalizability.</span>
+<span class="sd">            steps_per_eval: Number of :meth:`Trainer.step` calls before calling</span>
+<span class="sd">                :meth:`Trainer.eval`.</span>
+<span class="sd">            stop_conditions: Conditions evaluated each iteration that determines</span>
+<span class="sd">                whether to stop training. Only one condition needs to evaluate</span>
+<span class="sd">                as ``True`` for training to stop. Training will continue</span>
+<span class="sd">                indefinitely unless a stop condition returns ``True``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The most recent train stats when the training is stopped due</span>
+<span class="sd">            to a stop condition being satisfied.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: 1) If the an eval environment config is provided but</span>
+<span class="sd">                the environment isn&#39;t expected to use that eval environment</span>
+<span class="sd">                config, and 2) if ``steps_per_eval`` is not a factor of</span>
+<span class="sd">                the algorithm&#39;s ``horizons_per_env_reset``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">steps_per_eval</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">horizons_per_env_reset</span> <span class="o">&lt;</span> <span class="mi">0</span>
+            <span class="ow">and</span> <span class="n">eval_env_config</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;An eval environment config was provided even though the environment is&quot;</span>
+                <span class="s2">&quot; not expected to use the config because `horizons_per_env_reset` is &lt;&quot;</span>
+                <span class="s2">&quot; 0 (indicating the environment is reset just once at the beginning of&quot;</span>
+                <span class="s2">&quot; training). Either 1) do not provide an eval environment config, or 2)&quot;</span>
+                <span class="s2">&quot; set `horizons_per_env_reset` &gt; 0.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">steps_per_eval</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">horizons_per_env_reset</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="ow">and</span> <span class="n">steps_per_eval</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">horizons_per_env_reset</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eval</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> can only be called every&quot;</span>
+                <span class="s2">&quot; `horizons_per_env_reset`. This is necessary because algorithms share&quot;</span>
+                <span class="s2">&quot; the same buffer for collecting experiences during training and for&quot;</span>
+                <span class="s2">&quot; evaluation. Set `steps_per_eval` to a factor of&quot;</span>
+                <span class="s2">&quot; `horizons_per_env_reset` to avoid this error.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">eval_env_config</span> <span class="o">=</span> <span class="n">eval_env_config</span> <span class="ow">or</span> <span class="n">env_config</span>
+        <span class="n">stop_conditions</span> <span class="o">=</span> <span class="n">stop_conditions</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="n">train_stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">env_config</span><span class="o">=</span><span class="n">env_config</span><span class="p">)</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="n">condition</span><span class="p">(</span><span class="n">train_stats</span><span class="p">)</span> <span class="k">for</span> <span class="n">condition</span> <span class="ow">in</span> <span class="n">stop_conditions</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">steps_per_eval</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;algorithm/steps&quot;</span><span class="p">]</span> <span class="o">%</span> <span class="n">steps_per_eval</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">env_config</span><span class="o">=</span><span class="n">eval_env_config</span><span class="p">)</span>
+            <span class="n">train_stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">env_config</span><span class="o">=</span><span class="n">env_config</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">train_stats</span></div>
+
+<div class="viewcode-block" id="GenericTrainerBase.step"><a class="viewcode-back" href="../../../api/rl8.trainers.html#rl8.trainers.GenericTrainerBase.step">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">env_config</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TrainStats</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run a single training step, collecting environment transitions</span>
+<span class="sd">        and updating the policy with those transitions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            env_config: Environment config override. Useful for scheduling</span>
+<span class="sd">                domain randomization.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Train stats from the policy update.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">memory_stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">memory_stats</span><span class="p">()</span>
+        <span class="n">collect_stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">env_config</span><span class="o">=</span><span class="n">env_config</span><span class="p">)</span>
+        <span class="n">step_stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+        <span class="n">train_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="n">memory_stats</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">collect_stats</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">step_stats</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;algorithm/collects&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;algorithm/steps&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;env/steps&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">collect_stats</span><span class="p">[</span><span class="s2">&quot;env/steps&quot;</span><span class="p">]</span>
+        <span class="n">train_stats</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metrics</span><span class="p">(</span><span class="n">train_stats</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;env/steps&quot;</span><span class="p">])</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="k">return</span> <span class="n">train_stats</span>  <span class="c1"># type: ignore[return-value]</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Andrew B.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

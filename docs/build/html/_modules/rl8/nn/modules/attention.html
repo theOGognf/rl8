@@ -1,0 +1,464 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rl8.nn.modules.attention &mdash; rl8  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
+
+  
+      <script src="../../../../_static/jquery.js"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+      <script src="../../../../_static/doctools.js"></script>
+      <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/clipboard.min.js"></script>
+      <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            rl8
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">rl8</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">rl8.nn.modules.attention</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rl8.nn.modules.attention</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Attention module definitions.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..functional</span><span class="w"> </span><span class="kn">import</span> <span class="n">masked_log_softmax</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.activations</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_activation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.module</span><span class="w"> </span><span class="kn">import</span> <span class="n">Module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.skip</span><span class="w"> </span><span class="kn">import</span> <span class="n">SequentialSkipConnection</span>
+
+
+<div class="viewcode-block" id="PointerNetwork"><a class="viewcode-back" href="../../../../api/rl8.nn.modules.html#rl8.nn.modules.attention.PointerNetwork">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">PointerNetwork</span><span class="p">(</span>
+    <span class="n">Module</span><span class="p">[[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;3D attention applied to sequence encoders and decoders for selecting the</span>
+<span class="sd">    next element from the encoder&#39;s sequence to be appended to the decoder&#39;s</span>
+<span class="sd">    sequence.</span>
+
+<span class="sd">    An implementation of `Pointer Networks`_ adapted from this `blog post`_</span>
+<span class="sd">    which is adapted from this `repo`_.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        embed_dim: Feature dimension of the encoders/decoders.</span>
+
+<span class="sd">    .. _`Pointer Networks`: https://arxiv.org/pdf/1506.03134.pdf</span>
+<span class="sd">    .. _`blog post`: https://towardsdatascience.com/pointer-networks-with-transformers-1a01d83f7543</span>
+<span class="sd">    .. _`repo`: https://github.com/ast0414/pointer-networks-pytorch/blob/master/model.py</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#: Weights applied to the encoder&#39;s output.</span>
+    <span class="n">W1</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span>
+
+    <span class="c1">#: Weights applied to the decoder&#39;s output.</span>
+    <span class="n">W2</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span>
+
+    <span class="c1">#: Weights applied to the blended encoder-decoder selection matrix.</span>
+    <span class="n">VT</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embed_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">W1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">embed_dim</span><span class="p">,</span> <span class="n">embed_dim</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">W2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">embed_dim</span><span class="p">,</span> <span class="n">embed_dim</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">VT</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">embed_dim</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PointerNetwork.forward"><a class="viewcode-back" href="../../../../api/rl8.nn.modules.html#rl8.nn.modules.attention.PointerNetwork.forward">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">decoder_out</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">encoder_out</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">mask</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Select valid values from ``encoder_out`` as indicated by ``mask`` using</span>
+<span class="sd">        features from ``decoder_out``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            decoder_out: Sequence decoder output with shape ``[B, D, C]``.</span>
+<span class="sd">            encoder_out: Sequence encoder output with shape ``[B, E, C]``.</span>
+<span class="sd">            mask: Mask with shape ``[B, D, E]`` indicating the sequence element of</span>
+<span class="sd">                ``encoder_out`` that can be selected.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Logits with shape ``[B, D, E]`` indicating the likelihood of selecting</span>
+<span class="sd">            an encoded sequence element in E for each decoder sequence element in ``D``.</span>
+<span class="sd">            The last item in the ``D`` dimension, ``[:, -1, :]``, typically indicates</span>
+<span class="sd">            the likelihoods of selecting each encoder sequence element for the</span>
+<span class="sd">            next decoder sequence element (which is usually the desired output).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># (B, D, E, C) &lt;- (B, E, C)</span>
+        <span class="n">encoder_proj</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">W1</span><span class="p">(</span><span class="n">encoder_out</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">decoder_out</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># (B, D, 1, C) &lt;- (B, D, C)</span>
+        <span class="n">decoder_proj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">W2</span><span class="p">(</span><span class="n">decoder_out</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c1"># (B, D, E) &lt;- (B, D, 1, C) + (B, D, E, C)</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">VT</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">decoder_proj</span> <span class="o">+</span> <span class="n">encoder_proj</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">masked_log_softmax</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="CrossAttention"><a class="viewcode-back" href="../../../../api/rl8.nn.modules.html#rl8.nn.modules.attention.CrossAttention">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">CrossAttention</span><span class="p">(</span>
+    <span class="n">Module</span><span class="p">[</span>
+        <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform multihead attention keys to a query, mapping the keys of</span>
+<span class="sd">    sequence length ``K`` to the query of sequence length ``Q``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        embed_dim: Key and query feature dimension.</span>
+<span class="sd">        num_heads: Number of attention heads.</span>
+<span class="sd">        hidden_dim: Number of hidden features in the hidden layers</span>
+<span class="sd">            of the feedforward network that&#39;s after performing attention.</span>
+<span class="sd">        activation_fn: Activation function ID.</span>
+<span class="sd">        attention_dropout: Sequence dropout in the attention heads.</span>
+<span class="sd">        hidden_dropout: Feedforward dropout after performing attention.</span>
+<span class="sd">        skip_kind: Kind of residual or skip connection to make between</span>
+<span class="sd">            the output of the multihead attention and the feedforward</span>
+<span class="sd">            module.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#: Underlying multihead attention mechanism.</span>
+    <span class="n">attention</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">MultiheadAttention</span>
+
+    <span class="c1">#: Norm for the keys.</span>
+    <span class="n">kv_norm</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">LayerNorm</span>
+
+    <span class="c1">#: Norm for the queries.</span>
+    <span class="n">q_norm</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">LayerNorm</span>
+
+    <span class="c1">#: Skip connection for applying special residual connections.</span>
+    <span class="n">skip_connection</span><span class="p">:</span> <span class="n">SequentialSkipConnection</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">embed_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">num_heads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">hidden_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
+        <span class="n">activation_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;relu&quot;</span><span class="p">,</span>
+        <span class="n">attention_dropout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">hidden_dropout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">skip_kind</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cat&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_norm</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">LayerNorm</span><span class="p">(</span><span class="n">embed_dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kv_norm</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">LayerNorm</span><span class="p">(</span><span class="n">embed_dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attention</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">MultiheadAttention</span><span class="p">(</span>
+            <span class="n">embed_dim</span><span class="p">,</span> <span class="n">num_heads</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span> <span class="n">batch_first</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_connection</span> <span class="o">=</span> <span class="n">SequentialSkipConnection</span><span class="p">(</span>
+            <span class="n">embed_dim</span><span class="p">,</span>
+            <span class="n">kind</span><span class="o">=</span><span class="n">skip_kind</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">mlp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">LayerNorm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_connection</span><span class="o">.</span><span class="n">out_features</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_connection</span><span class="o">.</span><span class="n">out_features</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">),</span>
+            <span class="n">get_activation</span><span class="p">(</span><span class="n">activation_fn</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="n">hidden_dropout</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_connection</span><span class="o">.</span><span class="n">out_features</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_connection</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mlp</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_attention_block</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">q</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">kv</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">key_padding_mask</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">attention_mask</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cross-attention helper.&quot;&quot;&quot;</span>
+        <span class="n">attention</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attention</span><span class="p">(</span>
+            <span class="n">q</span><span class="p">,</span>
+            <span class="n">kv</span><span class="p">,</span>
+            <span class="n">kv</span><span class="p">,</span>
+            <span class="n">key_padding_mask</span><span class="o">=</span><span class="n">key_padding_mask</span><span class="p">,</span>
+            <span class="n">attn_mask</span><span class="o">=</span><span class="n">attention_mask</span><span class="p">,</span>
+            <span class="n">need_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">attention</span>  <span class="c1"># type: ignore[no-any-return]</span>
+
+<div class="viewcode-block" id="CrossAttention.forward"><a class="viewcode-back" href="../../../../api/rl8.nn.modules.html#rl8.nn.modules.attention.CrossAttention.forward">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">q</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">kv</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">key_padding_mask</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">attention_mask</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply multihead attention keys to a query, mapping the keys of</span>
+<span class="sd">        sequence length ``K`` to the query of sequence length ``Q``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            q: Query with shape ``[B, Q, E]``.</span>
+<span class="sd">            kv: Keys with shape ``[B, K, E]``.</span>
+<span class="sd">            key_padding_mask: Mask with shape ``[B, K]`` indicating sequence</span>
+<span class="sd">                elements of ``kv`` that are PADDED or INVALID values.</span>
+<span class="sd">            attention_mask: Mask with shape ``[Q, K]`` that indicates whether</span>
+<span class="sd">                elements in ``Q`` can attend to elements in ``K``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Values with shape ``[B, Q, E]``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qkv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attention_block</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">q_norm</span><span class="p">(</span><span class="n">q</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kv_norm</span><span class="p">(</span><span class="n">kv</span><span class="p">),</span>
+            <span class="n">key_padding_mask</span><span class="o">=</span><span class="n">key_padding_mask</span><span class="p">,</span>
+            <span class="n">attention_mask</span><span class="o">=</span><span class="n">attention_mask</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_connection</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">qkv</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SelfAttention"><a class="viewcode-back" href="../../../../api/rl8.nn.modules.html#rl8.nn.modules.attention.SelfAttention">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SelfAttention</span><span class="p">(</span>
+    <span class="n">Module</span><span class="p">[</span>
+        <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform multihead attention keys to a a sequence, using it for the</span>
+<span class="sd">    queries, keys, and values.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        embed_dim: Key and query feature dimension.</span>
+<span class="sd">        num_heads: Number of attention heads.</span>
+<span class="sd">        hidden_dim: Number of hidden features in the hidden layers</span>
+<span class="sd">            of the feedforward network that&#39;s after performing attention.</span>
+<span class="sd">        activation_fn: Activation function ID.</span>
+<span class="sd">        attention_dropout: Sequence dropout in the attention heads.</span>
+<span class="sd">        hidden_dropout: Feedforward dropout after performing attention.</span>
+<span class="sd">        skip_kind: Kind of residual or skip connection to make between</span>
+<span class="sd">            the output of the multihead attention and the feedforward</span>
+<span class="sd">            module.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#: Underlying multihead attention mechanism.</span>
+    <span class="n">attention</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">MultiheadAttention</span>
+
+    <span class="c1">#: Skip connection for applying special residual connections.</span>
+    <span class="n">skip_connection</span><span class="p">:</span> <span class="n">SequentialSkipConnection</span>
+
+    <span class="c1">#: Norm for the queries/keys/values.</span>
+    <span class="n">x_norm</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">LayerNorm</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">embed_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">num_heads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">hidden_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
+        <span class="n">activation_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;relu&quot;</span><span class="p">,</span>
+        <span class="n">attention_dropout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">hidden_dropout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">skip_kind</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cat&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_norm</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">LayerNorm</span><span class="p">(</span><span class="n">embed_dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attention</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">MultiheadAttention</span><span class="p">(</span>
+            <span class="n">embed_dim</span><span class="p">,</span> <span class="n">num_heads</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span> <span class="n">batch_first</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_connection</span> <span class="o">=</span> <span class="n">SequentialSkipConnection</span><span class="p">(</span>
+            <span class="n">embed_dim</span><span class="p">,</span>
+            <span class="n">kind</span><span class="o">=</span><span class="n">skip_kind</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">mlp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">LayerNorm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_connection</span><span class="o">.</span><span class="n">out_features</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_connection</span><span class="o">.</span><span class="n">out_features</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">),</span>
+            <span class="n">get_activation</span><span class="p">(</span><span class="n">activation_fn</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="n">hidden_dropout</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_connection</span><span class="o">.</span><span class="n">out_features</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_connection</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mlp</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_attention_block</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">key_padding_mask</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">attention_mask</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Self-attention helper.&quot;&quot;&quot;</span>
+        <span class="n">attention</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attention</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">,</span>
+            <span class="n">x</span><span class="p">,</span>
+            <span class="n">x</span><span class="p">,</span>
+            <span class="n">key_padding_mask</span><span class="o">=</span><span class="n">key_padding_mask</span><span class="p">,</span>
+            <span class="n">attn_mask</span><span class="o">=</span><span class="n">attention_mask</span><span class="p">,</span>
+            <span class="n">need_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">attention</span>  <span class="c1"># type: ignore[no-any-return]</span>
+
+<div class="viewcode-block" id="SelfAttention.forward"><a class="viewcode-back" href="../../../../api/rl8.nn.modules.html#rl8.nn.modules.attention.SelfAttention.forward">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">key_padding_mask</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">attention_mask</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply self-attention to ``x``, attending sequence elements to</span>
+<span class="sd">        themselves.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: Query with shape ``[B, X, E]``.</span>
+<span class="sd">            key_padding_mask: Mask with shape ``[B, X]`` indicating sequence</span>
+<span class="sd">                elements of ``kv`` that are PADDED or INVALID values.</span>
+<span class="sd">            attention_mask: Mask with shape ``[X, X]`` that indicates whether</span>
+<span class="sd">                elements in ``X`` can attend to other elements in ``X``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Values with shape ``[B, X, E]``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qkv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attention_block</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x_norm</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+            <span class="n">key_padding_mask</span><span class="o">=</span><span class="n">key_padding_mask</span><span class="p">,</span>
+            <span class="n">attention_mask</span><span class="o">=</span><span class="n">attention_mask</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_connection</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">qkv</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SelfAttentionStack"><a class="viewcode-back" href="../../../../api/rl8.nn.modules.html#rl8.nn.modules.attention.SelfAttentionStack">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SelfAttentionStack</span><span class="p">(</span>
+    <span class="n">Module</span><span class="p">[[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stacks of self-attention to iteratively attend over a sequence.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        module: Self-attention module to repeat.</span>
+<span class="sd">        num_layers: Number of layers of ``module`` to repeat.</span>
+<span class="sd">        share_parameters: Whether to use the same module for each layer.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">module</span><span class="p">:</span> <span class="n">SelfAttention</span><span class="p">,</span>
+        <span class="n">num_layers</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">share_parameters</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">share_parameters</span><span class="p">:</span>
+            <span class="n">modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">module</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">module</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">(</span><span class="n">modules</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SelfAttentionStack.forward"><a class="viewcode-back" href="../../../../api/rl8.nn.modules.html#rl8.nn.modules.attention.SelfAttentionStack.forward">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">key_padding_mask</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">attention_mask</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iteratively apply self-attention to ``x``, attending sequence</span>
+<span class="sd">        elements to themselves.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: Query with shape ``[B, X, E]``.</span>
+<span class="sd">            key_padding_mask: Mask with shape ``[B, X]`` indicating sequence</span>
+<span class="sd">                elements of ```kv``` that are PADDED or INVALID values.</span>
+<span class="sd">            attention_mask: Mask with shape ``[X, X]`` that indicates whether</span>
+<span class="sd">                elements in ``X`` can attend to other elements in ``X``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Values with shape ``[B, X, E]``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span>
+                <span class="n">out</span><span class="p">,</span> <span class="n">key_padding_mask</span><span class="o">=</span><span class="n">key_padding_mask</span><span class="p">,</span> <span class="n">attention_mask</span><span class="o">=</span><span class="n">attention_mask</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Andrew B.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

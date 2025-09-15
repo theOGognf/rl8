@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rl8.policies._feedforward &mdash; rl8  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            rl8
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">rl8</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">rl8.policies._feedforward</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rl8.policies._feedforward</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">cloudpickle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.pyfunc</span><span class="w"> </span><span class="kn">import</span> <span class="n">PythonModel</span><span class="p">,</span> <span class="n">PythonModelContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tensordict</span><span class="w"> </span><span class="kn">import</span> <span class="n">TensorDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchrl.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">TensorSpec</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">rl8.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Distribution</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_batch_size_from_model_input</span><span class="p">,</span> <span class="n">td2df</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataKeys</span><span class="p">,</span> <span class="n">Device</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">ModelFactory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..views</span><span class="w"> </span><span class="kn">import</span> <span class="n">ViewKind</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._base</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericPolicyBase</span>
+
+
+<div class="viewcode-block" id="Policy"><a class="viewcode-back" href="../../../api/rl8.policies.html#rl8.policies.Policy">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Policy</span><span class="p">(</span><span class="n">GenericPolicyBase</span><span class="p">[</span><span class="n">Model</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The union of a feedforward model and an action distribution.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        observation_spec: Spec defining observations from the environment</span>
+<span class="sd">            and inputs to the model&#39;s forward pass.</span>
+<span class="sd">        action_spec: Spec defining the action distribution&#39;s outputs</span>
+<span class="sd">            and the inputs to the environment.</span>
+<span class="sd">        model: Model instance to use. Mutually exclusive with ``model_cls``.</span>
+<span class="sd">        model_cls: Model class or class factory to use.</span>
+<span class="sd">        model_config: Model class args.</span>
+<span class="sd">        distribution_cls: Action distribution class.</span>
+<span class="sd">        device: Device the policy resides on.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">observation_spec</span><span class="p">:</span> <span class="n">TensorSpec</span><span class="p">,</span>
+        <span class="n">action_spec</span><span class="p">:</span> <span class="n">TensorSpec</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Model</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">model_cls</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">ModelFactory</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">model_config</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">distribution_cls</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">type</span><span class="p">[</span><span class="n">Distribution</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">device</span><span class="p">:</span> <span class="n">Device</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_config</span> <span class="o">=</span> <span class="n">model_config</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="ow">and</span> <span class="n">model_cls</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;`model` and `model_cls` args are mutually exclusive.&quot;</span>
+                <span class="s2">&quot;Provide one or the other, but not both.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">model_cls</span> <span class="o">=</span> <span class="n">model_cls</span> <span class="ow">or</span> <span class="n">Model</span><span class="o">.</span><span class="n">default_model_cls</span><span class="p">(</span>
+                <span class="n">observation_spec</span><span class="p">,</span> <span class="n">action_spec</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model_cls</span><span class="p">(</span><span class="n">observation_spec</span><span class="p">,</span> <span class="n">action_spec</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">model_config</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distribution_cls</span> <span class="o">=</span> <span class="n">distribution_cls</span> <span class="ow">or</span> <span class="n">Distribution</span><span class="o">.</span><span class="n">default_dist_cls</span><span class="p">(</span>
+            <span class="n">action_spec</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Policy.sample"><a class="viewcode-back" href="../../../api/rl8.policies.html#rl8.policies.Policy.sample">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">batch</span><span class="p">:</span> <span class="n">TensorDict</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">kind</span><span class="p">:</span> <span class="n">ViewKind</span> <span class="o">=</span> <span class="s2">&quot;last&quot;</span><span class="p">,</span>
+        <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">requires_grad</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">return_actions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">return_logp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">return_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">return_views</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TensorDict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use ``batch`` to sample from the policy, sampling actions from</span>
+<span class="sd">        the model and optionally sampling additional values often used for</span>
+<span class="sd">        training and analysis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            batch: Batch to feed into the policy&#39;s underlying model. Expected</span>
+<span class="sd">                to be of size ``[B, T, ...]`` where ``B`` is the batch dimension,</span>
+<span class="sd">                and ``T`` is the time or sequence dimension. ``B`` is typically</span>
+<span class="sd">                the number of parallel environments being sampled for during</span>
+<span class="sd">                massively parallel training, and T is typically the number</span>
+<span class="sd">                of time steps or observations sampled from the environments.</span>
+<span class="sd">                The ``B`` and ``T`` dimensions are typically combined into one dimension</span>
+<span class="sd">                during batch preprocessing according to the model&#39;s view</span>
+<span class="sd">                requirements.</span>
+<span class="sd">            kind: String indicating the type of sample to perform. The model&#39;s</span>
+<span class="sd">                view requirements handles preprocessing slightly differently</span>
+<span class="sd">                depending on the value. Options include:</span>
+
+<span class="sd">                    - &quot;last&quot;: Sample from ``batch`` using only the samples</span>
+<span class="sd">                        necessary to sample for the most recent observations</span>
+<span class="sd">                        within the ``batch``&#39;s ``T`` dimension.</span>
+<span class="sd">                    - &quot;all&quot;: Sample from ``batch`` using all observations within</span>
+<span class="sd">                        the ``batch``&#39;s ``T`` dimension.</span>
+
+<span class="sd">            deterministic: Whether to sample from the policy deterministically</span>
+<span class="sd">                (the actions are always the same for the same inputs) or</span>
+<span class="sd">                stochastically (there is a randomness to the policy&#39;s actions).</span>
+<span class="sd">            inplace: Whether to store policy outputs in the given ``batch``</span>
+<span class="sd">                tensordict. Otherwise, create a separate tensordict that</span>
+<span class="sd">                will only contain policy outputs.</span>
+<span class="sd">            requires_grad: Whether to enable gradients for the underlying</span>
+<span class="sd">                model during forward passes. This should only be enabled during</span>
+<span class="sd">                a training loop or when requiring gradients for explainability</span>
+<span class="sd">                or other analysis reasons.</span>
+<span class="sd">            return_actions: Whether to sample the policy&#39;s action distribution</span>
+<span class="sd">                and return the sampled actions.</span>
+<span class="sd">            return_logp: Whether to return the log probability of taking the</span>
+<span class="sd">                sampled actions. Often enabled during a training loop for</span>
+<span class="sd">                aggregating training data a bit more efficiently.</span>
+<span class="sd">            return_values: Whether to return the value function approximation</span>
+<span class="sd">                in the given observations. Often enabled during a training</span>
+<span class="sd">                loop for aggregating training data a bit more efficiently.</span>
+<span class="sd">            return_views: Whether to return the observation view requirements</span>
+<span class="sd">                in the output batch. Even if this flag is enabled, new views</span>
+<span class="sd">                are only returned if the views are not already present in</span>
+<span class="sd">                the output batch (i.e., if `inplace` is ``True`` and the views</span>
+<span class="sd">                are already in the ``batch``, then the returned batch will just</span>
+<span class="sd">                contain the original views).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tensordict containing AT LEAST actions sampled from the policy of</span>
+<span class="sd">            batch size ``[B * T, ...]`` where ``B`` is the input&#39;s batch dimension,</span>
+<span class="sd">            and ``T`` is the time or sequence dimension.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">DataKeys</span><span class="o">.</span><span class="n">VIEWS</span> <span class="ow">in</span> <span class="n">batch</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">in_batch</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">VIEWS</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">in_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">apply_view_requirements</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">)</span>
+
+        <span class="c1"># Should be in eval mode when `deterministic` is `True`.</span>
+        <span class="c1"># That is, `training` should be the opposite of `deterministic`.</span>
+        <span class="n">training</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">training</span>
+        <span class="k">if</span> <span class="n">deterministic</span> <span class="o">==</span> <span class="n">training</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="ow">not</span> <span class="n">training</span><span class="p">)</span>
+
+        <span class="c1"># This is the same mechanism within `torch.no_grad`</span>
+        <span class="c1"># for enabling/disabling gradients.</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">is_grad_enabled</span><span class="p">()</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">set_grad_enabled</span><span class="p">(</span><span class="n">requires_grad</span><span class="p">)</span>
+
+        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">in_batch</span><span class="p">)</span>
+
+        <span class="c1"># Store required outputs and get/store optional outputs.</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">batch</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">inplace</span>
+            <span class="k">else</span> <span class="n">TensorDict</span><span class="p">({},</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">in_batch</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">batch</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">FEATURES</span><span class="p">]</span> <span class="o">=</span> <span class="n">features</span>
+        <span class="k">if</span> <span class="n">return_actions</span><span class="p">:</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution_cls</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+            <span class="n">actions</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">deterministic_sample</span><span class="p">()</span> <span class="k">if</span> <span class="n">deterministic</span> <span class="k">else</span> <span class="n">dist</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">ACTIONS</span><span class="p">]</span> <span class="o">=</span> <span class="n">actions</span>
+            <span class="k">if</span> <span class="n">return_logp</span><span class="p">:</span>
+                <span class="n">out</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">LOGP</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">logp</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_values</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">VALUES</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">value_function</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">return_views</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">VIEWS</span><span class="p">]</span> <span class="o">=</span> <span class="n">in_batch</span>
+
+        <span class="n">torch</span><span class="o">.</span><span class="n">set_grad_enabled</span><span class="p">(</span><span class="n">prev</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">deterministic</span> <span class="o">==</span> <span class="n">training</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">training</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="Policy.save"><a class="viewcode-back" href="../../../api/rl8.policies.html#rl8.policies.Policy.save">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MLflowPolicyModel&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the policy by cloud pickling it to ``path`` and returning</span>
+<span class="sd">        the interface used for deploying it with MLflow.</span>
+
+<span class="sd">        This method is only defined to expose a common interface between</span>
+<span class="sd">        different algorithms. This is by no means the only way</span>
+<span class="sd">        to save a policy and isn&#39;t even the recommended way to save</span>
+<span class="sd">        a policy.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">cloudpickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MLflowPolicyModel</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="MLflowPolicyModel"><a class="viewcode-back" href="../../../api/rl8.policies.html#rl8.policies.MLflowPolicyModel">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">MLflowPolicyModel</span><span class="p">(</span><span class="n">PythonModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A MLflow Python model implementation of a feedforward policy.</span>
+
+<span class="sd">    This is by no means the only way to define a MLflow interface for</span>
+<span class="sd">    a feedforward policy, nor is it the recommended way to deploy</span>
+<span class="sd">    or serve your trained policy with MLflow. This is simply a minimal</span>
+<span class="sd">    and generic implementation of a MLflow Python model for feedforward</span>
+<span class="sd">    policies that serves as a convenience. The majority of policy deployment</span>
+<span class="sd">    use cases will probably be satisified with this minimal implementation.</span>
+<span class="sd">    Use cases not covered by this implementation are encouraged to write</span>
+<span class="sd">    their own implementation that fits their needs as this implementation</span>
+<span class="sd">    will likely not see further development beyond bugfixes.</span>
+
+<span class="sd">    On top of this implementation being minimal and in &quot;maintenance mode&quot;,</span>
+<span class="sd">    it doesn&#39;t support all the many kinds of policy models one could</span>
+<span class="sd">    define with ``rl8``. This implementation supports many observation</span>
+<span class="sd">    spaces, but this implementation does not support all action spaces.</span>
+<span class="sd">    Action spaces are limited to (flattened) 1D spaces; more than 1D is</span>
+<span class="sd">    possible, but it&#39;s likely it will experience inconsistent behavior</span>
+<span class="sd">    when storing actions in the output dataframe.</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">        A minimal example of training a policy, saving it with MLflow,</span>
+<span class="sd">        and then reloading it for inference using this interface.</span>
+
+<span class="sd">        &gt;&gt;&gt; from tempfile import TemporaryDirectory</span>
+<span class="sd">        ...</span>
+<span class="sd">        ... import mlflow</span>
+<span class="sd">        ...</span>
+<span class="sd">        ... from rl8 import Trainer</span>
+<span class="sd">        ... from rl8.env import DiscreteDummyEnv</span>
+<span class="sd">        ... # Create the trainer and step it once for the heck of it.</span>
+<span class="sd">        ... trainer = Trainer(DiscreteDummyEnv)</span>
+<span class="sd">        ... trainer.step()</span>
+<span class="sd">        ... # Create a temporary directory for storing model artifacts</span>
+<span class="sd">        ... # and the actual MLflow model. This&#39;ll get cleaned-up</span>
+<span class="sd">        ... # once the context ends.</span>
+<span class="sd">        ... with TemporaryDirectory() as tmp:</span>
+<span class="sd">        ...     # This is where you set options specific to your</span>
+<span class="sd">        ...     # use case. At a bare minimum, the policy&#39;s</span>
+<span class="sd">        ...     # artifact (the policy pickle file) is specified,</span>
+<span class="sd">        ...     # but you may want to add code files, data files,</span>
+<span class="sd">        ...     # dependencies/requirements, etc..</span>
+<span class="sd">        ...     mlflow.pyfunc.save_model(</span>
+<span class="sd">        ...         f&quot;{tmp}/model&quot;,</span>
+<span class="sd">        ...         python_model=trainer.algorithm.policy.save(f&quot;{tmp}/policy.pkl&quot;),</span>
+<span class="sd">        ...         artifacts={&quot;policy&quot;: f&quot;{tmp}/policy.pkl&quot;},</span>
+<span class="sd">        ...     )</span>
+<span class="sd">        ...     model = mlflow.pyfunc.load_model(f&quot;{tmp}/model&quot;)</span>
+<span class="sd">        ...     # We cheat here a bit and use the environment&#39;s spec</span>
+<span class="sd">        ...     # to generate a valid input example. These are usually</span>
+<span class="sd">        ...     # constructed by some other service.</span>
+<span class="sd">        ...     obs = DiscreteDummyEnv(1).observation_spec.rand([1, 1]).cpu().numpy()</span>
+<span class="sd">        ...     model.predict({&quot;obs&quot;: obs})  # doctest: +SKIP</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MLflowPolicyModel.load_context"><a class="viewcode-back" href="../../../api/rl8.policies.html#rl8.policies.MLflowPolicyModel.load_context">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">load_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">PythonModelContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads the saved policy on model instantiation.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="p">:</span> <span class="n">Policy</span> <span class="o">=</span> <span class="n">cloudpickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">artifacts</span><span class="p">[</span><span class="s2">&quot;policy&quot;</span><span class="p">],</span> <span class="s2">&quot;rb&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MLflowPolicyModel.predict"><a class="viewcode-back" href="../../../api/rl8.policies.html#rl8.policies.MLflowPolicyModel.predict">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">PythonModelContext</span><span class="p">,</span>
+        <span class="n">model_input</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">params</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sample from the underlying policy using ``model_input`` as input.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            context: Python model context that&#39;s unused for this implementation.</span>
+<span class="sd">            model_input: Policy model input (or observation). The observation</span>
+<span class="sd">                space is expected to be a 1D vector or a composite spec that</span>
+<span class="sd">                maps strings to tensor specs; the policy model is expected to</span>
+<span class="sd">                ingest a tensordict and handle all the input preprocessing</span>
+<span class="sd">                (such as tensor concatenation) on its own. The model input</span>
+<span class="sd">                (or observation) is expected to match the policy model&#39;s</span>
+<span class="sd">                observation space within an ``&quot;obs&quot;`` key and is expected to</span>
+<span class="sd">                be of shape ``[B, T, ...]`` for each tensor within the observation</span>
+<span class="sd">                where ``B`` is the batch dimension, and ``T`` is the time or</span>
+<span class="sd">                sequence dimension. The underlying policy will handle reshaping</span>
+<span class="sd">                of the model input for batch inference and the policy&#39;s outputs</span>
+<span class="sd">                will be of shape ``[B * T, ...]`` such that the batch and time</span>
+<span class="sd">                dimensions are flattened into the first dimension. Thus,</span>
+<span class="sd">                the index of the resulting output dataframe from this method</span>
+<span class="sd">                will correspond to indicies of the flattened first dimension.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A dataframe with ``B * T`` rows containing sampled actions, log</span>
+<span class="sd">            probabilities of sampling those actions, and value estimates.</span>
+<span class="sd">            ``B`` is the model input&#39;s batch dimension, and ``T`` is the model</span>
+<span class="sd">            input&#39;s time or sequence dimension.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">model_input</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">]</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">get_batch_size_from_model_input</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="n">TensorDict</span><span class="p">(</span>
+            <span class="p">{</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">observation_spec</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">obs</span><span class="p">)},</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">*</span><span class="n">batch_size</span><span class="p">)</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
+            <span class="n">batch</span><span class="p">,</span>
+            <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
+            <span class="n">deterministic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">return_actions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">return_logp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">return_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">return_views</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+            <span class="n">DataKeys</span><span class="o">.</span><span class="n">ACTIONS</span><span class="p">,</span> <span class="n">DataKeys</span><span class="o">.</span><span class="n">LOGP</span><span class="p">,</span> <span class="n">DataKeys</span><span class="o">.</span><span class="n">VALUES</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">td2df</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Andrew B.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
