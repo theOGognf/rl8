@@ -37,8 +37,6 @@ class Env(ABC):
         horizon: Number of steps the environment expects to take before
             being reset. ``None`` suggests the environment may never
             reset.
-        config: Config detailing simulation options/parameters for the
-            environment's initialization.
         device: Device the environment's underlying data should be
             initialized on.
 
@@ -48,11 +46,6 @@ class Env(ABC):
     #: distribution's outputs). Used for initializing the policy, the
     #: policy's underlying components, and the learning buffer.
     action_spec: TensorSpec
-
-    #: Environment config passed to the environment at instantiation.
-    #: This could be overwritten by the environment's reset, but it's
-    #: entirely at the developer's discretion.
-    config: dict[str, Any]
 
     #: Device the environment's states, observations, and rewards reside
     #: on.
@@ -86,7 +79,6 @@ class Env(ABC):
         /,
         horizon: None | int = None,
         *,
-        config: None | dict[str, Any] = None,
         device: Device = "cpu",
     ) -> None:
         if hasattr(self, "max_horizon") and horizon is not None:
@@ -103,7 +95,6 @@ class Env(ABC):
                 )
         self.num_envs = num_envs
         self.horizon = horizon
-        self.config = config or {}
         self.device = device
 
     @abstractmethod
@@ -155,7 +146,6 @@ class EnvFactory(Protocol):
         /,
         horizon: None | int = None,
         *,
-        config: None | dict[str, Any] = None,
         device: Device = "cpu",
     ) -> Env:
         ...
@@ -198,12 +188,11 @@ class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
         /,
         horizon: None | int = None,
         *,
-        config: None | dict[str, Any] = None,
         device: Device = "cpu",
     ) -> None:
-        super().__init__(num_envs, horizon, config=config, device=device)
+        super().__init__(num_envs, horizon, device=device)
         self.observation_spec = UnboundedContinuousTensorSpec(1, device=self.device)
-        self.bounds = self.config.get("bounds", 100.0)
+        self.bounds = 100.0
 
     def reset(self, *, config: None | dict[str, Any] = None) -> torch.Tensor:
         config = config or {}
@@ -227,10 +216,9 @@ class ContinuousDummyEnv(DummyEnv[UnboundedContinuousTensorSpec]):
         /,
         horizon: None | int = None,
         *,
-        config: dict[str, Any] | None = None,
         device: Device = "cpu",
     ) -> None:
-        super().__init__(num_envs, horizon, config=config, device=device)
+        super().__init__(num_envs, horizon, device=device)
         self.action_spec = UnboundedContinuousTensorSpec(
             shape=torch.Size([1]), device=device
         )
@@ -259,10 +247,9 @@ class DiscreteDummyEnv(DummyEnv[DiscreteTensorSpec]):
         /,
         horizon: None | int = None,
         *,
-        config: dict[str, Any] | None = None,
         device: Device = "cpu",
     ) -> None:
-        super().__init__(num_envs, horizon, config=config, device=device)
+        super().__init__(num_envs, horizon, device=device)
         self.action_spec = DiscreteTensorSpec(2, shape=torch.Size([1]), device=device)
 
     def step(self, action: torch.Tensor) -> TensorDict:

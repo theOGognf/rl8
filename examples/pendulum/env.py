@@ -81,11 +81,10 @@ class Pendulum(Env):
         /,
         horizon: None | int = None,
         *,
-        config: dict[str, Any] | None = None,
         device: Device = "cpu",
     ):
-        super().__init__(num_envs, horizon, config=config, device=device)
-        self._config = PendulumConfig(**self.config)
+        super().__init__(num_envs, horizon, device=device)
+        self._config = PendulumConfig()
 
         self.action_spec = UnboundedContinuousTensorSpec(
             device=device, dtype=torch.float32, shape=torch.Size([1])

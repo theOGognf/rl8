@@ -42,10 +42,11 @@ Train a policy with PPO and log training progress with MLflow using the
 high-level trainer interface (this updates the policy indefinitely).
 
 ```python
-from rl8 import Trainer
+from rl8 import AlgorithmConfig, Trainer
 from rl8.env import DiscreteDummyEnv
 
-trainer = Trainer(DiscreteDummyEnv)
+algo = AlgorithmConfig().build(DiscreteDummyEnv)
+trainer = Trainer(algo)
 trainer.run()
 ```
 
@@ -102,15 +103,15 @@ Use a custom distribution and custom hyperparameters by passing
 options to the trainer (or algorithm) interface.
 
 ```python
-from rl8 import SquashedNormal, Trainer
+from rl8 import AlgorithmConfig, SquashedNormal, Trainer
 from rl8.env import ContinuousDummyEnv
 
-trainer = Trainer(
-    ContinuousDummyEnv,
+algo = AlgorithmConfig(
     distribution_cls=SquashedNormal,
     gae_lambda=0.99,
     gamma=0.99,
-)
+).build(ContinuousDummyEnv)
+trainer = Trainer(algo)
 trainer.run()
 ```
 
@@ -120,10 +121,11 @@ Swap to the recurrent flavor of the trainer (or algorithm) interface
 to train a recurrent model and policy.
 
 ```python
-from rl8 import RecurrentTrainer
+from rl8 import RecurrentAlgorithmConfig, RecurrentTrainer
 from rl8.env import DiscreteDummyEnv
 
-trainer = RecurrentTrainer(DiscreteDummyEnv)
+algo = RecurrentAlgorithmConfig().build(DiscreteDummyEnv)
+trainer = RecurrentTrainer(algo)
 trainer.run()
 ```
 
@@ -133,10 +135,11 @@ Specify the device used across the environment, model, and
 algorithm.
 
 ```python
-from rl8 import Trainer
+from rl8 import AlgorithmConfig, Trainer
 from rl8.env import DiscreteDummyEnv
 
-trainer = Trainer(DiscreteDummyEnv, device="cuda")
+algo = AlgorithmConfig(device="cude").build(DiscreteDummyEnv)
+trainer = Trainer(algo)
 trainer.run()
 ```
 
@@ -149,17 +152,17 @@ usage so you can simulate more environments or use larger models.
 ```python
 import torch.optim as optim
 
-from rl8 import Trainer
+from rl8 import AlgorithmConfig, Trainer
 from rl8.env import DiscreteDummyEnv
 
-trainer = Trainer(
-    DiscreteDummyEnv,
+algo = AlgorithmConfig(
     optimizer_cls=optim.SGD,
     accumulate_grads=True,
     enable_amp=True,
     sgd_minibatch_size=8192,
     device="cuda",
-)
+).build(DiscreteDummyEnv)
+trainer = Trainer(algo)
 trainer.run()
 ```
 
@@ -168,11 +171,12 @@ trainer.run()
 Specify conditions based on training statistics to stop training early.
 
 ```python
-from rl8 import Trainer
+from rl8 import AlgorithmConfig, Trainer
 from rl8.conditions import Plateaus
 from rl8.env import DiscreteDummyEnv
 
-trainer = Trainer(DiscreteDummyEnv)
+algo = AlgorithmConfig().build(DiscreteDummyEnv)
+trainer = Trainer(algo)
 trainer.run(stop_conditions=[Plateaus("returns/mean", rtol=0.05)])
 ```
 
@@ -185,8 +189,9 @@ Suppose `./config.yaml` contains the following.
 env_cls: rl8.env.ContinuousDummyEnv
 
 # Some custom parameters.
-gamma: 0.75
-horizon: 8
+algorithm_config:
+    horizon: 8
+    gamma: 1
 ```
 
 Train a policy with the trainer interface using the `rl8 train` CLI.

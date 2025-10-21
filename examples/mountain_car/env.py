@@ -83,15 +83,13 @@ class MountainCar(Env):
         /,
         horizon: None | int = None,
         *,
-        config: dict[str, Any] | None = None,
         device: Device = "cpu",
     ):
-        super().__init__(num_envs, horizon, config=config, device=device)
+        super().__init__(num_envs, horizon, device=device)
         self.observation_spec = UnboundedContinuousTensorSpec(
             2, device=device, dtype=torch.float32
         )
         self.action_spec = DiscreteTensorSpec(3, shape=torch.Size([1]), device=device)
-        self._config = MountainCarConfig(**self.config)
 
     def reset(self, *, config: dict[str, Any] | None = None) -> torch.Tensor:
         config = config or {}

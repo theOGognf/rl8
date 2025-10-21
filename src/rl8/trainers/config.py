@@ -2,16 +2,13 @@
 
 import json
 import pathlib
-from dataclasses import asdict, dataclass
-from typing import Any, Literal
+from dataclasses import dataclass, field
+from typing import Any
 
-import torch.optim as optim
 import yaml
 
-from ..data import Device
-from ..distributions import Distribution
+from ..algorithms import AlgorithmConfig, RecurrentAlgorithmConfig
 from ..env import EnvFactory
-from ..models import ModelFactory, RecurrentModelFactory
 from ._feedforward import Trainer
 from ._recurrent import RecurrentTrainer
 
@@ -48,8 +45,9 @@ class TrainConfig:
         .. code-block:: yaml
 
             env_cls: rl8.env.DiscreteDummyEnv
-            horizon: 8
-            gamma: 1
+            algorithm_config:
+                horizon: 8
+                gamma: 1
 
         The following will instantiate a :class:`TrainConfig` from the
         file, instantiate a trainer, and then train indefinitely.
@@ -59,35 +57,13 @@ class TrainConfig:
 
     """
 
+    #: Environment class to instantiate an algorithm with.
     env_cls: EnvFactory
-    env_config: None | dict[str, Any] = None
-    model_cls: None | RecurrentModelFactory | ModelFactory = None
-    model_config: None | dict[str, Any] = None
-    distribution_cls: None | type[Distribution] = None
-    horizon: None | int = None
-    horizons_per_env_reset: None | int = None
-    num_envs: None | int = None
-    seq_len: None | int = None
-    seqs_per_state_reset: None | int = None
-    optimizer_cls: None | type[optim.Optimizer] = None
-    optimizer_config: None | dict[str, Any] = None
-    accumulate_grads: None | bool = None
-    enable_amp: None | bool = None
-    entropy_coeff: None | float = None
-    gae_lambda: None | float = None
-    gamma: None | float = None
-    sgd_minibatch_size: None | int = None
-    num_sgd_iters: None | int = None
-    shuffle_minibatches: None | bool = None
-    clip_param: None | float = None
-    vf_clip_param: None | float = None
-    dual_clip_param: None | float = None
-    vf_coeff: None | float = None
-    target_kl_div: None | float = None
-    max_grad_norm: None | float = None
-    normalize_advantages: None | bool = None
-    normalize_rewards: None | bool = None
-    device: None | Device | Literal["auto"] = None
+
+    #: Algorithm hyperparameters and config to build an algorithm with.
+    algorithm_config: dict[str, Any] = field(default_factory=dict)
+
+    #: Whether to instantiate a recurrent variant of the algorithm.
     recurrent: bool = False
 
     def build(self) -> Trainer | RecurrentTrainer:
@@ -106,14 +82,12 @@ class TrainConfig:
             >>> trainer = TrainConfig(DiscreteDummyEnv).build()
 
         """
-        config = asdict(self)
-        recurrent = config.pop("recurrent")
-        filtered_config = {k: v for k, v in config.items() if v is not None}
-        env_cls = filtered_config.pop("env_cls")
         return (
-            RecurrentTrainer(env_cls, **filtered_config)
-            if recurrent
-            else Trainer(env_cls, **filtered_config)
+            RecurrentTrainer(
+                RecurrentAlgorithmConfig(**self.algorithm_config).build(self.env_cls)
+            )
+            if self.recurrent
+            else Trainer(AlgorithmConfig(**self.algorithm_config).build(self.env_cls))
         )
 
     @classmethod
@@ -153,14 +127,17 @@ class TrainConfig:
                     data = json.load(f)
                 case ".yaml":
                     data = yaml.safe_load(f)
+                case _:
+                    raise ValueError("Config must be a JSON or YAML file")
 
         if "env_cls" in data:
-            env_cls = _import(data.pop("env_cls"))
+            data["env_cls"] = _import(data["env_cls"])
         else:
             raise RuntimeError(f"{cls.__name__} config {path} must contain `env_cls`")
 
-        for k in ("model_cls", "distribution_cls", "optimizer_cls"):
-            if k in data:
-                data[k] = _import(data[k])
+        if "algorithm_config" in data:
+            for k in ("model_cls", "distribution_cls", "optimizer_cls"):
+                if k in data["algorithm_config"]:
+                    data["algorithm_config"][k] = _import(data["algorithm_config"][k])
 
-        return cls(env_cls, **data)
+        return cls(**data)

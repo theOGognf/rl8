@@ -119,15 +119,13 @@ class CartPole(Env):
         /,
         horizon: None | int = None,
         *,
-        config: dict[str, Any] | None = None,
         device: Device = "cpu",
     ):
-        super().__init__(num_envs, horizon, config=config, device=device)
+        super().__init__(num_envs, horizon, device=device)
         self.observation_spec = UnboundedContinuousTensorSpec(
             5, device=device, dtype=torch.float32
         )
         self.action_spec = DiscreteTensorSpec(3, shape=torch.Size([1]), device=device)
-        self._config = CartPoleConfig(**self.config)
 
     def reset(self, *, config: dict[str, Any] | None = None) -> torch.Tensor:
         config = config or {}

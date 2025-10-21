@@ -17,11 +17,13 @@ extremely fast even for complex, sequence-based models because:
 """
 
 from ._base import GenericAlgorithmBase
-from ._feedforward import Algorithm
-from ._recurrent import RecurrentAlgorithm
+from ._feedforward import Algorithm, AlgorithmConfig
+from ._recurrent import RecurrentAlgorithm, RecurrentAlgorithmConfig
 
 __all__ = [
     "Algorithm",
+    "AlgorithmConfig",
     "GenericAlgorithmBase",
     "RecurrentAlgorithm",
+    "RecurrentAlgorithmConfig",
 ]

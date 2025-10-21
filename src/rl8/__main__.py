@@ -73,7 +73,6 @@ def main() -> Literal[0]:
             experiment = mlflow.set_experiment(experiment_name)
             print(f"Logging runs under MLflow experiment {experiment.name}")
             trainer = config.build()
-            trainer.algorithm.validate()
             run = mlflow.active_run()
             if run is not None:
                 print(f"Logging metrics under MLflow run {run.info.run_name}")

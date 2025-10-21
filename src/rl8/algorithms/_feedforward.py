@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Any, Literal
 
 import torch
@@ -25,138 +26,176 @@ from ..schedulers import EntropyScheduler, LRScheduler, ScheduleKind
 from ._base import GenericAlgorithmBase
 
 
+@dataclass
+class AlgorithmConfig:
+    """Algorith config for building a feedforward PPO algorithm."""
+
+    #: Model instance to use. Mutually exclusive with ``model_cls``.
+    model: None | Model = None
+
+    #: Optional custom policy model definition. A model class
+    #: is provided for you based on the environment instance's specs
+    #: if you don't provide one. Defaults to a simple feedforward
+    #: neural network.
+    model_cls: None | ModelFactory = None
+
+    #: Optional policy model config unpacked into the model
+    #: during instantiation.
+    model_config: None | dict[str, Any] = None
+
+    #: Custom policy action distribution class.
+    #: If not provided, an action distribution class is inferred from the
+    #: environment specs. Defaults to a categorical distribution for discrete
+    #: actions and a normal distribution for continuous actions. Complex
+    #: actions are not supported by default distributions.
+    distribution_cls: None | type[Distribution] = None
+
+    #: Number of environment transitions to collect during :meth:`Algorithm.collect`.
+    #: The environment resets according to ``horizons_per_env_reset``.
+    #: Buffer size is [B, T] where T = horizon.
+    horizon: int = 32
+
+    #: Number of times :meth:`Algorithm.collect` can be called before resetting
+    #: :attr:`Algorithm.env`. Increase this for cross-horizon learning. Default
+    #: 1 resets after every horizon.
+    horizons_per_env_reset: int = 1
+
+    #: Number of parallelized environment instances.
+    #: Determines buffer size [B, T] where B = num_envs.
+    num_envs: int = 8192
+
+    #: Custom optimizer class. Defaults to a simple, low-tuning optimizer.
+    optimizer_cls: type[optim.Optimizer] = optim.Adam
+
+    #: Configuration passed to the optimizer during instantiation.
+    optimizer_config: None | dict[str, Any] = None
+
+    #: Whether to accumulate gradients across minibatches before stepping the
+    #: optimizer. Increases effective batch size while minimizing memory usage.
+    accumulate_grads: bool = False
+
+    #: Whether to enable Automatic Mixed Precision (AMP) for faster and more
+    #: memory-efficient training.
+    enable_amp: bool = False
+
+    #: Optional schedule controlling the optimizer's learning rate over
+    #: environment transitions. Keeps learning rate constant if not provided.
+    lr_schedule: None | list[tuple[int, float]] = None
+
+    #: Learning rate scheduler type if lr_schedule is provided.
+    #: Options: ``"step"`` (jump and hold) or ``"interp"`` (interpolate between
+    #: values).
+    lr_schedule_kind: ScheduleKind = "step"
+
+    #: Entropy coefficient weight in total loss.
+    #: Ignored if ``entropy_coeff_schedule`` is provided.
+    entropy_coeff: float = 0.0
+
+    #: Optional schedule overriding entropy_coeff based on number of environment
+    #: transitions.
+    entropy_coeff_schedule: None | list[tuple[int, float]] = None
+
+    #: Entropy scheduler type. Options:
+    #: ``"step"``: jump and hold, ``"interp"``: interpolate between values.
+    entropy_coeff_schedule_kind: ScheduleKind = "step"
+
+    #: Generalized Advantage Estimation (GAE) λ parameter for controlling the
+    #: variance and bias tradeoff when estimating the state value function
+    #: from collected environment transitions. A higher value allows higher
+    #: variance while a lower value allows higher bias estimation but lower
+    #: variance.
+    gae_lambda: float = 0.95
+
+    #: Discount reward factor often used in the Bellman operator for controlling
+    #: the variance and bias tradeoff in collected experienced rewards. Note,
+    #: this does not control the bias/variance of the state value estimation
+    #: and only controls the weight future rewards have on the total discounted
+    #: return.
+    gamma: float = 0.95
+
+    #: PPO hyperparameter for minibatch size during policy update.
+    #: Larger minibatches reduce update variance and accelerate CUDA computations.
+    #: If ``None``, the entire buffer is treated as one batch.
+    sgd_minibatch_size: None | int = None
+
+    #: PPO hyperparameter for number of SGD iterations over the collected buffer.
+    num_sgd_iters: int = 4
+
+    #: Whether to shuffle minibatches within :meth:`Algorithm.step`. Recommended, but
+    #: not necessary if the minibatch size is large enough (e.g., the buffer is the
+    #: batch).
+    shuffle_minibatches: bool = True
+
+    #: PPO hyperparameter indicating the max distance the policy can update away from
+    #: previously collected policy sample data with respect to likelihoods of taking
+    #: actions conditioned on observations. This is the main innovation of PPO.
+    clip_param: float = 0.2
+
+    #: PPO hyperparameter similar to ``clip_param`` but for the value function estimate.
+    #: A measure of max distance the model's value function is allowed to update away
+    #: from previous value function samples.
+    vf_clip_param: float = 5.0
+
+    #: PPO hyperparameter that clips like ``clip_param`` but when advantage estimations
+    #: are negative. Helps prevent instability for continuous action spaces when
+    #: policies are making large updates. Leave ``None`` for this clip to not apply.
+    #: Otherwise, typical values are around ``5``.
+    dual_clip_param: None | float = None
+
+    #: Value function loss component weight. Only needs to be tuned when the policy
+    #: and value function share parameters.
+    vf_coeff: float = 1.0
+
+    #: Target maximum KL divergence when updating the policy. If approximate KL
+    #: divergence is greater than this value, then policy updates stop early for
+    #: that algorithm step. If this is left `None then early stopping doesn't occur.
+    #: A higher value means the policy is allowed to diverge more from the previous
+    #: policy during updates.
+    target_kl_div: None | float = None
+
+    #: Max gradient norm allowed when updating the policy's model within
+    #: :meth:`Algorithm.step`.
+    max_grad_norm: float = 5.0
+
+    #: Whether to normalize advantages computed for GAE using the batch's
+    #: mean and standard deviation. This has been shown to generally improve
+    #: convergence speed and performance and should usually be ``True``.
+    normalize_advantages: bool = True
+
+    #: Whether to normalize rewards using reversed discounted returns as
+    #: from https://arxiv.org/pdf/2005.12729.pdf. Reward normalization,
+    #: although not exactly correct and optimal, typically improves
+    #: convergence speed and performance and should usually be ``True``.
+    normalize_rewards: bool = True
+
+    #: Device :attr:`Algorithm.env`, :attr:`Algorithm.buffer`, and
+    #: :attr:`Algorithm.policy` all reside on.
+    device: Device | Literal["auto"] = "auto"
+
+    def build(self, env_cls: EnvFactory) -> "Algorithm":
+        """Build and validate an :class:Algorithm` from a config."""
+        algo = Algorithm(env_cls, config=self)
+        algo.validate()
+        return algo
+
+
 class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
     """An optimized feedforward `PPO`_ algorithm with common tricks for
     stabilizing and accelerating learning.
 
     Args:
         env_cls: Highly parallelized environment for sampling experiences.
-            Instantiated with ``env_config``. Will be stepped for ``horizon``
-            each :meth:`Algorithm.collect` call.
-        env_config: Initial environment config passed to ``env_cls`` for
-            environment instantiation. This is likely to be overwritten
-            on the environment instance if reset with a new config.
-        model: Model instance to use. Mutually exclusive with ``model_cls``.
-        model_cls: Optional custom policy model definition. A model class
-            is provided for you based on the environment instance's specs
-            if you don't provide one. Defaults to a simple feedforward
-            neural network.
-        model_config: Optional policy model config unpacked into the model
-            during instantiation.
-        distribution_cls: Custom policy action distribution class. An action
-            distribution class is provided for you based on the environment
-            instance's specs if you don't provide one. Defaults to a categorical
-            action distribution for discrete actions and a normal action
-            distribution for continuous actions. Complex actions are not
-            supported for default action distributions.
-        horizon: Number of environment transitions to collect during
-            :meth:`Algorithm.collect`. The environment is reset based on
-            ``horizons_per_env_reset``. The buffer's size is ``[B, T]`` where ``T`` is
-            ``horizon``.
-        horizons_per_env_reset: Number of times :meth:`Algorithm.collect` can be
-            called before resetting :attr:`Algorithm.env`. Set this to a higher
-            number if you want learning to occur across horizons. Leave this
-            as the default ``1`` if it doesn't matter that experiences and
-            learning only occurs within one horizon.
-        num_envs: Number of parallelized simulation environments for the
-            environment instance. Passed during the environment's
-            instantiation. The buffer's size is ``[B, T]`` where ``B`` is
-            ``num_envs``.
-        optimizer_cls: Custom optimizer class. Defaults to an optimizer
-            that doesn't require much tuning.
-        optimizer_config: Custom optimizer config unpacked into ``optimizer_cls``
-            during optimizer instantiation.
-        accumulate_grads: Whether to accumulate gradients using minibatches for each
-            epoch prior to stepping the optimizer. Useful for increasing
-            the effective batch size while minimizing memory usage.
-        enable_amp: Whether to enable Automatic Mixed Precision (AMP) to reduce
-            accelerate training and reduce training memory usage.
-        lr_schedule: Optional schedule that overrides the optimizer's learning rate.
-            This deternmines the value of the learning rate according to the
-            number of environment transitions experienced during learning.
-            The learning rate is constant if this isn't provided.
-        lr_schedule_kind: Kind of learning rate scheduler to use if ``lr_schedule``
-            is provided. Options include:
-
-                - "step": jump to values and hold until a new environment transition
-                  count is reached.
-                - "interp": jump to values like "step", but interpolate between the
-                  current value and the next value.
-
-        entropy_coeff: Entropy coefficient value. Weight of the entropy loss w.r.t.
-            other components of total loss. This value is ignored if
-            ``entropy_coeff_schedule`` is provded.
-        entropy_coeff_schedule: Optional schedule that overrides ``entropy_coeff``. This
-            determines values of ``entropy_coeff`` according to the number of environment
-            transitions experienced during learning.
-        entropy_coeff_schedule_kind: Kind of entropy scheduler to use. Options include:
-
-            - "step": jump to values and hold until a new environment transition
-              count is reached.
-            - "interp": jump to values like "step", but interpolate between the
-              current value and the next value.
-
-        gae_lambda: Generalized Advantage Estimation (GAE) hyperparameter for controlling
-            the variance and bias tradeoff when estimating the state value
-            function from collected environment transitions. A higher value
-            allows higher variance while a lower value allows higher bias
-            estimation but lower variance.
-        gamma: Discount reward factor often used in the Bellman operator for
-            controlling the variance and bias tradeoff in collected experienced
-            rewards. Note, this does not control the bias/variance of the
-            state value estimation and only controls the weight future rewards
-            have on the total discounted return.
-        sgd_minibatch_size: PPO hyperparameter indicating the minibatch size
-            :attr:`Algorithm.buffer` is split into when updating the policy's model
-            in :meth:`Algorithm.step`. It's usually best to maximize the minibatch
-            size to reduce the variance associated with updating the policy's model,
-            and also to accelerate the computations when learning (assuming a CUDA
-            device is being used). If ``None``, the whole buffer is treated as one giant
-            batch.
-        num_sgd_iters: PPO hyperparameter indicating the number of gradient steps to take
-            with the whole :attr:`Algorithm.buffer` when calling :meth:`Algorithm.step`.
-        shuffle_minibatches: Whether to shuffle minibatches within :meth:`Algorithm.step`.
-            Recommended, but not necessary if the minibatch size is large enough
-            (e.g., the buffer is the batch).
-        clip_param: PPO hyperparameter indicating the max distance the policy can
-            update away from previously collected policy sample data with
-            respect to likelihoods of taking actions conditioned on
-            observations. This is the main innovation of PPO.
-        vf_clip_param: PPO hyperparameter similar to ``clip_param`` but for the
-            value function estimate. A measure of max distance the model's
-            value function is allowed to update away from previous value function
-            samples.
-        dual_clip_param: PPO hyperparameter that clips like ``clip_param`` but when
-            advantage estimations are negative. Helps prevent instability for
-            continuous action spaces when policies are making large updates.
-            Leave ``None`` for this clip to not apply. Otherwise, typical values
-            are around ``5``.
-        vf_coeff: Value function loss component weight. Only needs to be tuned
-            when the policy and value function share parameters.
-        target_kl_div: Target maximum KL divergence when updating the policy. If approximate
-            KL divergence is greater than this value, then policy updates stop
-            early for that algorithm step. If this is left ``None`` then
-            early stopping doesn't occur. A higher value means the policy is allowed
-            to diverge more from the previous policy during updates.
-        max_grad_norm: Max gradient norm allowed when updating the policy's model
-            within :meth:`Algorithm.step`.
-        normalize_advantages: Whether to normalize advantages computed for GAE using the batch's
-            mean and standard deviation. This has been shown to generally improve
-            convergence speed and performance and should usually be ``True``.
-        normalize_rewards: Whether to normalize rewards using reversed discounted returns as
-            from https://arxiv.org/pdf/2005.12729.pdf. Reward normalization,
-            although not exactly correct and optimal, typically improves
-            convergence speed and performance and should usually be ``True``.
-        device: Device :attr:`Algorithm.env`, :attr:`Algorithm.buffer`, and
-            :attr:`Algorithm.policy` all reside on.
+            Will be stepped for ``horizon`` each :meth:`Algorithm.collect` call.
+        config: Algorithm config for building a feedforward PPO
+            algorithm. See :class:`AlgorithmConfig` for all parameters.
 
     Examples:
         Instantiate an algorithm for a dummy environment and update the underlying
         policy once.
 
-        >>> from rl8 import Algorithm
+        >>> from rl8 import AlgorithmConfig
         >>> from rl8.env import DiscreteDummyEnv
-        >>> algo = Algorithm(DiscreteDummyEnv)
+        >>> algo = AlgorithmConfig().build(DiscreteDummyEnv)
         >>> algo.collect()  # doctest: +SKIP
         >>> algo.step()  # doctest: +SKIP
 
@@ -165,61 +204,36 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
     """
 
     def __init__(
-        self,
-        env_cls: EnvFactory,
-        /,
-        *,
-        env_config: None | dict[str, Any] = None,
-        model: None | Model = None,
-        model_cls: None | ModelFactory = None,
-        model_config: None | dict[str, Any] = None,
-        distribution_cls: None | type[Distribution] = None,
-        horizon: int = 32,
-        horizons_per_env_reset: int = 1,
-        num_envs: int = 8192,
-        optimizer_cls: type[optim.Optimizer] = optim.Adam,
-        optimizer_config: None | dict[str, Any] = None,
-        accumulate_grads: bool = False,
-        enable_amp: bool = False,
-        lr_schedule: None | list[tuple[int, float]] = None,
-        lr_schedule_kind: ScheduleKind = "step",
-        entropy_coeff: float = 0.0,
-        entropy_coeff_schedule: None | list[tuple[int, float]] = None,
-        entropy_coeff_schedule_kind: ScheduleKind = "step",
-        gae_lambda: float = 0.95,
-        gamma: float = 0.95,
-        sgd_minibatch_size: None | int = None,
-        num_sgd_iters: int = 4,
-        shuffle_minibatches: bool = True,
-        clip_param: float = 0.2,
-        vf_clip_param: float = 5.0,
-        dual_clip_param: None | float = None,
-        vf_coeff: float = 1.0,
-        target_kl_div: None | float = None,
-        max_grad_norm: float = 5.0,
-        normalize_advantages: bool = True,
-        normalize_rewards: bool = True,
-        device: Device | Literal["auto"] = "auto",
+        self, env_cls: EnvFactory, /, config: None | AlgorithmConfig = None
     ) -> None:
-        device = "cuda" if device == "auto" and torch.cuda.is_available() else "cpu"
-        max_num_envs = (
-            env_cls.max_num_envs if hasattr(env_cls, "max_num_envs") else num_envs
+        config = config or AlgorithmConfig()
+        device = (
+            "cuda"
+            if torch.cuda.is_available()
+            else "cpu"
+            if config.device == "auto"
+            else config.device
         )
-        num_envs = min(num_envs, max_num_envs)
+        max_num_envs = (
+            env_cls.max_num_envs
+            if hasattr(env_cls, "max_num_envs")
+            else config.num_envs
+        )
+        num_envs = min(config.num_envs, max_num_envs)
         max_horizon = (
             env_cls.max_horizon if hasattr(env_cls, "max_horizon") else 1_000_000
         )
-        horizon = min(horizon, max_horizon)
-        self.env = env_cls(num_envs, horizon, config=env_config, device=device)
+        horizon = min(config.horizon, max_horizon)
+        self.env = env_cls(num_envs, horizon, device=device)
         assert_nd_spec(self.env.observation_spec)
         assert_nd_spec(self.env.action_spec)
         self.policy = Policy(
             self.env.observation_spec,
             self.env.action_spec,
-            model=model,
-            model_cls=model_cls,
-            model_config=model_config,
-            distribution_cls=distribution_cls,
+            model=config.model,
+            model_cls=config.model_cls,
+            model_config=config.model_config,
+            distribution_cls=config.distribution_cls,
             device=device,
         )
         self.buffer_spec = CompositeSpec(
@@ -233,50 +247,56 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
                 DataKeys.RETURNS: UnboundedContinuousTensorSpec(1, device=device),
             },
         )
-        if normalize_rewards:
+        if config.normalize_rewards:
             self.buffer_spec.set(
                 DataKeys.REVERSED_DISCOUNTED_RETURNS,
                 UnboundedContinuousTensorSpec(1, device=device),
             )
         self.buffer_spec = self.buffer_spec.to(device)
         self.buffer = self.buffer_spec.zero([num_envs, horizon + 1])
-        optimizer_config = optimizer_config or {"lr": 1e-3}
-        optimizer = optimizer_cls(self.policy.model.parameters(), **optimizer_config)
+        optimizer_config = config.optimizer_config or {"lr": 1e-3}
+        optimizer = config.optimizer_cls(
+            self.policy.model.parameters(), **optimizer_config
+        )
         self.lr_scheduler = LRScheduler(
-            optimizer, schedule=lr_schedule, kind=lr_schedule_kind
+            optimizer,
+            schedule=config.lr_schedule,
+            kind=config.lr_schedule_kind,
         )
         self.entropy_scheduler = EntropyScheduler(
-            entropy_coeff,
-            schedule=entropy_coeff_schedule,
-            kind=entropy_coeff_schedule_kind,
+            config.entropy_coeff,
+            schedule=config.entropy_coeff_schedule,
+            kind=config.entropy_coeff_schedule_kind,
         )
         sgd_minibatch_size = (
-            sgd_minibatch_size if sgd_minibatch_size else num_envs * horizon
+            config.sgd_minibatch_size
+            if config.sgd_minibatch_size
+            else num_envs * horizon
         )
         self.hparams = AlgorithmHparams(
-            accumulate_grads=accumulate_grads,
-            clip_param=clip_param,
+            accumulate_grads=config.accumulate_grads,
+            clip_param=config.clip_param,
             device=str(device),
-            dual_clip_param=dual_clip_param,
-            enable_amp=enable_amp,
-            gae_lambda=gae_lambda,
-            gamma=gamma,
+            dual_clip_param=config.dual_clip_param,
+            enable_amp=config.enable_amp,
+            gae_lambda=config.gae_lambda,
+            gamma=config.gamma,
             horizon=horizon,
-            horizons_per_env_reset=horizons_per_env_reset,
-            max_grad_norm=max_grad_norm,
-            normalize_advantages=normalize_advantages,
-            normalize_rewards=normalize_rewards,
+            horizons_per_env_reset=config.horizons_per_env_reset,
+            max_grad_norm=config.max_grad_norm,
+            normalize_advantages=config.normalize_advantages,
+            normalize_rewards=config.normalize_rewards,
             num_envs=num_envs,
-            num_sgd_iters=num_sgd_iters,
+            num_sgd_iters=config.num_sgd_iters,
             sgd_minibatch_size=sgd_minibatch_size,
-            shuffle_minibatches=shuffle_minibatches,
-            target_kl_div=target_kl_div,
-            vf_clip_param=vf_clip_param,
-            vf_coeff=vf_coeff,
+            shuffle_minibatches=config.shuffle_minibatches,
+            target_kl_div=config.target_kl_div,
+            vf_clip_param=config.vf_clip_param,
+            vf_coeff=config.vf_coeff,
         ).validate()
         self.state = AlgorithmState()
         self.optimizer = optimizer
-        self.grad_scaler = GradScaler(enabled=enable_amp)
+        self.grad_scaler = GradScaler(enabled=config.enable_amp)
 
     def collect(
         self,

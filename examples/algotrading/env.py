@@ -59,10 +59,9 @@ class AlgoTrading(Env):
         /,
         horizon: None | int = None,
         *,
-        config: dict[str, Any] | None = None,
         device: Device = "cpu",
     ) -> None:
-        super().__init__(num_envs, horizon, config=config, device=device)
+        super().__init__(num_envs, horizon, device=device)
         self.observation_spec = CompositeSpec(
             {
                 "action_mask": DiscreteTensorSpec(
@@ -80,9 +79,9 @@ class AlgoTrading(Env):
             }
         )
         self.action_spec = DiscreteTensorSpec(3, shape=torch.Size([1]), device=device)
-        self.f_bounds = self.config.get("f_bounds", math.pi)
-        self.k_cyclic_bounds = self.config.get("k_cyclic_bounds", 0.05)
-        self.k_market_bounds = self.config.get("k_market_bounds", 0.05)
+        self.f_bounds = math.pi
+        self.k_cyclic_bounds = 0.05
+        self.k_market_bounds = 0.05
 
     def reset(self, *, config: dict[str, Any] | None = None) -> TensorDict:
         config = config or {}

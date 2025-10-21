@@ -1,7 +1,7 @@
 import mlflow
 import pytest
 
-from rl8 import RecurrentTrainer, Trainer
+from rl8 import AlgorithmConfig, RecurrentAlgorithmConfig, RecurrentTrainer, Trainer
 from rl8.conditions import HitsUpperBound
 from rl8.env import DiscreteDummyEnv
 
@@ -11,7 +11,7 @@ HORIZONS_PER_ENV_RESET = 2
 
 
 @pytest.fixture(autouse=True)
-def run() -> None:
+def run():
     active_run = mlflow.start_run(run_name="test_trainers")
     yield active_run
     mlflow.end_run()
@@ -19,12 +19,12 @@ def run() -> None:
 
 
 def test_feedforward_trainer_eval() -> None:
-    trainer = Trainer(
-        DiscreteDummyEnv,
+    algo = AlgorithmConfig(
         num_envs=NUM_ENVS,
         horizon=HORIZON,
         horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
-    )
+    ).build(DiscreteDummyEnv)
+    trainer = Trainer(algo)
     assert trainer.state["algorithm/collects"] == 0
     assert trainer.state["algorithm/steps"] == 0
     assert trainer.state["env/steps"] == 0
@@ -35,12 +35,12 @@ def test_feedforward_trainer_eval() -> None:
 
 
 def test_feedforward_trainer_eval_runtime_error() -> None:
-    trainer = Trainer(
-        DiscreteDummyEnv,
+    algo = AlgorithmConfig(
         num_envs=NUM_ENVS,
         horizon=HORIZON,
         horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
-    )
+    ).build(DiscreteDummyEnv)
+    trainer = Trainer(algo)
     assert trainer.state["algorithm/collects"] == 0
     assert trainer.state["algorithm/steps"] == 0
     assert trainer.state["env/steps"] == 0
@@ -51,12 +51,12 @@ def test_feedforward_trainer_eval_runtime_error() -> None:
 
 
 def test_feedforward_trainer_step() -> None:
-    trainer = Trainer(
-        DiscreteDummyEnv,
+    algo = AlgorithmConfig(
         num_envs=NUM_ENVS,
         horizon=HORIZON,
         horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
     )
+    trainer = Trainer(algo.build(DiscreteDummyEnv))
     assert trainer.state["algorithm/collects"] == 0
     assert trainer.state["algorithm/steps"] == 0
     assert trainer.state["env/steps"] == 0
@@ -67,12 +67,12 @@ def test_feedforward_trainer_step() -> None:
 
 
 def test_feedforward_trainer_run() -> None:
-    trainer = Trainer(
-        DiscreteDummyEnv,
+    algo = AlgorithmConfig(
         num_envs=NUM_ENVS,
         horizon=HORIZON,
         horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
-    )
+    ).build(DiscreteDummyEnv)
+    trainer = Trainer(algo)
     assert trainer.state["algorithm/collects"] == 0
     assert trainer.state["algorithm/steps"] == 0
     assert trainer.state["env/steps"] == 0
@@ -88,12 +88,12 @@ def test_feedforward_trainer_run() -> None:
 
 
 def test_feedforward_trainer_run_value_error() -> None:
-    trainer = Trainer(
-        DiscreteDummyEnv,
+    algo = AlgorithmConfig(
         num_envs=NUM_ENVS,
         horizon=HORIZON,
         horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
-    )
+    ).build(DiscreteDummyEnv)
+    trainer = Trainer(algo)
     assert trainer.state["algorithm/collects"] == 0
     assert trainer.state["algorithm/steps"] == 0
     assert trainer.state["env/steps"] == 0
@@ -103,12 +103,12 @@ def test_feedforward_trainer_run_value_error() -> None:
 
 
 def test_recurrent_trainer_eval() -> None:
-    trainer = RecurrentTrainer(
-        DiscreteDummyEnv,
+    algo = RecurrentAlgorithmConfig(
         num_envs=NUM_ENVS,
         horizon=HORIZON,
         horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
-    )
+    ).build(DiscreteDummyEnv)
+    trainer = RecurrentTrainer(algo)
     assert trainer.state["algorithm/collects"] == 0
     assert trainer.state["algorithm/steps"] == 0
     assert trainer.state["env/steps"] == 0
@@ -119,12 +119,12 @@ def test_recurrent_trainer_eval() -> None:
 
 
 def test_recurrent_trainer_eval_runtime_error() -> None:
-    trainer = RecurrentTrainer(
-        DiscreteDummyEnv,
+    algo = RecurrentAlgorithmConfig(
         num_envs=NUM_ENVS,
         horizon=HORIZON,
         horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
-    )
+    ).build(DiscreteDummyEnv)
+    trainer = RecurrentTrainer(algo)
     assert trainer.state["algorithm/collects"] == 0
     assert trainer.state["algorithm/steps"] == 0
     assert trainer.state["env/steps"] == 0
@@ -135,12 +135,12 @@ def test_recurrent_trainer_eval_runtime_error() -> None:
 
 
 def test_recurrent_trainer_step() -> None:
-    trainer = RecurrentTrainer(
-        DiscreteDummyEnv,
+    algo = RecurrentAlgorithmConfig(
         num_envs=NUM_ENVS,
         horizon=HORIZON,
         horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
-    )
+    ).build(DiscreteDummyEnv)
+    trainer = RecurrentTrainer(algo)
     assert trainer.state["algorithm/collects"] == 0
     assert trainer.state["algorithm/steps"] == 0
     assert trainer.state["env/steps"] == 0
@@ -151,12 +151,12 @@ def test_recurrent_trainer_step() -> None:
 
 
 def test_recurrent_trainer_run() -> None:
-    trainer = RecurrentTrainer(
-        DiscreteDummyEnv,
+    algo = RecurrentAlgorithmConfig(
         num_envs=NUM_ENVS,
         horizon=HORIZON,
         horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
-    )
+    ).build(DiscreteDummyEnv)
+    trainer = RecurrentTrainer(algo)
     assert trainer.state["algorithm/collects"] == 0
     assert trainer.state["algorithm/steps"] == 0
     assert trainer.state["env/steps"] == 0
@@ -172,12 +172,12 @@ def test_recurrent_trainer_run() -> None:
 
 
 def test_recurrent_trainer_run_value_error() -> None:
-    trainer = RecurrentTrainer(
-        DiscreteDummyEnv,
+    algo = RecurrentAlgorithmConfig(
         num_envs=NUM_ENVS,
         horizon=HORIZON,
         horizons_per_env_reset=HORIZONS_PER_ENV_RESET,
-    )
+    ).build(DiscreteDummyEnv)
+    trainer = RecurrentTrainer(algo)
     assert trainer.state["algorithm/collects"] == 0
     assert trainer.state["algorithm/steps"] == 0
     assert trainer.state["env/steps"] == 0
