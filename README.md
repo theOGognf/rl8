@@ -54,10 +54,10 @@ Collect environment transitions and update a policy directly using the
 low-level algorithm interface (this updates the policy once).
 
 ```python
-from rl8 import Algorithm
+from rl8 import AlgorithmConfig
 from rl8.env import DiscreteDummyEnv
 
-algo = Algorithm(DiscreteDummyEnv)
+algo = AlgorithmConfig().build(DiscreteDummyEnv)
 algo.collect()
 algo.step()
 ```
@@ -138,7 +138,7 @@ algorithm.
 from rl8 import AlgorithmConfig, Trainer
 from rl8.env import DiscreteDummyEnv
 
-algo = AlgorithmConfig(device="cude").build(DiscreteDummyEnv)
+algo = AlgorithmConfig(device="cuda").build(DiscreteDummyEnv)
 trainer = Trainer(algo)
 trainer.run()
 ```
