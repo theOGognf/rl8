@@ -5,7 +5,7 @@ from typing import Any, ClassVar, Generic, Protocol, TypeVar
 
 import torch
 from tensordict import TensorDict
-from torchrl.data import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTensorSpec
+from torchrl.data import Categorical, TensorSpec, Unbounded
 
 from .data import DataKeys, Device
 
@@ -161,7 +161,7 @@ class GenericEnv(Env, Generic[_ObservationSpec, _ActionSpec]):
     action_spec: _ActionSpec
 
 
-class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
+class DummyEnv(GenericEnv[Unbounded, _ActionSpec]):
     """The simplest environment possible.
 
     Useful for testing and debugging algorithms and policies. The state
@@ -191,7 +191,7 @@ class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
         device: Device = "cpu",
     ) -> None:
         super().__init__(num_envs, horizon, device=device)
-        self.observation_spec = UnboundedContinuousTensorSpec(1, device=self.device)
+        self.observation_spec = Unbounded(1, device=self.device)
         self.bounds = 100.0
 
     def reset(self, *, config: None | dict[str, Any] = None) -> torch.Tensor:
@@ -203,7 +203,7 @@ class DummyEnv(GenericEnv[UnboundedContinuousTensorSpec, _ActionSpec]):
         return self.state
 
 
-class ContinuousDummyEnv(DummyEnv[UnboundedContinuousTensorSpec]):
+class ContinuousDummyEnv(DummyEnv[Unbounded]):
     """A continuous version of the dummy environment.
 
     Actions include moving the state left or right at any magnitude.
@@ -219,9 +219,7 @@ class ContinuousDummyEnv(DummyEnv[UnboundedContinuousTensorSpec]):
         device: Device = "cpu",
     ) -> None:
         super().__init__(num_envs, horizon, device=device)
-        self.action_spec = UnboundedContinuousTensorSpec(
-            shape=torch.Size([1]), device=device
-        )
+        self.action_spec = Unbounded(shape=torch.Size([1]), device=device)
 
     def step(self, action: torch.Tensor) -> TensorDict:
         self.state += action
@@ -232,7 +230,7 @@ class ContinuousDummyEnv(DummyEnv[UnboundedContinuousTensorSpec]):
         )
 
 
-class DiscreteDummyEnv(DummyEnv[DiscreteTensorSpec]):
+class DiscreteDummyEnv(DummyEnv[Categorical]):
     """A discrete version of the dummy environment.
 
     Actions include moving the state left or right one unit. This
@@ -250,7 +248,7 @@ class DiscreteDummyEnv(DummyEnv[DiscreteTensorSpec]):
         device: Device = "cpu",
     ) -> None:
         super().__init__(num_envs, horizon, device=device)
-        self.action_spec = DiscreteTensorSpec(2, shape=torch.Size([1]), device=device)
+        self.action_spec = Categorical(2, shape=torch.Size([1]), device=device)
 
     def step(self, action: torch.Tensor) -> TensorDict:
         self.state += 2 * action - 1

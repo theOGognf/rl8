@@ -103,7 +103,8 @@ Use a custom distribution and custom hyperparameters by passing
 options to the trainer (or algorithm) interface.
 
 ```python
-from rl8 import AlgorithmConfig, SquashedNormal, Trainer
+from rl8 import AlgorithmConfig, Trainer
+from rl8.distributions import SquashedNormal
 from rl8.env import ContinuousDummyEnv
 
 algo = AlgorithmConfig(

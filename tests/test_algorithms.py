@@ -4,8 +4,9 @@ from unittest.mock import patch
 import pytest
 import torch
 
-from rl8 import AlgorithmConfig, RecurrentAlgorithmConfig, RecurrentPolicy
+from rl8 import AlgorithmConfig, RecurrentAlgorithmConfig
 from rl8.env import ContinuousDummyEnv, DiscreteDummyEnv, Env
+from rl8.policies import RecurrentPolicy
 
 NUM_ENVS = 64
 HORIZON = 32

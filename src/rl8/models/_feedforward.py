@@ -4,7 +4,7 @@ from typing import Any, Generic, Protocol, Sequence, TypeVar
 import torch
 import torch.nn as nn
 from tensordict import TensorDict
-from torchrl.data import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTensorSpec
+from torchrl.data import Categorical, TensorSpec, Unbounded
 from typing_extensions import Self
 
 from .._utils import assert_1d_spec
@@ -116,16 +116,16 @@ class Model(
             A default model class.
 
         """
-        if not isinstance(observation_spec, UnboundedContinuousTensorSpec):
+        if not isinstance(observation_spec, Unbounded):
             raise TypeError(
                 f"Observation spec {observation_spec} has no default model support."
             )
         assert_1d_spec(observation_spec)
         assert_1d_spec(action_spec)
         match action_spec:
-            case UnboundedContinuousTensorSpec():
+            case Unbounded():
                 return DefaultContinuousModel
-            case DiscreteTensorSpec():
+            case Categorical():
                 return DefaultDiscreteModel
             case _:
                 raise TypeError(
@@ -231,9 +231,7 @@ class GenericModel(Model, Generic[_ObservationSpec, _ActionSpec]):
         super().__init__(observation_spec, action_spec, **config)
 
 
-class DefaultContinuousModel(
-    GenericModel[UnboundedContinuousTensorSpec, UnboundedContinuousTensorSpec]
-):
+class DefaultContinuousModel(GenericModel[Unbounded, Unbounded]):
     """Default model for 1D continuous observations and action spaces."""
 
     #: Value function estimate set after `forward`.
@@ -253,8 +251,8 @@ class DefaultContinuousModel(
 
     def __init__(
         self,
-        observation_spec: UnboundedContinuousTensorSpec,
-        action_spec: UnboundedContinuousTensorSpec,
+        observation_spec: Unbounded,
+        action_spec: Unbounded,
         /,
         *,
         hiddens: Sequence[int] = (256, 256),
@@ -312,9 +310,7 @@ class DefaultContinuousModel(
         return self._value
 
 
-class DefaultDiscreteModel(
-    GenericModel[UnboundedContinuousTensorSpec, DiscreteTensorSpec]
-):
+class DefaultDiscreteModel(GenericModel[Unbounded, Categorical]):
     """Default model for 1D continuous observations and discrete action spaces."""
 
     #: Value function estimate set after the forward pass.
@@ -328,8 +324,8 @@ class DefaultDiscreteModel(
 
     def __init__(
         self,
-        observation_spec: UnboundedContinuousTensorSpec,
-        action_spec: DiscreteTensorSpec,
+        observation_spec: Unbounded,
+        action_spec: Categorical,
         /,
         *,
         hiddens: Sequence[int] = (256, 256),

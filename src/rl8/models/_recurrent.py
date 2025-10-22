@@ -4,12 +4,7 @@ from typing import Any, Generic, Protocol, TypeVar
 import torch
 import torch.nn as nn
 from tensordict import TensorDict
-from torchrl.data import (
-    CompositeSpec,
-    DiscreteTensorSpec,
-    TensorSpec,
-    UnboundedContinuousTensorSpec,
-)
+from torchrl.data import Categorical, Composite, TensorSpec, Unbounded
 from typing_extensions import Self
 
 from .._utils import assert_1d_spec
@@ -42,7 +37,7 @@ class RecurrentModel(
 
     #: Spec defining recurrent model states part of the forward pass input
     #: and output. This is expected to be defined in a model's ``__init__``.
-    state_spec: CompositeSpec
+    state_spec: Composite
 
     @staticmethod
     def default_model_cls(
@@ -61,16 +56,16 @@ class RecurrentModel(
             A default model class.
 
         """
-        if not isinstance(observation_spec, UnboundedContinuousTensorSpec):
+        if not isinstance(observation_spec, Unbounded):
             raise TypeError(
                 f"Observation spec {observation_spec} has no default model support."
             )
         assert_1d_spec(observation_spec)
         assert_1d_spec(action_spec)
         match action_spec:
-            case UnboundedContinuousTensorSpec():
+            case Unbounded():
                 return DefaultContinuousRecurrentModel
-            case DiscreteTensorSpec():
+            case Categorical():
                 return DefaultDiscreteRecurrentModel
             case _:
                 raise TypeError(
@@ -171,9 +166,7 @@ class GenericRecurrentModel(RecurrentModel, Generic[_ObservationSpec, _ActionSpe
         super().__init__(observation_spec, action_spec, **config)
 
 
-class DefaultContinuousRecurrentModel(
-    GenericRecurrentModel[UnboundedContinuousTensorSpec, UnboundedContinuousTensorSpec]
-):
+class DefaultContinuousRecurrentModel(GenericRecurrentModel[Unbounded, Unbounded]):
     """Default recurrent model for 1D continuous observations and action spaces."""
 
     #: Value function estimate set after `forward`.
@@ -193,8 +186,8 @@ class DefaultContinuousRecurrentModel(
 
     def __init__(
         self,
-        observation_spec: UnboundedContinuousTensorSpec,
-        action_spec: UnboundedContinuousTensorSpec,
+        observation_spec: Unbounded,
+        action_spec: Unbounded,
         /,
         *,
         hidden_size: int = 256,
@@ -202,13 +195,13 @@ class DefaultContinuousRecurrentModel(
         bias: bool = True,
     ) -> None:
         super().__init__(observation_spec, action_spec)
-        self.state_spec = CompositeSpec(
+        self.state_spec = Composite(
             {
-                DataKeys.HIDDEN_STATES: UnboundedContinuousTensorSpec(
+                DataKeys.HIDDEN_STATES: Unbounded(
                     shape=torch.Size([num_layers, hidden_size]),
                     device=action_spec.device,
                 ),
-                DataKeys.CELL_STATES: UnboundedContinuousTensorSpec(
+                DataKeys.CELL_STATES: Unbounded(
                     shape=torch.Size([num_layers, hidden_size]),
                     device=action_spec.device,
                 ),
@@ -263,9 +256,7 @@ class DefaultContinuousRecurrentModel(
         return self._value
 
 
-class DefaultDiscreteRecurrentModel(
-    GenericRecurrentModel[UnboundedContinuousTensorSpec, DiscreteTensorSpec]
-):
+class DefaultDiscreteRecurrentModel(GenericRecurrentModel[Unbounded, Categorical]):
     """Default recurrent model for 1D continuous observations and discrete action spaces.
     """
 
@@ -282,8 +273,8 @@ class DefaultDiscreteRecurrentModel(
 
     def __init__(
         self,
-        observation_spec: UnboundedContinuousTensorSpec,
-        action_spec: DiscreteTensorSpec,
+        observation_spec: Unbounded,
+        action_spec: Categorical,
         /,
         *,
         hidden_size: int = 256,
@@ -291,13 +282,13 @@ class DefaultDiscreteRecurrentModel(
         bias: bool = True,
     ) -> None:
         super().__init__(observation_spec, action_spec)
-        self.state_spec = CompositeSpec(
+        self.state_spec = Composite(
             {
-                DataKeys.HIDDEN_STATES: UnboundedContinuousTensorSpec(
+                DataKeys.HIDDEN_STATES: Unbounded(
                     shape=torch.Size([num_layers, hidden_size]),
                     device=action_spec.device,
                 ),
-                DataKeys.CELL_STATES: UnboundedContinuousTensorSpec(
+                DataKeys.CELL_STATES: Unbounded(
                     shape=torch.Size([num_layers, hidden_size]),
                     device=action_spec.device,
                 ),

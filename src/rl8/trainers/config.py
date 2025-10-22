@@ -78,7 +78,8 @@ class TrainConfig:
             A trainer based on the train config values.
 
         Examples:
-            >>> from rl8 import DiscreteDummyEnv, TrainConfig
+            >>> from rl8 import TrainConfig
+            >>> from rl8.env import DiscreteDummyEnv
             >>> trainer = TrainConfig(DiscreteDummyEnv).build()
 
         """

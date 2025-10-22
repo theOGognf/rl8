@@ -4,8 +4,8 @@ from typing import Any, Generic, TypeVar
 
 import torch.optim as optim
 from tensordict import TensorDict
-from torch.cuda.amp.grad_scaler import GradScaler
-from torchrl.data import CompositeSpec
+from torch.amp.grad_scaler import GradScaler
+from torchrl.data import Composite
 
 from .._utils import memory_stats
 from ..data import (
@@ -39,7 +39,7 @@ class GenericAlgorithmBase(
     #: and dimensions. Used for instantiating :attr:`GenericAlgorithmBase.buffer`
     #: at :class:`GenericAlgorithmBase` instantiation and each
     #: :meth:`GenericAlgorithmBase.step` call.
-    buffer_spec: CompositeSpec
+    buffer_spec: Composite
 
     #: Entropy scheduler for updating the ``entropy_coeff`` after each
     #: :meth:`GenericAlgorithmBase.step` call based on the number environment

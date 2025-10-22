@@ -3,7 +3,7 @@ from typing import Any
 
 import torch
 from tensordict import TensorDict
-from torchrl.data import UnboundedContinuousTensorSpec
+from torchrl.data import Unbounded
 
 from rl8 import Env
 from rl8.data import DataKeys, Device
@@ -86,12 +86,10 @@ class Pendulum(Env):
         super().__init__(num_envs, horizon, device=device)
         self._config = PendulumConfig()
 
-        self.action_spec = UnboundedContinuousTensorSpec(
+        self.action_spec = Unbounded(
             device=device, dtype=torch.float32, shape=torch.Size([1])
         )
-        self.observation_spec = UnboundedContinuousTensorSpec(
-            3, device=device, dtype=torch.float32
-        )
+        self.observation_spec = Unbounded(3, device=device, dtype=torch.float32)
 
     def reset(self, *, config: dict[str, Any] | None = None) -> torch.Tensor:
         config = config or {}

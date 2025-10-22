@@ -5,8 +5,8 @@ import torch
 import torch.amp as amp
 import torch.nn as nn
 import torch.optim as optim
-from torch.cuda.amp.grad_scaler import GradScaler
-from torchrl.data import CompositeSpec, UnboundedContinuousTensorSpec
+from torch.amp.grad_scaler import GradScaler
+from torchrl.data import Composite, Unbounded
 
 from .._utils import Batcher, StatTracker, assert_nd_spec, profile_ms
 from ..data import (
@@ -207,7 +207,7 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
         self, env_cls: EnvFactory, /, config: None | AlgorithmConfig = None
     ) -> None:
         config = config or AlgorithmConfig()
-        device = (
+        device = str(
             "cuda"
             if torch.cuda.is_available()
             else "cpu"
@@ -236,21 +236,21 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
             distribution_cls=config.distribution_cls,
             device=device,
         )
-        self.buffer_spec = CompositeSpec(
+        self.buffer_spec = Composite(
             {
                 DataKeys.OBS: self.env.observation_spec,
-                DataKeys.REWARDS: UnboundedContinuousTensorSpec(1, device=device),
+                DataKeys.REWARDS: Unbounded(1, device=device),
                 DataKeys.ACTIONS: self.env.action_spec,
-                DataKeys.LOGP: UnboundedContinuousTensorSpec(1, device=device),
-                DataKeys.VALUES: UnboundedContinuousTensorSpec(1, device=device),
-                DataKeys.ADVANTAGES: UnboundedContinuousTensorSpec(1, device=device),
-                DataKeys.RETURNS: UnboundedContinuousTensorSpec(1, device=device),
+                DataKeys.LOGP: Unbounded(1, device=device),
+                DataKeys.VALUES: Unbounded(1, device=device),
+                DataKeys.ADVANTAGES: Unbounded(1, device=device),
+                DataKeys.RETURNS: Unbounded(1, device=device),
             },
         )
         if config.normalize_rewards:
             self.buffer_spec.set(
                 DataKeys.REVERSED_DISCOUNTED_RETURNS,
-                UnboundedContinuousTensorSpec(1, device=device),
+                Unbounded(1, device=device),
             )
         self.buffer_spec = self.buffer_spec.to(device)
         self.buffer = self.buffer_spec.zero([num_envs, horizon + 1])
@@ -276,7 +276,7 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
         self.hparams = AlgorithmHparams(
             accumulate_grads=config.accumulate_grads,
             clip_param=config.clip_param,
-            device=str(device),
+            device=device,
             dual_clip_param=config.dual_clip_param,
             enable_amp=config.enable_amp,
             gae_lambda=config.gae_lambda,
@@ -296,7 +296,7 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
         ).validate()
         self.state = AlgorithmState()
         self.optimizer = optimizer
-        self.grad_scaler = GradScaler(enabled=config.enable_amp)
+        self.grad_scaler = GradScaler(device=device, enabled=config.enable_amp)
 
     def collect(
         self,
@@ -563,10 +563,10 @@ class Algorithm(GenericAlgorithmBase[AlgorithmHparams, AlgorithmState, Policy]):
                         {
                             "coefficients/entropy": self.entropy_scheduler.coeff,
                             "coefficients/vf": self.hparams.vf_coeff,
-                            "losses/entropy": float(losses["entropy"]),
-                            "losses/policy": float(losses["policy"]),
-                            "losses/vf": float(losses["vf"]),
-                            "losses/total": float(losses["total"]),
+                            "losses/entropy": float(losses["entropy"].detach()),
+                            "losses/policy": float(losses["policy"].detach()),
+                            "losses/vf": float(losses["vf"].detach()),
+                            "losses/total": float(losses["total"].detach()),
                             "monitors/kl_div": approximate_kl_div
                             / grad_accumulation_steps,
                         },

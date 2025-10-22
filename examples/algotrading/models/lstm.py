@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
 from tensordict import TensorDict
-from torchrl.data import CompositeSpec, TensorSpec, UnboundedContinuousTensorSpec
+from torchrl.data import Composite, TensorSpec, Unbounded
 
-from rl8 import RecurrentModel
 from rl8.data import DataKeys
+from rl8.models import RecurrentModel
 from rl8.nn import MLP, get_activation
 
 FINFO = torch.finfo()
@@ -45,13 +45,13 @@ class LazyLemur(RecurrentModel):
             hidden_size=hidden_size,
             num_layers=num_layers,
         )
-        self.state_spec = CompositeSpec(
+        self.state_spec = Composite(
             {
-                DataKeys.HIDDEN_STATES: UnboundedContinuousTensorSpec(
+                DataKeys.HIDDEN_STATES: Unbounded(
                     shape=torch.Size([num_layers, hidden_size]),
                     device=action_spec.device,
                 ),
-                DataKeys.CELL_STATES: UnboundedContinuousTensorSpec(
+                DataKeys.CELL_STATES: Unbounded(
                     shape=torch.Size([num_layers, hidden_size]),
                     device=action_spec.device,
                 ),

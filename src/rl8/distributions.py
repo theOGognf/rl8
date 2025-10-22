@@ -3,12 +3,8 @@ from typing import Any, Generic, TypeVar
 
 import torch
 from tensordict import TensorDict
-from torchrl.data import (
-    CompositeSpec,
-    DiscreteTensorSpec,
-    TensorSpec,
-    UnboundedContinuousTensorSpec,
-)
+from torchrl.data import Categorical as Discrete
+from torchrl.data import Composite, TensorSpec, Unbounded
 
 from ._utils import assert_1d_spec
 
@@ -67,9 +63,9 @@ class Distribution(ABC):
         """
         assert_1d_spec(action_spec)
         match action_spec:
-            case DiscreteTensorSpec():
+            case Discrete():
                 return Categorical
-            case UnboundedContinuousTensorSpec():
+            case Unbounded():
                 return Normal
             case _:
                 raise TypeError(
@@ -127,9 +123,7 @@ class TorchDistributionWrapper(
 
 
 class Categorical(
-    TorchDistributionWrapper[
-        CompositeSpec, torch.distributions.Categorical, DiscreteTensorSpec
-    ]
+    TorchDistributionWrapper[Composite, torch.distributions.Categorical, Discrete]
 ):
     """Wrapper around the PyTorch categorical (i.e., discrete) distribution."""
 
@@ -139,9 +133,7 @@ class Categorical(
 
 
 class Normal(
-    TorchDistributionWrapper[
-        CompositeSpec, torch.distributions.Normal, UnboundedContinuousTensorSpec
-    ]
+    TorchDistributionWrapper[Composite, torch.distributions.Normal, Unbounded]
 ):
     """Wrapper around the PyTorch normal (i.e., gaussian) distribution."""
 

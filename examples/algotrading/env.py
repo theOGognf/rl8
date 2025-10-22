@@ -4,11 +4,7 @@ from typing import Any
 
 import torch
 from tensordict import TensorDict
-from torchrl.data import (
-    CompositeSpec,
-    DiscreteTensorSpec,
-    UnboundedContinuousTensorSpec,
-)
+from torchrl.data import Categorical, Composite, Unbounded
 
 from rl8 import Env
 from rl8.data import DataKeys, Device
@@ -62,23 +58,21 @@ class AlgoTrading(Env):
         device: Device = "cpu",
     ) -> None:
         super().__init__(num_envs, horizon, device=device)
-        self.observation_spec = CompositeSpec(
+        self.observation_spec = Composite(
             {
-                "action_mask": DiscreteTensorSpec(
+                "action_mask": Categorical(
                     2, shape=torch.Size([3]), device=device, dtype=torch.bool
                 ),
-                "invested": DiscreteTensorSpec(
+                "invested": Categorical(
                     2, shape=torch.Size([1]), device=device, dtype=torch.long
                 ),
-                "LOG_CHANGE(price)": UnboundedContinuousTensorSpec(
-                    1, device=device, dtype=torch.float32
-                ),
-                "LOG_CHANGE(price, position)": UnboundedContinuousTensorSpec(
+                "LOG_CHANGE(price)": Unbounded(1, device=device, dtype=torch.float32),
+                "LOG_CHANGE(price, position)": Unbounded(
                     1, device=device, dtype=torch.float32
                 ),
             }
         )
-        self.action_spec = DiscreteTensorSpec(3, shape=torch.Size([1]), device=device)
+        self.action_spec = Categorical(3, shape=torch.Size([1]), device=device)
         self.f_bounds = math.pi
         self.k_cyclic_bounds = 0.05
         self.k_market_bounds = 0.05

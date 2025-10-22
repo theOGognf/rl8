@@ -6,7 +6,7 @@ import pandas as pd
 import torch
 from mlflow.pyfunc import PythonModel, PythonModelContext
 from tensordict import TensorDict
-from torchrl.data import CompositeSpec, TensorSpec
+from torchrl.data import Composite, TensorSpec
 
 from .._utils import get_batch_size_from_model_input, td2df
 from ..data import DataKeys, Device
@@ -178,7 +178,7 @@ class RecurrentPolicy(GenericPolicyBase[RecurrentModel]):  # type: ignore[type-v
         return MLflowRecurrentPolicyModel()
 
     @property
-    def state_spec(self) -> CompositeSpec:
+    def state_spec(self) -> Composite:
         """Return the policy's model's state spec for defining recurrent state
         dimensions.
 

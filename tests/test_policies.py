@@ -6,9 +6,9 @@ import mlflow
 import pytest
 from tensordict import TensorDict
 
-from rl8 import Policy, RecurrentPolicy
 from rl8.data import DataKeys
 from rl8.env import ContinuousDummyEnv, DiscreteDummyEnv, Env
+from rl8.policies import Policy, RecurrentPolicy
 
 NUM_ENVS = 64
 HORIZON = 32

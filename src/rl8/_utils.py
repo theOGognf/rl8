@@ -8,7 +8,7 @@ import pandas as pd
 import psutil
 import torch
 from tensordict import TensorDict
-from torchrl.data import CompositeSpec, TensorSpec
+from torchrl.data import Composite, TensorSpec
 from typing_extensions import Self
 
 from .data import MemoryStats
@@ -47,7 +47,7 @@ def assert_nd_spec(spec: TensorSpec, /) -> None:
 
     """
     match spec:
-        case CompositeSpec():
+        case Composite():
             for k in spec:
                 assert_nd_spec(spec[k])
         case _:

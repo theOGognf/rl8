@@ -3,8 +3,8 @@ import torch.nn as nn
 from tensordict import TensorDict
 from torchrl.data import TensorSpec
 
-from rl8 import Model
 from rl8.data import DataKeys
+from rl8.models import Model
 from rl8.nn import MLP, SelfAttention, SelfAttentionStack, get_activation, masked_avg
 from rl8.views import ViewRequirement
 

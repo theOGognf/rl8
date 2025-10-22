@@ -3,7 +3,7 @@ from typing import Any
 
 import torch
 from tensordict import TensorDict
-from torchrl.data import DiscreteTensorSpec, UnboundedContinuousTensorSpec
+from torchrl.data import Categorical, Unbounded
 
 from rl8 import Env
 from rl8.data import DataKeys, Device
@@ -86,10 +86,8 @@ class MountainCar(Env):
         device: Device = "cpu",
     ):
         super().__init__(num_envs, horizon, device=device)
-        self.observation_spec = UnboundedContinuousTensorSpec(
-            2, device=device, dtype=torch.float32
-        )
-        self.action_spec = DiscreteTensorSpec(3, shape=torch.Size([1]), device=device)
+        self.observation_spec = Unbounded(2, device=device, dtype=torch.float32)
+        self.action_spec = Categorical(3, shape=torch.Size([1]), device=device)
 
     def reset(self, *, config: dict[str, Any] | None = None) -> torch.Tensor:
         config = config or {}
