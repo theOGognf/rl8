@@ -1,0 +1,489 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rl8.models._feedforward &mdash; rl8  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            rl8
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">rl8</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">rl8.models._feedforward</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rl8.models._feedforward</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TypeVar</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tensordict</span><span class="w"> </span><span class="kn">import</span> <span class="n">TensorDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchrl.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Categorical</span><span class="p">,</span> <span class="n">TensorSpec</span><span class="p">,</span> <span class="n">Unbounded</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">assert_1d_spec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataKeys</span><span class="p">,</span> <span class="n">Device</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLP</span><span class="p">,</span> <span class="n">Module</span><span class="p">,</span> <span class="n">get_activation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..views</span><span class="w"> </span><span class="kn">import</span> <span class="n">ViewKind</span><span class="p">,</span> <span class="n">ViewRequirement</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._base</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericModelBase</span>
+
+<span class="n">_ObservationSpec</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ObservationSpec&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">TensorSpec</span><span class="p">)</span>
+<span class="n">_ActionSpec</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ActionSpec&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">TensorSpec</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.Model">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span>
+    <span class="n">GenericModelBase</span><span class="p">[</span>
+        <span class="p">[</span>
+            <span class="n">TensorDict</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">TensorDict</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Feedforward policy component that processes environment observations into</span>
+<span class="sd">    a value function approximation and features to be consumed by an</span>
+<span class="sd">    action distribution for action sampling.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        observation_spec: Spec defining the forward pass input.</span>
+<span class="sd">        action_spec: Spec defining the outputs of the policy&#39;s action</span>
+<span class="sd">            distribution that this model is a component of.</span>
+<span class="sd">        config: Model-specific configuration.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#: Requirements on how a tensor batch should be preprocessed by the</span>
+    <span class="c1">#: policy prior to being passed to the forward pass. Useful for handling</span>
+    <span class="c1">#: sequence shifting or masking so you don&#39;t have to.</span>
+    <span class="c1">#: By default, observations are passed with no shifting.</span>
+    <span class="c1">#: This should be overwritten in a model&#39;s ``__init__`` for custom view</span>
+    <span class="c1">#: requirements.</span>
+    <span class="n">view_requirements</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ViewRequirement</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">observation_spec</span><span class="p">:</span> <span class="n">TensorSpec</span><span class="p">,</span>
+        <span class="n">action_spec</span><span class="p">:</span> <span class="n">TensorSpec</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">config</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">observation_spec</span><span class="p">,</span> <span class="n">action_spec</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">view_requirements</span> <span class="o">=</span> <span class="p">{</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">:</span> <span class="n">ViewRequirement</span><span class="p">(</span><span class="n">shift</span><span class="o">=</span><span class="mi">0</span><span class="p">)}</span>
+
+<div class="viewcode-block" id="Model.apply_view_requirements"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.Model.apply_view_requirements">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">apply_view_requirements</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">TensorDict</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="n">ViewKind</span> <span class="o">=</span> <span class="s2">&quot;last&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TensorDict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the model&#39;s view requirements, reshaping tensors as-needed.</span>
+
+<span class="sd">        This is usually called by the policy that the model is a component</span>
+<span class="sd">        of, but can be used within the model if the model is deployed without</span>
+<span class="sd">        the policy or action distribution.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            batch: Batch to feed into the policy&#39;s underlying model. Expected</span>
+<span class="sd">                to be of size ``[B, T, ...]`` where ``B`` is the batch dimension,</span>
+<span class="sd">                and ``T`` is the time or sequence dimension. ``B`` is typically</span>
+<span class="sd">                the number of parallel environments being sampled for during</span>
+<span class="sd">                massively parallel training, and ``T`` is typically the number</span>
+<span class="sd">                of time steps or observations sampled from the environments.</span>
+<span class="sd">                The ``B`` and ``T`` dimensions are typically combined into one dimension</span>
+<span class="sd">                during application of the view requirements.</span>
+<span class="sd">            kind: String indicating the type of view requirements to apply.</span>
+<span class="sd">                The model&#39;s view requirements are applied slightly differently</span>
+<span class="sd">                depending on the value. Options include:</span>
+
+<span class="sd">                    - &quot;last&quot;: Apply the view requirements using only the samples</span>
+<span class="sd">                      necessary to sample for the most recent observations</span>
+<span class="sd">                      within the ``batch``&#39;s ``T`` dimension.</span>
+<span class="sd">                    - &quot;all&quot;: Sample from ``batch`` using all observations within</span>
+<span class="sd">                      the ``batch``&#39;s ``T`` dimension. Expand the ``B`` and ``T``</span>
+<span class="sd">                      dimensions together.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">batch_sizes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">view_requirement</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">view_requirements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">match</span> <span class="n">kind</span><span class="p">:</span>
+                <span class="k">case</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+                    <span class="n">item</span> <span class="o">=</span> <span class="n">view_requirement</span><span class="o">.</span><span class="n">apply_all</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
+                <span class="k">case</span> <span class="s2">&quot;last&quot;</span><span class="p">:</span>
+                    <span class="n">item</span> <span class="o">=</span> <span class="n">view_requirement</span><span class="o">.</span><span class="n">apply_last</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span>
+            <span class="n">B_NEW</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">batch_sizes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">B_NEW</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">batch_sizes</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="n">TensorDict</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">batch</span><span class="o">.</span><span class="n">device</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.default_model_cls"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.Model.default_model_cls">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default_model_cls</span><span class="p">(</span>
+        <span class="n">observation_spec</span><span class="p">:</span> <span class="n">TensorSpec</span><span class="p">,</span>
+        <span class="n">action_spec</span><span class="p">:</span> <span class="n">TensorSpec</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;Model&quot;</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a default model class based on the given observation and</span>
+<span class="sd">        action specs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            observation_spec: Environment observation spec.</span>
+<span class="sd">            action_spec: Environment action spec.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A default model class.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">observation_spec</span><span class="p">,</span> <span class="n">Unbounded</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Observation spec </span><span class="si">{</span><span class="n">observation_spec</span><span class="si">}</span><span class="s2"> has no default model support.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">assert_1d_spec</span><span class="p">(</span><span class="n">observation_spec</span><span class="p">)</span>
+        <span class="n">assert_1d_spec</span><span class="p">(</span><span class="n">action_spec</span><span class="p">)</span>
+        <span class="k">match</span> <span class="n">action_spec</span><span class="p">:</span>
+            <span class="k">case</span> <span class="n">Unbounded</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">DefaultContinuousModel</span>
+            <span class="k">case</span> <span class="n">Categorical</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">DefaultDiscreteModel</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Action spec </span><span class="si">{</span><span class="n">action_spec</span><span class="si">}</span><span class="s2"> has no default model support.&quot;</span>
+                <span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the model&#39;s drop size (also the drop size for all view</span>
+<span class="sd">        requirements).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">drop_sizes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">view_requirement</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">view_requirements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">drop_sizes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">view_requirement</span><span class="o">.</span><span class="n">drop_size</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">drop_sizes</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+<div class="viewcode-block" id="Model.forward"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.Model.forward">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">TensorDict</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TensorDict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a batch of tensors and return features to be fed into an</span>
+<span class="sd">        action distribution.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            batch: A tensordict expected to have at least an ``&quot;obs&quot;`` key with any</span>
+<span class="sd">                tensor spec. The policy that the model is a component of</span>
+<span class="sd">                processes the batch according to :attr:`Model.view_requirements`</span>
+<span class="sd">                prior to passing the batch to the forward pass. The tensordict</span>
+<span class="sd">                must have a 1D batch shape like ``[B, ...]``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Features that will be passed to an action distribution with batch</span>
+<span class="sd">            shape like ``[B, ...]``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Model.to"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.Model.to">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">Device</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper for changing the device the model is on.</span>
+
+<span class="sd">        The specs associated with the model aren&#39;t updated with the PyTorch</span>
+<span class="sd">        module&#39;s ``to`` method since they aren&#39;t PyTorch modules themselves.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            device: Target device.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The updated model.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_spec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_spec</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_spec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_spec</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Module</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.validate_view_requirements"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.Model.validate_view_requirements">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate_view_requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper for validating a model&#39;s view requirements.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the model&#39;s view requirements result in an</span>
+<span class="sd">                ambiguous batch size, making training and sampling impossible.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">drop_sizes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">view_requirement</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">view_requirements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">drop_sizes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">view_requirement</span><span class="o">.</span><span class="n">drop_size</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">drop_sizes</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> view requirements with drop sizes </span><span class="si">{</span><span class="n">drop_sizes</span><span class="si">}</span>
+<span class="s2">                result in an ambiguous batch size. It&#39;s recommended you:</span>
+<span class="s2">                    1) use a view requirement method that does not have sample</span>
+<span class="s2">                        dropping, allowing view requirements with different sizes</span>
+<span class="s2">                    2) reformulate your model and observation function such</span>
+<span class="s2">                        that view requirements are not necessary or are</span>
+<span class="s2">                        handled internal to your environment</span>
+
+<span class="s2">                &quot;&quot;&quot;</span>
+            <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ModelFactory"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.ModelFactory">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ModelFactory</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory protocol describing how to create a model instance.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">observation_spec</span><span class="p">:</span> <span class="n">TensorSpec</span><span class="p">,</span> <span class="n">action_spec</span><span class="p">:</span> <span class="n">TensorSpec</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Model</span><span class="p">:</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="GenericModel"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.GenericModel">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">GenericModel</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">_ObservationSpec</span><span class="p">,</span> <span class="n">_ActionSpec</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generic model for constructing models from fixed observation and action specs.&quot;&quot;&quot;</span>
+
+    <span class="c1">#: Action space campatible with the model.</span>
+    <span class="n">action_spec</span><span class="p">:</span> <span class="n">_ActionSpec</span>
+
+    <span class="c1">#: Observation space compatible with the model.</span>
+    <span class="n">observation_spec</span><span class="p">:</span> <span class="n">_ObservationSpec</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">observation_spec</span><span class="p">:</span> <span class="n">_ObservationSpec</span><span class="p">,</span>
+        <span class="n">action_spec</span><span class="p">:</span> <span class="n">_ActionSpec</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">config</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">observation_spec</span><span class="p">,</span> <span class="n">action_spec</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DefaultContinuousModel"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.DefaultContinuousModel">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">DefaultContinuousModel</span><span class="p">(</span><span class="n">GenericModel</span><span class="p">[</span><span class="n">Unbounded</span><span class="p">,</span> <span class="n">Unbounded</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Default model for 1D continuous observations and action spaces.&quot;&quot;&quot;</span>
+
+    <span class="c1">#: Value function estimate set after `forward`.</span>
+    <span class="n">_value</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+
+    <span class="c1">#: Output head for action log std for a normal distribution.</span>
+    <span class="n">action_log_std</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span>
+
+    <span class="c1">#: Output head for action mean for a normal distribution.</span>
+    <span class="n">action_mean</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span>
+
+    <span class="c1">#: Transform observations to inputs for output heads.</span>
+    <span class="n">latent_model</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span>
+
+    <span class="c1">#: Value function model, independent of action params.</span>
+    <span class="n">vf_model</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">observation_spec</span><span class="p">:</span> <span class="n">Unbounded</span><span class="p">,</span>
+        <span class="n">action_spec</span><span class="p">:</span> <span class="n">Unbounded</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">hiddens</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">),</span>
+        <span class="n">activation_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;relu&quot;</span><span class="p">,</span>
+        <span class="n">bias</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">observation_spec</span><span class="p">,</span> <span class="n">action_spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latent_model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">MLP</span><span class="p">(</span>
+                <span class="n">observation_spec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">hiddens</span><span class="p">,</span>
+                <span class="n">activation_fn</span><span class="o">=</span><span class="n">activation_fn</span><span class="p">,</span>
+                <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">,</span>
+                <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">get_activation</span><span class="p">(</span><span class="n">activation_fn</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_mean</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hiddens</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">action_spec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_mean</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="n">a</span><span class="o">=-</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">zeros_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_mean</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_log_std</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hiddens</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">action_spec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_log_std</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="n">a</span><span class="o">=-</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">zeros_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_log_std</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vf_model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">MLP</span><span class="p">(</span>
+                <span class="n">observation_spec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">hiddens</span><span class="p">,</span>
+                <span class="n">activation_fn</span><span class="o">=</span><span class="n">activation_fn</span><span class="p">,</span>
+                <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">,</span>
+                <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">get_activation</span><span class="p">(</span><span class="n">activation_fn</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hiddens</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="DefaultContinuousModel.forward"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.DefaultContinuousModel.forward">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">TensorDict</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TensorDict</span><span class="p">:</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">]</span>
+        <span class="n">latents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_model</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+        <span class="n">action_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_mean</span><span class="p">(</span><span class="n">latents</span><span class="p">)</span>
+        <span class="n">action_log_std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_log_std</span><span class="p">(</span><span class="n">latents</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vf_model</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">TensorDict</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="n">action_mean</span><span class="p">,</span> <span class="s2">&quot;log_std&quot;</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">action_log_std</span><span class="p">)},</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="n">obs</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="DefaultContinuousModel.to"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.DefaultContinuousModel.to">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">Device</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DefaultContinuousModel.value_function"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.DefaultContinuousModel.value_function">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">value_function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span></div></div>
+
+
+<div class="viewcode-block" id="DefaultDiscreteModel"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.DefaultDiscreteModel">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">DefaultDiscreteModel</span><span class="p">(</span><span class="n">GenericModel</span><span class="p">[</span><span class="n">Unbounded</span><span class="p">,</span> <span class="n">Categorical</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Default model for 1D continuous observations and discrete action spaces.&quot;&quot;&quot;</span>
+
+    <span class="c1">#: Value function estimate set after the forward pass.</span>
+    <span class="n">_value</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+
+    <span class="c1">#: Transform observations to features for action distributions.</span>
+    <span class="n">feature_model</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span>
+
+    <span class="c1">#: Value function model, independent of action params.</span>
+    <span class="n">vf_model</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">observation_spec</span><span class="p">:</span> <span class="n">Unbounded</span><span class="p">,</span>
+        <span class="n">action_spec</span><span class="p">:</span> <span class="n">Categorical</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">hiddens</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">),</span>
+        <span class="n">activation_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;relu&quot;</span><span class="p">,</span>
+        <span class="n">bias</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">observation_spec</span><span class="p">,</span> <span class="n">action_spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">MLP</span><span class="p">(</span>
+                <span class="n">observation_spec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">hiddens</span><span class="p">,</span>
+                <span class="n">activation_fn</span><span class="o">=</span><span class="n">activation_fn</span><span class="p">,</span>
+                <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">,</span>
+                <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">get_activation</span><span class="p">(</span><span class="n">activation_fn</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">feature_head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span>
+            <span class="n">hiddens</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">action_spec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">action_spec</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">n</span>
+        <span class="p">)</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="n">feature_head</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="n">a</span><span class="o">=-</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">zeros_</span><span class="p">(</span><span class="n">feature_head</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_model</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature_head</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vf_model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">MLP</span><span class="p">(</span>
+                <span class="n">observation_spec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">hiddens</span><span class="p">,</span>
+                <span class="n">activation_fn</span><span class="o">=</span><span class="n">activation_fn</span><span class="p">,</span>
+                <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">,</span>
+                <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">get_activation</span><span class="p">(</span><span class="n">activation_fn</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hiddens</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="DefaultDiscreteModel.forward"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.DefaultDiscreteModel.forward">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">TensorDict</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TensorDict</span><span class="p">:</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">]</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_model</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_spec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_spec</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">n</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vf_model</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">TensorDict</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;logits&quot;</span><span class="p">:</span> <span class="n">logits</span><span class="p">},</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="n">obs</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="DefaultDiscreteModel.to"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.DefaultDiscreteModel.to">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">Device</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DefaultDiscreteModel.value_function"><a class="viewcode-back" href="../../../api/rl8.models.html#rl8.models.DefaultDiscreteModel.value_function">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">value_function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Andrew B.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

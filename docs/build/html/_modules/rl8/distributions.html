@@ -1,0 +1,276 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rl8.distributions &mdash; rl8  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+
+  
+      <script src="../../_static/jquery.js"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/clipboard.min.js"></script>
+      <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            rl8
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">rl8</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">rl8.distributions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rl8.distributions</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">TypeVar</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tensordict</span><span class="w"> </span><span class="kn">import</span> <span class="n">TensorDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchrl.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Categorical</span> <span class="k">as</span> <span class="n">Discrete</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchrl.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Composite</span><span class="p">,</span> <span class="n">TensorSpec</span><span class="p">,</span> <span class="n">Unbounded</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">assert_1d_spec</span>
+
+<span class="n">_ActionSpec</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ActionSpec&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">TensorSpec</span><span class="p">)</span>
+<span class="n">_FeatureSpec</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_FeatureSpec&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">TensorSpec</span><span class="p">)</span>
+<span class="n">_TorchDistribution</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span>
+    <span class="s2">&quot;_TorchDistribution&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Distribution</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="Distribution"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.Distribution">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Distribution</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Policy component that defines a probability distribution over a</span>
+<span class="sd">    feature set from a model.</span>
+
+<span class="sd">    This definition is largely inspired by RLlib&#39;s `action distribution`_.</span>
+<span class="sd">    Most commonly, the feature set is a single vector of logits or log</span>
+<span class="sd">    probabilities used for defining and sampling from the probability</span>
+<span class="sd">    distribution. Custom probabiltiy distributions, however, are not</span>
+<span class="sd">    constrained to just a single vector.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        features: Features from ``model``&#39;s forward pass.</span>
+<span class="sd">        model: Model for parameterizing the probability distribution.</span>
+
+<span class="sd">    .. _`action distribution`: https://github.com/ray-project/ray/blob/master/rllib/models/action_dist.py</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#: Features from :attr:`Distribution.model` forward pass. Simple action</span>
+    <span class="c1">#: distributions expect one field and corresponding tensor in the</span>
+    <span class="c1">#: tensordict, but custom action distributions can return any kind of</span>
+    <span class="c1">#: tensordict from :attr:`Distribution.model`.</span>
+    <span class="n">features</span><span class="p">:</span> <span class="n">TensorDict</span>
+
+    <span class="c1">#: Model from the parent policy also passed to the action distribution.</span>
+    <span class="c1">#: This is necessary in case the model has components that&#39;re only</span>
+    <span class="c1">#: used for sampling or probability distribution characteristics</span>
+    <span class="c1">#: computations.</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Any</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">:</span> <span class="n">TensorDict</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+
+<div class="viewcode-block" id="Distribution.default_dist_cls"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.Distribution.default_dist_cls">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default_dist_cls</span><span class="p">(</span><span class="n">action_spec</span><span class="p">:</span> <span class="n">TensorSpec</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;Distribution&quot;</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a default distribution given an action spec.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            action_spec: Spec defining required environment inputs.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A distribution for simple, supported action specs.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">assert_1d_spec</span><span class="p">(</span><span class="n">action_spec</span><span class="p">)</span>
+        <span class="k">match</span> <span class="n">action_spec</span><span class="p">:</span>
+            <span class="k">case</span> <span class="n">Discrete</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">Categorical</span>
+            <span class="k">case</span> <span class="n">Unbounded</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">Normal</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Action spec </span><span class="si">{</span><span class="n">action_spec</span><span class="si">}</span><span class="s2"> has no default distribution support.&quot;</span>
+                <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Distribution.deterministic_sample"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.Distribution.deterministic_sample">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deterministic_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">TensorDict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw a deterministic sample from the probability distribution.&quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Distribution.entropy"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.Distribution.entropy">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">entropy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the probability distribution&#39;s entropy (a measurement</span>
+<span class="sd">        of randomness).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Distribution.logp"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.Distribution.logp">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">logp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">TensorDict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the log probability of sampling `samples` from the probability</span>
+<span class="sd">        distribution.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Distribution.sample"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.Distribution.sample">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">TensorDict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw a stochastic sample from the probability distribution.&quot;&quot;&quot;</span></div></div>
+
+
+<div class="viewcode-block" id="TorchDistributionWrapper"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.TorchDistributionWrapper">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">TorchDistributionWrapper</span><span class="p">(</span>
+    <span class="n">Distribution</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">_FeatureSpec</span><span class="p">,</span> <span class="n">_TorchDistribution</span><span class="p">,</span> <span class="n">_ActionSpec</span><span class="p">]</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper class for PyTorch distributions.</span>
+
+<span class="sd">    This is inspired by `RLlib`_.</span>
+
+<span class="sd">    .. _`RLlib`: https://github.com/ray-project/ray/blob/master/rllib/models/torch/torch_action_dist.py</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#: Underlying PyTorch distribution.</span>
+    <span class="n">dist</span><span class="p">:</span> <span class="n">_TorchDistribution</span>
+
+<div class="viewcode-block" id="TorchDistributionWrapper.deterministic_sample"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.TorchDistributionWrapper.deterministic_sample">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">deterministic_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="o">.</span><span class="n">mode</span></div>
+
+<div class="viewcode-block" id="TorchDistributionWrapper.entropy"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.TorchDistributionWrapper.entropy">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">entropy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="o">.</span><span class="n">entropy</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TorchDistributionWrapper.logp"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.TorchDistributionWrapper.logp">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">logp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TorchDistributionWrapper.sample"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.TorchDistributionWrapper.sample">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="Categorical"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.Categorical">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Categorical</span><span class="p">(</span>
+    <span class="n">TorchDistributionWrapper</span><span class="p">[</span><span class="n">Composite</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span> <span class="n">Discrete</span><span class="p">]</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper around the PyTorch categorical (i.e., discrete) distribution.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">:</span> <span class="n">TensorDict</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span><span class="n">logits</span><span class="o">=</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;logits&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Normal"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.Normal">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Normal</span><span class="p">(</span>
+    <span class="n">TorchDistributionWrapper</span><span class="p">[</span><span class="n">Composite</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">Unbounded</span><span class="p">]</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper around the PyTorch normal (i.e., gaussian) distribution.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">:</span> <span class="n">TensorDict</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span>
+            <span class="n">loc</span><span class="o">=</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">],</span> <span class="n">scale</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;log_std&quot;</span><span class="p">])</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SquashedNormal"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.SquashedNormal">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SquashedNormal</span><span class="p">(</span><span class="n">Normal</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Squashed normal distribution such that samples are always within [-1, 1].&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SquashedNormal.deterministic_sample"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.SquashedNormal.deterministic_sample">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">deterministic_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">deterministic_sample</span><span class="p">()</span><span class="o">.</span><span class="n">tanh</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SquashedNormal.entropy"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.SquashedNormal.entropy">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">entropy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Entropy isn&#39;t defined for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. Set the&quot;</span>
+            <span class="s2">&quot; entropy coefficient to `0` to avoid this error during training.&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SquashedNormal.logp"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.SquashedNormal.logp">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">logp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">eps</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+        <span class="n">clipped_samples</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=-</span><span class="mi">1</span> <span class="o">+</span> <span class="n">eps</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span> <span class="n">eps</span><span class="p">)</span>
+        <span class="n">inverted_samples</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">clipped_samples</span><span class="o">.</span><span class="n">log1p</span><span class="p">()</span> <span class="o">-</span> <span class="p">(</span><span class="o">-</span><span class="n">clipped_samples</span><span class="p">)</span><span class="o">.</span><span class="n">log1p</span><span class="p">())</span>
+        <span class="n">logp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">inverted_samples</span><span class="p">),</span> <span class="nb">min</span><span class="o">=-</span><span class="mi">100</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">logp</span> <span class="o">-=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">samples</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">eps</span><span class="p">),</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">logp</span></div>
+
+<div class="viewcode-block" id="SquashedNormal.sample"><a class="viewcode-back" href="../../api/rl8.html#rl8.distributions.SquashedNormal.sample">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span><span class="o">.</span><span class="n">tanh</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Andrew B.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

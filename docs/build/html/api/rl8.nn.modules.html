@@ -1,0 +1,699 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rl8.nn.modules package &mdash; rl8  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="rl8.policies package" href="rl8.policies.html" />
+    <link rel="prev" title="rl8.nn package" href="rl8.nn.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            rl8
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="rl8.html">rl8 package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="rl8.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="rl8.algorithms.html">rl8.algorithms package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.models.html">rl8.models package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="rl8.nn.html">rl8.nn package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.policies.html">rl8.policies package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.trainers.html">rl8.trainers package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.conditions">rl8.conditions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.distributions">rl8.distributions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.env">rl8.env module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.schedulers">rl8.schedulers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.views">rl8.views module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">rl8</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">rl8</a></li>
+          <li class="breadcrumb-item"><a href="rl8.html">rl8 package</a></li>
+          <li class="breadcrumb-item"><a href="rl8.nn.html">rl8.nn package</a></li>
+      <li class="breadcrumb-item active">rl8.nn.modules package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/rl8.nn.modules.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="rl8-nn-modules-package">
+<h1>rl8.nn.modules package<a class="headerlink" href="#rl8-nn-modules-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-rl8.nn.modules.activations">
+<span id="rl8-nn-modules-activations-module"></span><h2>rl8.nn.modules.activations module<a class="headerlink" href="#module-rl8.nn.modules.activations" title="Permalink to this heading"></a></h2>
+<p>Activation function registry for convenience.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.nn.modules.activations.SquaredReLU">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.nn.modules.activations.</span></span><span class="sig-name descname"><span class="pre">SquaredReLU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/nn/modules/activations.html#SquaredReLU"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.activations.SquaredReLU" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rl8.nn.modules.module.Module" title="rl8.nn.modules.module.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a>[(&lt;class ‘torch.Tensor’&gt;,), <a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.nn.modules.activations.SquaredReLU.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/modules/activations.html#SquaredReLU.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.activations.SquaredReLU.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Subclasses implement this method.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rl8.nn.modules.activations.get_activation">
+<span class="sig-prename descclassname"><span class="pre">rl8.nn.modules.activations.</span></span><span class="sig-name descname"><span class="pre">get_activation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.9)"><span class="pre">Module</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/modules/activations.html#get_activation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.activations.get_activation" title="Permalink to this definition"></a></dt>
+<dd><p>Return an activation instance by its <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p>
+</dd></dl>
+
+</section>
+<section id="module-rl8.nn.modules.attention">
+<span id="rl8-nn-modules-attention-module"></span><h2>rl8.nn.modules.attention module<a class="headerlink" href="#module-rl8.nn.modules.attention" title="Permalink to this heading"></a></h2>
+<p>Attention module definitions.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.PointerNetwork">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.nn.modules.attention.</span></span><span class="sig-name descname"><span class="pre">PointerNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/nn/modules/attention.html#PointerNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.attention.PointerNetwork" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rl8.nn.modules.module.Module" title="rl8.nn.modules.module.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a>[(&lt;class ‘torch.Tensor’&gt;, &lt;class ‘torch.Tensor’&gt;, None | torch.Tensor), <a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
+<p>3D attention applied to sequence encoders and decoders for selecting the
+next element from the encoder’s sequence to be appended to the decoder’s
+sequence.</p>
+<p>An implementation of <a class="reference external" href="https://arxiv.org/pdf/1506.03134.pdf">Pointer Networks</a> adapted from this <a class="reference external" href="https://towardsdatascience.com/pointer-networks-with-transformers-1a01d83f7543">blog post</a>
+which is adapted from this <a class="reference external" href="https://github.com/ast0414/pointer-networks-pytorch/blob/master/model.py">repo</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>embed_dim</strong> – Feature dimension of the encoders/decoders.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.PointerNetwork.W1">
+<span class="sig-name descname"><span class="pre">W1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear" title="(in PyTorch v2.9)"><span class="pre">Linear</span></a></em><a class="headerlink" href="#rl8.nn.modules.attention.PointerNetwork.W1" title="Permalink to this definition"></a></dt>
+<dd><p>Weights applied to the encoder’s output.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.PointerNetwork.W2">
+<span class="sig-name descname"><span class="pre">W2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear" title="(in PyTorch v2.9)"><span class="pre">Linear</span></a></em><a class="headerlink" href="#rl8.nn.modules.attention.PointerNetwork.W2" title="Permalink to this definition"></a></dt>
+<dd><p>Weights applied to the decoder’s output.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.PointerNetwork.VT">
+<span class="sig-name descname"><span class="pre">VT</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear" title="(in PyTorch v2.9)"><span class="pre">Linear</span></a></em><a class="headerlink" href="#rl8.nn.modules.attention.PointerNetwork.VT" title="Permalink to this definition"></a></dt>
+<dd><p>Weights applied to the blended encoder-decoder selection matrix.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.PointerNetwork.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decoder_out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder_out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/modules/attention.html#PointerNetwork.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.attention.PointerNetwork.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Select valid values from <code class="docutils literal notranslate"><span class="pre">encoder_out</span></code> as indicated by <code class="docutils literal notranslate"><span class="pre">mask</span></code> using
+features from <code class="docutils literal notranslate"><span class="pre">decoder_out</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>decoder_out</strong> – Sequence decoder output with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">D,</span> <span class="pre">C]</span></code>.</p></li>
+<li><p><strong>encoder_out</strong> – Sequence encoder output with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">E,</span> <span class="pre">C]</span></code>.</p></li>
+<li><p><strong>mask</strong> – Mask with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">D,</span> <span class="pre">E]</span></code> indicating the sequence element of
+<code class="docutils literal notranslate"><span class="pre">encoder_out</span></code> that can be selected.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Logits with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">D,</span> <span class="pre">E]</span></code> indicating the likelihood of selecting
+an encoded sequence element in E for each decoder sequence element in <code class="docutils literal notranslate"><span class="pre">D</span></code>.
+The last item in the <code class="docutils literal notranslate"><span class="pre">D</span></code> dimension, <code class="docutils literal notranslate"><span class="pre">[:,</span> <span class="pre">-1,</span> <span class="pre">:]</span></code>, typically indicates
+the likelihoods of selecting each encoder sequence element for the
+next decoder sequence element (which is usually the desired output).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.CrossAttention">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.nn.modules.attention.</span></span><span class="sig-name descname"><span class="pre">CrossAttention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'relu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_dropout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dropout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cat'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/nn/modules/attention.html#CrossAttention"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.attention.CrossAttention" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rl8.nn.modules.module.Module" title="rl8.nn.modules.module.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a>[(&lt;class ‘torch.Tensor’&gt;, &lt;class ‘torch.Tensor’&gt;, None | torch.Tensor, None | torch.Tensor), <a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
+<p>Perform multihead attention keys to a query, mapping the keys of
+sequence length <code class="docutils literal notranslate"><span class="pre">K</span></code> to the query of sequence length <code class="docutils literal notranslate"><span class="pre">Q</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>embed_dim</strong> – Key and query feature dimension.</p></li>
+<li><p><strong>num_heads</strong> – Number of attention heads.</p></li>
+<li><p><strong>hidden_dim</strong> – Number of hidden features in the hidden layers
+of the feedforward network that’s after performing attention.</p></li>
+<li><p><strong>activation_fn</strong> – Activation function ID.</p></li>
+<li><p><strong>attention_dropout</strong> – Sequence dropout in the attention heads.</p></li>
+<li><p><strong>hidden_dropout</strong> – Feedforward dropout after performing attention.</p></li>
+<li><p><strong>skip_kind</strong> – Kind of residual or skip connection to make between
+the output of the multihead attention and the feedforward
+module.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.CrossAttention.attention">
+<span class="sig-name descname"><span class="pre">attention</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html#torch.nn.MultiheadAttention" title="(in PyTorch v2.9)"><span class="pre">MultiheadAttention</span></a></em><a class="headerlink" href="#rl8.nn.modules.attention.CrossAttention.attention" title="Permalink to this definition"></a></dt>
+<dd><p>Underlying multihead attention mechanism.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.CrossAttention.kv_norm">
+<span class="sig-name descname"><span class="pre">kv_norm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.modules.normalization.LayerNorm.html#torch.nn.modules.normalization.LayerNorm" title="(in PyTorch v2.9)"><span class="pre">LayerNorm</span></a></em><a class="headerlink" href="#rl8.nn.modules.attention.CrossAttention.kv_norm" title="Permalink to this definition"></a></dt>
+<dd><p>Norm for the keys.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.CrossAttention.q_norm">
+<span class="sig-name descname"><span class="pre">q_norm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.modules.normalization.LayerNorm.html#torch.nn.modules.normalization.LayerNorm" title="(in PyTorch v2.9)"><span class="pre">LayerNorm</span></a></em><a class="headerlink" href="#rl8.nn.modules.attention.CrossAttention.q_norm" title="Permalink to this definition"></a></dt>
+<dd><p>Norm for the queries.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.CrossAttention.skip_connection">
+<span class="sig-name descname"><span class="pre">skip_connection</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#rl8.nn.modules.skip.SequentialSkipConnection" title="rl8.nn.modules.skip.SequentialSkipConnection"><span class="pre">SequentialSkipConnection</span></a></em><a class="headerlink" href="#rl8.nn.modules.attention.CrossAttention.skip_connection" title="Permalink to this definition"></a></dt>
+<dd><p>Skip connection for applying special residual connections.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.CrossAttention.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">kv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_padding_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/modules/attention.html#CrossAttention.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.attention.CrossAttention.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Apply multihead attention keys to a query, mapping the keys of
+sequence length <code class="docutils literal notranslate"><span class="pre">K</span></code> to the query of sequence length <code class="docutils literal notranslate"><span class="pre">Q</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>q</strong> – Query with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">Q,</span> <span class="pre">E]</span></code>.</p></li>
+<li><p><strong>kv</strong> – Keys with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">K,</span> <span class="pre">E]</span></code>.</p></li>
+<li><p><strong>key_padding_mask</strong> – Mask with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">K]</span></code> indicating sequence
+elements of <code class="docutils literal notranslate"><span class="pre">kv</span></code> that are PADDED or INVALID values.</p></li>
+<li><p><strong>attention_mask</strong> – Mask with shape <code class="docutils literal notranslate"><span class="pre">[Q,</span> <span class="pre">K]</span></code> that indicates whether
+elements in <code class="docutils literal notranslate"><span class="pre">Q</span></code> can attend to elements in <code class="docutils literal notranslate"><span class="pre">K</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Values with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">Q,</span> <span class="pre">E]</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.SelfAttention">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.nn.modules.attention.</span></span><span class="sig-name descname"><span class="pre">SelfAttention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'relu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_dropout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dropout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cat'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/nn/modules/attention.html#SelfAttention"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.attention.SelfAttention" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rl8.nn.modules.module.Module" title="rl8.nn.modules.module.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a>[(&lt;class ‘torch.Tensor’&gt;, None | torch.Tensor, None | torch.Tensor), <a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
+<p>Perform multihead attention keys to a a sequence, using it for the
+queries, keys, and values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>embed_dim</strong> – Key and query feature dimension.</p></li>
+<li><p><strong>num_heads</strong> – Number of attention heads.</p></li>
+<li><p><strong>hidden_dim</strong> – Number of hidden features in the hidden layers
+of the feedforward network that’s after performing attention.</p></li>
+<li><p><strong>activation_fn</strong> – Activation function ID.</p></li>
+<li><p><strong>attention_dropout</strong> – Sequence dropout in the attention heads.</p></li>
+<li><p><strong>hidden_dropout</strong> – Feedforward dropout after performing attention.</p></li>
+<li><p><strong>skip_kind</strong> – Kind of residual or skip connection to make between
+the output of the multihead attention and the feedforward
+module.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.SelfAttention.attention">
+<span class="sig-name descname"><span class="pre">attention</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html#torch.nn.MultiheadAttention" title="(in PyTorch v2.9)"><span class="pre">MultiheadAttention</span></a></em><a class="headerlink" href="#rl8.nn.modules.attention.SelfAttention.attention" title="Permalink to this definition"></a></dt>
+<dd><p>Underlying multihead attention mechanism.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.SelfAttention.skip_connection">
+<span class="sig-name descname"><span class="pre">skip_connection</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#rl8.nn.modules.skip.SequentialSkipConnection" title="rl8.nn.modules.skip.SequentialSkipConnection"><span class="pre">SequentialSkipConnection</span></a></em><a class="headerlink" href="#rl8.nn.modules.attention.SelfAttention.skip_connection" title="Permalink to this definition"></a></dt>
+<dd><p>Skip connection for applying special residual connections.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.SelfAttention.x_norm">
+<span class="sig-name descname"><span class="pre">x_norm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.modules.normalization.LayerNorm.html#torch.nn.modules.normalization.LayerNorm" title="(in PyTorch v2.9)"><span class="pre">LayerNorm</span></a></em><a class="headerlink" href="#rl8.nn.modules.attention.SelfAttention.x_norm" title="Permalink to this definition"></a></dt>
+<dd><p>Norm for the queries/keys/values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.SelfAttention.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_padding_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/modules/attention.html#SelfAttention.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.attention.SelfAttention.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Apply self-attention to <code class="docutils literal notranslate"><span class="pre">x</span></code>, attending sequence elements to
+themselves.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Query with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">X,</span> <span class="pre">E]</span></code>.</p></li>
+<li><p><strong>key_padding_mask</strong> – Mask with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">X]</span></code> indicating sequence
+elements of <code class="docutils literal notranslate"><span class="pre">kv</span></code> that are PADDED or INVALID values.</p></li>
+<li><p><strong>attention_mask</strong> – Mask with shape <code class="docutils literal notranslate"><span class="pre">[X,</span> <span class="pre">X]</span></code> that indicates whether
+elements in <code class="docutils literal notranslate"><span class="pre">X</span></code> can attend to other elements in <code class="docutils literal notranslate"><span class="pre">X</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Values with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">X,</span> <span class="pre">E]</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.SelfAttentionStack">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.nn.modules.attention.</span></span><span class="sig-name descname"><span class="pre">SelfAttentionStack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#rl8.nn.modules.attention.SelfAttention" title="rl8.nn.modules.attention.SelfAttention"><span class="pre">SelfAttention</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">share_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/nn/modules/attention.html#SelfAttentionStack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.attention.SelfAttentionStack" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rl8.nn.modules.module.Module" title="rl8.nn.modules.module.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a>[(&lt;class ‘torch.Tensor’&gt;, None | torch.Tensor, None | torch.Tensor), <a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
+<p>Stacks of self-attention to iteratively attend over a sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>module</strong> – Self-attention module to repeat.</p></li>
+<li><p><strong>num_layers</strong> – Number of layers of <code class="docutils literal notranslate"><span class="pre">module</span></code> to repeat.</p></li>
+<li><p><strong>share_parameters</strong> – Whether to use the same module for each layer.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.nn.modules.attention.SelfAttentionStack.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_padding_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/modules/attention.html#SelfAttentionStack.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.attention.SelfAttentionStack.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Iteratively apply self-attention to <code class="docutils literal notranslate"><span class="pre">x</span></code>, attending sequence
+elements to themselves.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Query with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">X,</span> <span class="pre">E]</span></code>.</p></li>
+<li><p><strong>key_padding_mask</strong> – Mask with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">X]</span></code> indicating sequence
+elements of <code class="docutils literal notranslate"><span class="pre">`kv`</span></code> that are PADDED or INVALID values.</p></li>
+<li><p><strong>attention_mask</strong> – Mask with shape <code class="docutils literal notranslate"><span class="pre">[X,</span> <span class="pre">X]</span></code> that indicates whether
+elements in <code class="docutils literal notranslate"><span class="pre">X</span></code> can attend to other elements in <code class="docutils literal notranslate"><span class="pre">X</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Values with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">X,</span> <span class="pre">E]</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rl8.nn.modules.embeddings">
+<span id="rl8-nn-modules-embeddings-module"></span><h2>rl8.nn.modules.embeddings module<a class="headerlink" href="#module-rl8.nn.modules.embeddings" title="Permalink to this heading"></a></h2>
+<p>Embeddings for sequences.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.nn.modules.embeddings.PositionalEmbedding">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.nn.modules.embeddings.</span></span><span class="sig-name descname"><span class="pre">PositionalEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/nn/modules/embeddings.html#PositionalEmbedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.embeddings.PositionalEmbedding" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rl8.nn.modules.module.Module" title="rl8.nn.modules.module.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a>[(&lt;class ‘torch.Tensor’&gt;,), <a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
+<p>Apply positional embeddings to an input sequence.</p>
+<p>Positional embeddings that help distinguish values at different parts
+of a sequence. Beneficial if an entire sequence is attended to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>embed_dim</strong> – Input feature dimension.</p></li>
+<li><p><strong>max_len</strong> – Max input sequence length.</p></li>
+<li><p><strong>dropout</strong> – Dropout on the output of <a class="reference internal" href="#rl8.nn.modules.embeddings.PositionalEmbedding.forward" title="rl8.nn.modules.embeddings.PositionalEmbedding.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PositionalEmbedding.forward()</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.nn.modules.embeddings.PositionalEmbedding.pe">
+<span class="sig-name descname"><span class="pre">pe</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></em><a class="headerlink" href="#rl8.nn.modules.embeddings.PositionalEmbedding.pe" title="Permalink to this definition"></a></dt>
+<dd><p>Positional embedding tensor.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.nn.modules.embeddings.PositionalEmbedding.dropout">
+<span class="sig-name descname"><span class="pre">dropout</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Dropout.html#torch.nn.Dropout" title="(in PyTorch v2.9)"><span class="pre">Dropout</span></a></em><a class="headerlink" href="#rl8.nn.modules.embeddings.PositionalEmbedding.dropout" title="Permalink to this definition"></a></dt>
+<dd><p>Dropout on the output of <a class="reference internal" href="#rl8.nn.modules.embeddings.PositionalEmbedding.forward" title="rl8.nn.modules.embeddings.PositionalEmbedding.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PositionalEmbedding.forward()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.nn.modules.embeddings.PositionalEmbedding.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/modules/embeddings.html#PositionalEmbedding.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.embeddings.PositionalEmbedding.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Add positional embeddings to <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> – Tensor with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T,</span> <span class="pre">E]</span></code> where <code class="docutils literal notranslate"><span class="pre">B</span></code> is the batch dimension,
+<code class="docutils literal notranslate"><span class="pre">T</span></code> is the time or sequence dimension, and <code class="docutils literal notranslate"><span class="pre">E</span></code> is a feature
+dimension.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tensor with added positional embeddings.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rl8.nn.modules.mlp">
+<span id="rl8-nn-modules-mlp-module"></span><h2>rl8.nn.modules.mlp module<a class="headerlink" href="#module-rl8.nn.modules.mlp" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.nn.modules.mlp.MLP">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.nn.modules.mlp.</span></span><span class="sig-name descname"><span class="pre">MLP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hiddens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Sequence" title="(in Python v3.10)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'relu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_layer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#type" title="(in Python v3.10)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.modules.batchnorm.BatchNorm1d.html#torch.nn.modules.batchnorm.BatchNorm1d" title="(in PyTorch v2.9)"><span class="pre">torch.nn.modules.batchnorm.BatchNorm1d</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.modules.normalization.LayerNorm.html#torch.nn.modules.normalization.LayerNorm" title="(in PyTorch v2.9)"><span class="pre">torch.nn.modules.normalization.LayerNorm</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/nn/modules/mlp.html#MLP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.mlp.MLP" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Sequential.html#torch.nn.Sequential" title="(in PyTorch v2.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequential</span></code></a>, <a class="reference internal" href="#rl8.nn.modules.module.Module" title="rl8.nn.modules.module.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a>[(&lt;class ‘torch.Tensor’&gt;,), <a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
+<p>Simple implementation of a multi-layer perceptron.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_dim</strong> – Input layer dimension.</p></li>
+<li><p><strong>hiddens</strong> – Hidden layer dimensions.</p></li>
+<li><p><strong>activation_fn</strong> – Hidden activation function that immediately follows
+the linear layer or the norm layer (if one exists).</p></li>
+<li><p><strong>norm_layer</strong> – Optional normalization layer type that immediately
+follows the linear layer.</p></li>
+<li><p><strong>bias</strong> – Whether to include a bias for each layer in the MLP.</p></li>
+<li><p><strong>dropout</strong> – Optional dropout that after the activation function.</p></li>
+<li><p><strong>inplace</strong> – Whether activation functions occur in-place.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-rl8.nn.modules.module">
+<span id="rl8-nn-modules-module-module"></span><h2>rl8.nn.modules.module module<a class="headerlink" href="#module-rl8.nn.modules.module" title="Permalink to this heading"></a></h2>
+<p>Typing help for <cite>torch.nn.Module</cite>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.nn.modules.module.Module">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.nn.modules.module.</span></span><span class="sig-name descname"><span class="pre">Module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/nn/modules/module.html#Module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.module.Module" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.10/library/abc.html#abc.ABC" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a>, <a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Generic" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">_P</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">_T</span></code>], <a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a></p>
+<p>Workaround for PyTorch modules with variadic generics.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.nn.modules.module.Module.forward">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*args:</span> <span class="pre">~typing.~_P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs:</span> <span class="pre">~typing.~_P</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">_T</span></span></span><a class="reference internal" href="../_modules/rl8/nn/modules/module.html#Module.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.module.Module.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Subclasses implement this method.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rl8.nn.modules.perceiver">
+<span id="rl8-nn-modules-perceiver-module"></span><h2>rl8.nn.modules.perceiver module<a class="headerlink" href="#module-rl8.nn.modules.perceiver" title="Permalink to this heading"></a></h2>
+<p>Perceiver definitions.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.nn.modules.perceiver.PerceiverLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.nn.modules.perceiver.</span></span><span class="sig-name descname"><span class="pre">PerceiverLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'relu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_dropout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dropout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cat'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">share_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/nn/modules/perceiver.html#PerceiverLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.perceiver.PerceiverLayer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rl8.nn.modules.module.Module" title="rl8.nn.modules.module.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a>[(&lt;class ‘torch.Tensor’&gt;, &lt;class ‘torch.Tensor’&gt;, None | torch.Tensor, None | torch.Tensor), <a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
+<p>An implementation of a <a class="reference external" href="https://arxiv.org/pdf/2103.03206.pdf">Perceiver</a> with cross-attention followed
+by self-attention stacks.</p>
+<p>Useful for embedding several, variable-length sequences into a latent
+array for dimensionality reduction. Allows inputs of different feature
+sizes to be embedded into a constant size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>embed_dim</strong> – Feature dimension of the latent array and input sequence.
+Each sequence is expected to be embedded by its own embedder, which
+could just be a simple linear transform.</p></li>
+<li><p><strong>num_heads</strong> – Number of attention heads in the cross-attention and
+self-attention modules.</p></li>
+<li><p><strong>hidden_dim</strong> – Number of hidden features in the hidden layers
+of the feedforward networks that’re after performing attention.</p></li>
+<li><p><strong>activation_fn</strong> – Activation function ID.</p></li>
+<li><p><strong>attention_dropout</strong> – Sequence dropout in the attention heads.</p></li>
+<li><p><strong>hidden_dropout</strong> – Feedforward dropout after performing attention.</p></li>
+<li><p><strong>skip_kind</strong> – Kind of residual or skip connection to make between
+outputs of the multihead attentions and the feedforward
+modules.</p></li>
+<li><p><strong>share_parameters</strong> – Whether to use the same parameters for the layers
+in the self-attention stack.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.nn.modules.perceiver.PerceiverLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">kv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_padding_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/modules/perceiver.html#PerceiverLayer.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.perceiver.PerceiverLayer.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Apply cross-attention keys to a query, mapping the keys of
+sequence length <code class="docutils literal notranslate"><span class="pre">K</span></code> to the query of sequence length <code class="docutils literal notranslate"><span class="pre">Q</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>q</strong> – Query with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">Q,</span> <span class="pre">E]</span></code>. Usually the latent array from
+previous forward passes or perceiver layers.</p></li>
+<li><p><strong>kv</strong> – Keys with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">K,</span> <span class="pre">E]</span></code>.</p></li>
+<li><p><strong>key_padding_mask</strong> – Mask with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">K]</span></code> indicating sequence
+elements of <code class="docutils literal notranslate"><span class="pre">kv</span></code> that are PADDED or INVALID values.</p></li>
+<li><p><strong>attention_mask</strong> – Mask with shape <code class="docutils literal notranslate"><span class="pre">[Q,</span> <span class="pre">K]</span></code> that indicates whether
+elements in <code class="docutils literal notranslate"><span class="pre">Q</span></code> can attend to elements in <code class="docutils literal notranslate"><span class="pre">K</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Values with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">Q,</span> <span class="pre">E]</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.nn.modules.perceiver.PerceiverIOLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.nn.modules.perceiver.</span></span><span class="sig-name descname"><span class="pre">PerceiverIOLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_seq_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'relu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_dropout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dropout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cat'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">share_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/nn/modules/perceiver.html#PerceiverIOLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.perceiver.PerceiverIOLayer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rl8.nn.modules.module.Module" title="rl8.nn.modules.module.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a>[(&lt;class ‘torch.Tensor’&gt;, &lt;class ‘torch.Tensor’&gt;, None | torch.Tensor, None | torch.Tensor), <a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
+<p>An implementation of <a class="reference external" href="https://arxiv.org/pdf/2107.14795.pdf">PerceiverIO</a> with cross-attention followed by
+self-attention stacks followed by cross-attention with a fixed-sized
+output array.</p>
+<p>In addition to the benefits of <cite>PerceiverLayer</cite>, this module attends a
+latent array to a final output dimensionality to effectively apply
+weighted averaging of sequences to a different dimension. Useful if the
+latent array needs to be processed into several, different-sized
+sequences for separate outputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>embed_dim</strong> – Feature dimension of the latent array and input sequence.
+Each sequence is expected to be embedded by its own embedder, which
+could just be a simple linear transform.</p></li>
+<li><p><strong>output_seq_dim</strong> – Output sequence size to transform the latent array
+sequence size to.</p></li>
+<li><p><strong>num_heads</strong> – Number of attention heads in the cross-attention and
+self-attention modules.</p></li>
+<li><p><strong>hidden_dim</strong> – Number of hidden features in the hidden layers
+of the feedforward networks that’re after performing attention.</p></li>
+<li><p><strong>activation_fn</strong> – Activation function ID.</p></li>
+<li><p><strong>attention_dropout</strong> – Sequence dropout in the attention heads.</p></li>
+<li><p><strong>hidden_dropout</strong> – Feedforward dropout after performing attention.</p></li>
+<li><p><strong>skip_kind</strong> – Kind of residual or skip connection to make between
+outputs of the multihead attentions and the feedforward
+modules.</p></li>
+<li><p><strong>share_parameters</strong> – Whether to use the same parameters for the layers
+in the self-attention stack.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.nn.modules.perceiver.PerceiverIOLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">kv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_padding_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/modules/perceiver.html#PerceiverIOLayer.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.perceiver.PerceiverIOLayer.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Apply cross-attention keys to a query, mapping the keys of
+sequence length <code class="docutils literal notranslate"><span class="pre">K</span></code> to the query of sequence length <code class="docutils literal notranslate"><span class="pre">Q</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>q</strong> – Query with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">Q,</span> <span class="pre">E]</span></code>. Usually the latent array from
+previous forward passes or perceiver layers.</p></li>
+<li><p><strong>kv</strong> – Keys with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">K,</span> <span class="pre">E]</span></code>.</p></li>
+<li><p><strong>key_padding_mask</strong> – Mask with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">K]</span></code> indicating sequence
+elements of <code class="docutils literal notranslate"><span class="pre">kv</span></code> that are PADDED or INVALID values.</p></li>
+<li><p><strong>attention_mask</strong> – Mask with shape <code class="docutils literal notranslate"><span class="pre">[Q,</span> <span class="pre">K]</span></code> that indicates whether
+elements in <code class="docutils literal notranslate"><span class="pre">Q</span></code> can attend to elements in <code class="docutils literal notranslate"><span class="pre">K</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Values with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">O,</span> <span class="pre">E]</span></code> where <code class="docutils literal notranslate"><span class="pre">O</span></code> is the output array sequence
+size.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rl8.nn.modules.skip">
+<span id="rl8-nn-modules-skip-module"></span><h2>rl8.nn.modules.skip module<a class="headerlink" href="#module-rl8.nn.modules.skip" title="Permalink to this heading"></a></h2>
+<p>Skip connection module definitions.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.nn.modules.skip.SequentialSkipConnection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.nn.modules.skip.</span></span><span class="sig-name descname"><span class="pre">SequentialSkipConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cat'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/nn/modules/skip.html#SequentialSkipConnection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.skip.SequentialSkipConnection" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rl8.nn.modules.module.Module" title="rl8.nn.modules.module.Module"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a>[(&lt;class ‘torch.Tensor’&gt;, &lt;class ‘torch.Tensor’&gt;), <a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
+<p>Sequential skip connection.</p>
+<p>Apply a skip connection to an input and the output of a layer that
+uses that input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>embed_dim</strong> – Original input feature size.</p></li>
+<li><p><strong>kind</strong> – <p>Type of skip connection to apply.
+Options include:</p>
+<blockquote>
+<div><ul>
+<li><p>”residual” for a standard residual connection (summing outputs)</p></li>
+<li><p>”cat” for concatenating outputs</p></li>
+<li><p><cite>None</cite> for no skip connection</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.nn.modules.skip.SequentialSkipConnection.kind">
+<span class="sig-name descname"><span class="pre">kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#rl8.nn.modules.skip.SequentialSkipConnection.kind" title="Permalink to this definition"></a></dt>
+<dd><p>Kind of skip connection. “residual” for a standard residual connection
+(summing outputs), “cat” for concatenating outputs, and <code class="docutils literal notranslate"><span class="pre">None</span></code> for no
+skip connection (reduces to a regular, sequential module).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.nn.modules.skip.SequentialSkipConnection.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.9)"><span class="pre">Module</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/modules/skip.html#SequentialSkipConnection.append"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.skip.SequentialSkipConnection.append" title="Permalink to this definition"></a></dt>
+<dd><p>Append <code class="docutils literal notranslate"><span class="pre">module</span></code> to the skip connection.</p>
+<p>If the skip connection kind is concatenation, then an intermediate
+layer is also appended to downsample the feature dimension back to the
+original embedding dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>module</strong> – Module to append and apply a skip connection to.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of output features from the sequential skip connection.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.nn.modules.skip.SequentialSkipConnection.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/modules/skip.html#SequentialSkipConnection.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.modules.skip.SequentialSkipConnection.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Perform a sequential skip connection, first applying a skip
+connection to <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code>, and then sequentially applying skip
+connections to the output and the output of the next layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Skip connection seed with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T,</span> <span class="pre">...]</span></code>.</p></li>
+<li><p><strong>y</strong> – Skip connection seed with same shape as <code class="docutils literal notranslate"><span class="pre">y</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tensor with shape depending on
+<a class="reference internal" href="#rl8.nn.modules.skip.SequentialSkipConnection.kind" title="rl8.nn.modules.skip.SequentialSkipConnection.kind"><code class="xref py py-attr docutils literal notranslate"><span class="pre">SequentialSkipConnection.kind</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="rl8.nn.modules.skip.SequentialSkipConnection.in_features">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">in_features</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><a class="headerlink" href="#rl8.nn.modules.skip.SequentialSkipConnection.in_features" title="Permalink to this definition"></a></dt>
+<dd><p>Return the first number of input features.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="rl8.nn.modules.skip.SequentialSkipConnection.out_features">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">out_features</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><a class="headerlink" href="#rl8.nn.modules.skip.SequentialSkipConnection.out_features" title="Permalink to this definition"></a></dt>
+<dd><p>Return the number of output features according to the number of input
+features, the kind of skip connection, and whether there’s a fan-in
+layer.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rl8.nn.modules">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-rl8.nn.modules" title="Permalink to this heading"></a></h2>
+<p>Custom PyTorch modules.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rl8.nn.html" class="btn btn-neutral float-left" title="rl8.nn package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rl8.policies.html" class="btn btn-neutral float-right" title="rl8.policies package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Andrew B.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

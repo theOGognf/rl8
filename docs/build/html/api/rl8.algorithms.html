@@ -1,0 +1,984 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rl8.algorithms package &mdash; rl8  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="rl8.models package" href="rl8.models.html" />
+    <link rel="prev" title="rl8 package" href="rl8.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            rl8
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="rl8.html">rl8 package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="rl8.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">rl8.algorithms package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.models.html">rl8.models package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.html">rl8.nn package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.policies.html">rl8.policies package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.trainers.html">rl8.trainers package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.conditions">rl8.conditions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.distributions">rl8.distributions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.env">rl8.env module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.schedulers">rl8.schedulers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.views">rl8.views module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">rl8</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">rl8</a></li>
+          <li class="breadcrumb-item"><a href="rl8.html">rl8 package</a></li>
+      <li class="breadcrumb-item active">rl8.algorithms package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/rl8.algorithms.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="rl8-algorithms-package">
+<h1>rl8.algorithms package<a class="headerlink" href="#rl8-algorithms-package" title="Permalink to this heading"></a></h1>
+<section id="module-rl8.algorithms">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-rl8.algorithms" title="Permalink to this heading"></a></h2>
+<p>Definitions related to PPO algorithms (data collection and training steps).</p>
+<p>Algorithms assume environments are parallelized much like
+<a class="reference external" href="https://arxiv.org/pdf/2108.10470.pdf">IsaacGym environments</a> and are infinite-horizon with no terminal
+conditions. These assumptions allow the learning procedure to occur
+extremely fast even for complex, sequence-based models because:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Environments occur in parallel and are batched into a contingous
+buffer.</p></li>
+<li><p>All environments are reset in parallel after a predetermined
+horizon is reached.</p></li>
+<li><p>All operations occur on the same device, removing overhead
+associated with data transfers between devices.</p></li>
+</ul>
+</div></blockquote>
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.algorithms.Algorithm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.algorithms.</span></span><span class="sig-name descname"><span class="pre">Algorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rl8.html#rl8.env.EnvFactory" title="rl8.env.EnvFactory"><span class="pre">EnvFactory</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#rl8.algorithms.AlgorithmConfig" title="rl8.algorithms._feedforward.AlgorithmConfig"><span class="pre">AlgorithmConfig</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/algorithms/_feedforward.html#Algorithm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.Algorithm" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rl8.algorithms.GenericAlgorithmBase" title="rl8.algorithms._base.GenericAlgorithmBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericAlgorithmBase</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">AlgorithmHparams</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">AlgorithmState</span></code>, <a class="reference internal" href="rl8.policies.html#rl8.policies.Policy" title="rl8.policies._feedforward.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a>]</p>
+<p>An optimized feedforward <a class="reference external" href="https://arxiv.org/pdf/1707.06347.pdf">PPO</a> algorithm with common tricks for
+stabilizing and accelerating learning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env_cls</strong> – Highly parallelized environment for sampling experiences.
+Will be stepped for <code class="docutils literal notranslate"><span class="pre">horizon</span></code> each <a class="reference internal" href="#rl8.algorithms.Algorithm.collect" title="rl8.algorithms.Algorithm.collect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Algorithm.collect()</span></code></a> call.</p></li>
+<li><p><strong>config</strong> – Algorithm config for building a feedforward PPO
+algorithm. See <a class="reference internal" href="#rl8.algorithms.AlgorithmConfig" title="rl8.algorithms.AlgorithmConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">AlgorithmConfig</span></code></a> for all parameters.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Instantiate an algorithm for a dummy environment and update the underlying
+policy once.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlgorithmConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteDummyEnv</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">algo</span> <span class="o">=</span> <span class="n">AlgorithmConfig</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">DiscreteDummyEnv</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">algo</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">algo</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>  
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.algorithms.Algorithm.collect">
+<span class="sig-name descname"><span class="pre">collect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">CollectStats</span></span></span><a class="reference internal" href="../_modules/rl8/algorithms/_feedforward.html#Algorithm.collect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.Algorithm.collect" title="Permalink to this definition"></a></dt>
+<dd><p>Collect environment transitions and policy samples in a buffer.</p>
+<p>This is one of the main <a class="reference internal" href="#rl8.algorithms.Algorithm" title="rl8.algorithms.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a> methods. This is usually
+called immediately prior to <a class="reference internal" href="#rl8.algorithms.Algorithm.step" title="rl8.algorithms.Algorithm.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Algorithm.step()</span></code></a> to collect
+experiences used for learning.</p>
+<p>The environment is reset immediately prior to collecting
+transitions according to <code class="docutils literal notranslate"><span class="pre">horizons_per_env_reset</span></code>. If
+the environment isn’t reset, then the last observation is used as
+the initial observation.</p>
+<p>This method sets the <code class="docutils literal notranslate"><span class="pre">buffered</span></code> flag to enable calling
+of <a class="reference internal" href="#rl8.algorithms.Algorithm.step" title="rl8.algorithms.Algorithm.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Algorithm.step()</span></code></a> so it isn’t called with dummy data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env_config</strong> – Optional config to pass to the environment’s reset
+method. This isn’t used if the environment isn’t scheduled
+to be reset according to <code class="docutils literal notranslate"><span class="pre">horizons_per_env_reset</span></code>.</p></li>
+<li><p><strong>deterministic</strong> – Whether to sample from the policy deterministically.
+This is usally <code class="docutils literal notranslate"><span class="pre">False</span></code> during learning and <code class="docutils literal notranslate"><span class="pre">True</span></code> during
+evaluation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Summary statistics related to the collected experiences and
+policy samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.algorithms.Algorithm.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">StepStats</span></span></span><a class="reference internal" href="../_modules/rl8/algorithms/_feedforward.html#Algorithm.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.Algorithm.step" title="Permalink to this definition"></a></dt>
+<dd><p>Take a step with the algorithm, using collected environment
+experiences to update the policy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Data associated with the step (losses, loss coefficients, etc.).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.algorithms.Algorithm.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/rl8/algorithms/_feedforward.html#Algorithm.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.Algorithm.validate" title="Permalink to this definition"></a></dt>
+<dd><p>Do some validation on all the tensor/tensordict shapes within
+the algorithm.</p>
+<p>Helpful when the algorithm is throwing an error on mismatched tensor/tensordict
+sizes. Call this at least once before running the algorithm for peace of
+mind.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.algorithms.</span></span><span class="sig-name descname"><span class="pre">AlgorithmConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">~rl8.models._feedforward.Model</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_cls:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">~rl8.models._feedforward.ModelFactory</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Any]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution_cls:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">type[rl8.distributions.Distribution]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizons_per_env_reset:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_envs:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">8192</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_cls:</span> <span class="pre">type[torch.optim.optimizer.Optimizer]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'torch.optim.adam.Adam'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_config:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Any]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accumulate_grads:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_amp:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr_schedule:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">list[tuple[int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr_schedule_kind:</span> <span class="pre">~typing.Literal['interp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'step']</span> <span class="pre">=</span> <span class="pre">'step'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entropy_coeff:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entropy_coeff_schedule:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">list[tuple[int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entropy_coeff_schedule_kind:</span> <span class="pre">~typing.Literal['interp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'step']</span> <span class="pre">=</span> <span class="pre">'step'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gae_lambda:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sgd_minibatch_size:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_sgd_iters:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle_minibatches:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_param:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vf_clip_param:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_clip_param:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vf_coeff:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_kl_div:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_grad_norm:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_advantages:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_rewards:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">~torch.device</span> <span class="pre">|</span> <span class="pre">~typing.Literal['auto']</span> <span class="pre">=</span> <span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/algorithms/_feedforward.html#AlgorithmConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.10/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Algorith config for building a feedforward PPO algorithm.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.model">
+<span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="rl8.models.html#rl8.models.Model" title="rl8.models._feedforward.Model"><span class="pre">Model</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.model" title="Permalink to this definition"></a></dt>
+<dd><p>Model instance to use. Mutually exclusive with <code class="docutils literal notranslate"><span class="pre">model_cls</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.model_cls">
+<span class="sig-name descname"><span class="pre">model_cls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="rl8.models.html#rl8.models.ModelFactory" title="rl8.models._feedforward.ModelFactory"><span class="pre">ModelFactory</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.model_cls" title="Permalink to this definition"></a></dt>
+<dd><p>Optional custom policy model definition. A model class
+is provided for you based on the environment instance’s specs
+if you don’t provide one. Defaults to a simple feedforward
+neural network.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.model_config" title="Permalink to this definition"></a></dt>
+<dd><p>Optional policy model config unpacked into the model
+during instantiation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.distribution_cls">
+<span class="sig-name descname"><span class="pre">distribution_cls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#type" title="(in Python v3.10)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="rl8.html#rl8.distributions.Distribution" title="rl8.distributions.Distribution"><span class="pre">rl8.distributions.Distribution</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.distribution_cls" title="Permalink to this definition"></a></dt>
+<dd><p>Custom policy action distribution class.
+If not provided, an action distribution class is inferred from the
+environment specs. Defaults to a categorical distribution for discrete
+actions and a normal distribution for continuous actions. Complex
+actions are not supported by default distributions.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.horizon">
+<span class="sig-name descname"><span class="pre">horizon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">32</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.horizon" title="Permalink to this definition"></a></dt>
+<dd><p>Number of environment transitions to collect during <a class="reference internal" href="#rl8.algorithms.Algorithm.collect" title="rl8.algorithms.Algorithm.collect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Algorithm.collect()</span></code></a>.
+The environment resets according to <code class="docutils literal notranslate"><span class="pre">horizons_per_env_reset</span></code>.
+Buffer size is [B, T] where T = horizon.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.horizons_per_env_reset">
+<span class="sig-name descname"><span class="pre">horizons_per_env_reset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.horizons_per_env_reset" title="Permalink to this definition"></a></dt>
+<dd><p>Number of times <a class="reference internal" href="#rl8.algorithms.Algorithm.collect" title="rl8.algorithms.Algorithm.collect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Algorithm.collect()</span></code></a> can be called before resetting
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">Algorithm.env</span></code>. Increase this for cross-horizon learning. Default
+1 resets after every horizon.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.num_envs">
+<span class="sig-name descname"><span class="pre">num_envs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8192</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.num_envs" title="Permalink to this definition"></a></dt>
+<dd><p>Number of parallelized environment instances.
+Determines buffer size [B, T] where B = num_envs.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.optimizer_cls">
+<span class="sig-name descname"><span class="pre">optimizer_cls</span></span><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.optimizer_cls" title="Permalink to this definition"></a></dt>
+<dd><p>alias of <a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.optim.adam.Adam.html#torch.optim.adam.Adam" title="(in PyTorch v2.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Adam</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.optimizer_config">
+<span class="sig-name descname"><span class="pre">optimizer_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.optimizer_config" title="Permalink to this definition"></a></dt>
+<dd><p>Configuration passed to the optimizer during instantiation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.accumulate_grads">
+<span class="sig-name descname"><span class="pre">accumulate_grads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.accumulate_grads" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to accumulate gradients across minibatches before stepping the
+optimizer. Increases effective batch size while minimizing memory usage.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.enable_amp">
+<span class="sig-name descname"><span class="pre">enable_amp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.enable_amp" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to enable Automatic Mixed Precision (AMP) for faster and more
+memory-efficient training.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.lr_schedule">
+<span class="sig-name descname"><span class="pre">lr_schedule</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#tuple" title="(in Python v3.10)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.lr_schedule" title="Permalink to this definition"></a></dt>
+<dd><p>Optional schedule controlling the optimizer’s learning rate over
+environment transitions. Keeps learning rate constant if not provided.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.lr_schedule_kind">
+<span class="sig-name descname"><span class="pre">lr_schedule_kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Literal" title="(in Python v3.10)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'interp'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'step'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'step'</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.lr_schedule_kind" title="Permalink to this definition"></a></dt>
+<dd><p>Learning rate scheduler type if lr_schedule is provided.
+Options: <code class="docutils literal notranslate"><span class="pre">&quot;step&quot;</span></code> (jump and hold) or <code class="docutils literal notranslate"><span class="pre">&quot;interp&quot;</span></code> (interpolate between
+values).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.entropy_coeff">
+<span class="sig-name descname"><span class="pre">entropy_coeff</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.entropy_coeff" title="Permalink to this definition"></a></dt>
+<dd><p>Entropy coefficient weight in total loss.
+Ignored if <code class="docutils literal notranslate"><span class="pre">entropy_coeff_schedule</span></code> is provided.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.entropy_coeff_schedule">
+<span class="sig-name descname"><span class="pre">entropy_coeff_schedule</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#tuple" title="(in Python v3.10)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.entropy_coeff_schedule" title="Permalink to this definition"></a></dt>
+<dd><p>Optional schedule overriding entropy_coeff based on number of environment
+transitions.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.entropy_coeff_schedule_kind">
+<span class="sig-name descname"><span class="pre">entropy_coeff_schedule_kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Literal" title="(in Python v3.10)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'interp'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'step'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'step'</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.entropy_coeff_schedule_kind" title="Permalink to this definition"></a></dt>
+<dd><p>Entropy scheduler type. Options:
+<code class="docutils literal notranslate"><span class="pre">&quot;step&quot;</span></code>: jump and hold, <code class="docutils literal notranslate"><span class="pre">&quot;interp&quot;</span></code>: interpolate between values.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.gae_lambda">
+<span class="sig-name descname"><span class="pre">gae_lambda</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.95</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.gae_lambda" title="Permalink to this definition"></a></dt>
+<dd><p>Generalized Advantage Estimation (GAE) λ parameter for controlling the
+variance and bias tradeoff when estimating the state value function
+from collected environment transitions. A higher value allows higher
+variance while a lower value allows higher bias estimation but lower
+variance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.gamma">
+<span class="sig-name descname"><span class="pre">gamma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.95</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.gamma" title="Permalink to this definition"></a></dt>
+<dd><p>Discount reward factor often used in the Bellman operator for controlling
+the variance and bias tradeoff in collected experienced rewards. Note,
+this does not control the bias/variance of the state value estimation
+and only controls the weight future rewards have on the total discounted
+return.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.sgd_minibatch_size">
+<span class="sig-name descname"><span class="pre">sgd_minibatch_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.sgd_minibatch_size" title="Permalink to this definition"></a></dt>
+<dd><p>PPO hyperparameter for minibatch size during policy update.
+Larger minibatches reduce update variance and accelerate CUDA computations.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the entire buffer is treated as one batch.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.num_sgd_iters">
+<span class="sig-name descname"><span class="pre">num_sgd_iters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.num_sgd_iters" title="Permalink to this definition"></a></dt>
+<dd><p>PPO hyperparameter for number of SGD iterations over the collected buffer.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.shuffle_minibatches">
+<span class="sig-name descname"><span class="pre">shuffle_minibatches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.shuffle_minibatches" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to shuffle minibatches within <a class="reference internal" href="#rl8.algorithms.Algorithm.step" title="rl8.algorithms.Algorithm.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Algorithm.step()</span></code></a>. Recommended, but
+not necessary if the minibatch size is large enough (e.g., the buffer is the
+batch).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.clip_param">
+<span class="sig-name descname"><span class="pre">clip_param</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.2</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.clip_param" title="Permalink to this definition"></a></dt>
+<dd><p>PPO hyperparameter indicating the max distance the policy can update away from
+previously collected policy sample data with respect to likelihoods of taking
+actions conditioned on observations. This is the main innovation of PPO.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.vf_clip_param">
+<span class="sig-name descname"><span class="pre">vf_clip_param</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5.0</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.vf_clip_param" title="Permalink to this definition"></a></dt>
+<dd><p>PPO hyperparameter similar to <code class="docutils literal notranslate"><span class="pre">clip_param</span></code> but for the value function estimate.
+A measure of max distance the model’s value function is allowed to update away
+from previous value function samples.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.dual_clip_param">
+<span class="sig-name descname"><span class="pre">dual_clip_param</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.dual_clip_param" title="Permalink to this definition"></a></dt>
+<dd><p>PPO hyperparameter that clips like <code class="docutils literal notranslate"><span class="pre">clip_param</span></code> but when advantage estimations
+are negative. Helps prevent instability for continuous action spaces when
+policies are making large updates. Leave <code class="docutils literal notranslate"><span class="pre">None</span></code> for this clip to not apply.
+Otherwise, typical values are around <code class="docutils literal notranslate"><span class="pre">5</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.vf_coeff">
+<span class="sig-name descname"><span class="pre">vf_coeff</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.vf_coeff" title="Permalink to this definition"></a></dt>
+<dd><p>Value function loss component weight. Only needs to be tuned when the policy
+and value function share parameters.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.target_kl_div">
+<span class="sig-name descname"><span class="pre">target_kl_div</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.target_kl_div" title="Permalink to this definition"></a></dt>
+<dd><p>Target maximum KL divergence when updating the policy. If approximate KL
+divergence is greater than this value, then policy updates stop early for
+that algorithm step. If this is left <a href="#id1"><span class="problematic" id="id2">`</span></a>None then early stopping doesn’t occur.
+A higher value means the policy is allowed to diverge more from the previous
+policy during updates.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.max_grad_norm">
+<span class="sig-name descname"><span class="pre">max_grad_norm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5.0</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.max_grad_norm" title="Permalink to this definition"></a></dt>
+<dd><p>Max gradient norm allowed when updating the policy’s model within
+<a class="reference internal" href="#rl8.algorithms.Algorithm.step" title="rl8.algorithms.Algorithm.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Algorithm.step()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.normalize_advantages">
+<span class="sig-name descname"><span class="pre">normalize_advantages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.normalize_advantages" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to normalize advantages computed for GAE using the batch’s
+mean and standard deviation. This has been shown to generally improve
+convergence speed and performance and should usually be <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.normalize_rewards">
+<span class="sig-name descname"><span class="pre">normalize_rewards</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.normalize_rewards" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to normalize rewards using reversed discounted returns as
+from <a class="reference external" href="https://arxiv.org/pdf/2005.12729.pdf">https://arxiv.org/pdf/2005.12729.pdf</a>. Reward normalization,
+although not exactly correct and optimal, typically improves
+convergence speed and performance and should usually be <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.device">
+<span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.9)"><span class="pre">device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Literal" title="(in Python v3.10)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'auto'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'auto'</span></em><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.device" title="Permalink to this definition"></a></dt>
+<dd><p>Device <code class="xref py py-attr docutils literal notranslate"><span class="pre">Algorithm.env</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">Algorithm.buffer</span></code>, and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">Algorithm.policy</span></code> all reside on.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.algorithms.AlgorithmConfig.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rl8.html#rl8.env.EnvFactory" title="rl8.env.EnvFactory"><span class="pre">EnvFactory</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#rl8.algorithms.Algorithm" title="rl8.algorithms._feedforward.Algorithm"><span class="pre">Algorithm</span></a></span></span><a class="reference internal" href="../_modules/rl8/algorithms/_feedforward.html#AlgorithmConfig.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.AlgorithmConfig.build" title="Permalink to this definition"></a></dt>
+<dd><p>Build and validate an :class:Algorithm` from a config.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.algorithms.</span></span><span class="sig-name descname"><span class="pre">GenericAlgorithmBase</span></span><a class="reference internal" href="../_modules/rl8/algorithms/_base.html#GenericAlgorithmBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Generic" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">_AlgorithmHparams</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">_AlgorithmState</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">_Policy</span></code>]</p>
+<p>The base class for PPO algorithm flavors.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase.buffer">
+<span class="sig-name descname"><span class="pre">buffer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">TensorDict</span></em><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase.buffer" title="Permalink to this definition"></a></dt>
+<dd><p>Environment experience buffer used for aggregating environment
+transition data and policy sample data. The same buffer object
+is shared whenever using <a class="reference internal" href="#rl8.algorithms.GenericAlgorithmBase.collect" title="rl8.algorithms.GenericAlgorithmBase.collect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GenericAlgorithmBase.collect()</span></code></a>. Buffer
+dimensions are determined by <code class="docutils literal notranslate"><span class="pre">num_envs</span></code> and <code class="docutils literal notranslate"><span class="pre">horizon</span></code> args.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase.buffer_spec">
+<span class="sig-name descname"><span class="pre">buffer_spec</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Composite</span></em><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase.buffer_spec" title="Permalink to this definition"></a></dt>
+<dd><p>Tensor spec defining the environment experience buffer components
+and dimensions. Used for instantiating <a class="reference internal" href="#rl8.algorithms.GenericAlgorithmBase.buffer" title="rl8.algorithms.GenericAlgorithmBase.buffer"><code class="xref py py-attr docutils literal notranslate"><span class="pre">GenericAlgorithmBase.buffer</span></code></a>
+at <a class="reference internal" href="#rl8.algorithms.GenericAlgorithmBase" title="rl8.algorithms.GenericAlgorithmBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericAlgorithmBase</span></code></a> instantiation and each
+<a class="reference internal" href="#rl8.algorithms.GenericAlgorithmBase.step" title="rl8.algorithms.GenericAlgorithmBase.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GenericAlgorithmBase.step()</span></code></a> call.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase.entropy_scheduler">
+<span class="sig-name descname"><span class="pre">entropy_scheduler</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="rl8.html#rl8.schedulers.EntropyScheduler" title="rl8.schedulers.EntropyScheduler"><span class="pre">EntropyScheduler</span></a></em><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase.entropy_scheduler" title="Permalink to this definition"></a></dt>
+<dd><p>Entropy scheduler for updating the <code class="docutils literal notranslate"><span class="pre">entropy_coeff</span></code> after each
+<a class="reference internal" href="#rl8.algorithms.GenericAlgorithmBase.step" title="rl8.algorithms.GenericAlgorithmBase.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GenericAlgorithmBase.step()</span></code></a> call based on the number environment
+transitions collected and learned on. By default, the entropy scheduler
+does not actually update the entropy coefficient. The entropy scheduler
+only updates the entropy coefficient if an <code class="docutils literal notranslate"><span class="pre">entropy_coeff_schedule</span></code> is
+provided.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase.env">
+<span class="sig-name descname"><span class="pre">env</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="rl8.html#rl8.env.Env" title="rl8.env.Env"><span class="pre">Env</span></a></em><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase.env" title="Permalink to this definition"></a></dt>
+<dd><p>Environment used for experience collection within the
+<a class="reference internal" href="#rl8.algorithms.GenericAlgorithmBase.collect" title="rl8.algorithms.GenericAlgorithmBase.collect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GenericAlgorithmBase.collect()</span></code></a> method. It’s ultimately up to the
+environment to make learning efficient by parallelizing simulations.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase.grad_scaler">
+<span class="sig-name descname"><span class="pre">grad_scaler</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">GradScaler</span></em><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase.grad_scaler" title="Permalink to this definition"></a></dt>
+<dd><p>Used for enabling Automatic Mixed Precision (AMP). Handles gradient
+scaling for the optimizer. Not all optimizers and hyperparameters are
+compatible with gradient scaling.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase.hparams">
+<span class="sig-name descname"><span class="pre">hparams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">_AlgorithmHparams</span></em><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase.hparams" title="Permalink to this definition"></a></dt>
+<dd><p>PPO hyperparameters that’re constant throughout training
+and can drastically affect training performance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase.lr_scheduler">
+<span class="sig-name descname"><span class="pre">lr_scheduler</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="rl8.html#rl8.schedulers.LRScheduler" title="rl8.schedulers.LRScheduler"><span class="pre">LRScheduler</span></a></em><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase.lr_scheduler" title="Permalink to this definition"></a></dt>
+<dd><p>Learning rate scheduler for updating <code class="docutils literal notranslate"><span class="pre">optimizer</span></code> learning rate after
+each <code class="docutils literal notranslate"><span class="pre">step</span></code> call based on the number of environment transitions
+collected and learned on. By default, the learning scheduler does not
+actually alter the <code class="docutils literal notranslate"><span class="pre">optimizer</span></code> learning rate (it actually leaves it
+constant). The learning rate scheduler only alters the learning rate
+if a <code class="docutils literal notranslate"><span class="pre">learning_rate_schedule</span></code> is provided.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase.optimizer">
+<span class="sig-name descname"><span class="pre">optimizer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/optim.html#torch.optim.Optimizer" title="(in PyTorch v2.9)"><span class="pre">Optimizer</span></a></em><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase.optimizer" title="Permalink to this definition"></a></dt>
+<dd><p>Underlying optimizer for updating the policy’s model parameters.
+Instantiated from an <code class="docutils literal notranslate"><span class="pre">optimizer_cls</span></code> and <code class="docutils literal notranslate"><span class="pre">optimizer_config</span></code>.
+Defaults to the Adam optimizer with generally well-performing parameters.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase.policy">
+<span class="sig-name descname"><span class="pre">policy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">_Policy</span></em><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase.policy" title="Permalink to this definition"></a></dt>
+<dd><p>Policy constructed from the <code class="docutils literal notranslate"><span class="pre">model_cls</span></code>, <code class="docutils literal notranslate"><span class="pre">model_config</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">distribution_cls</span></code> kwargs. A default policy is constructed according to
+the environment’s observation and action specs if these policy args
+aren’t provided. The policy is what does all the action sampling
+within <a class="reference internal" href="#rl8.algorithms.GenericAlgorithmBase.collect" title="rl8.algorithms.GenericAlgorithmBase.collect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GenericAlgorithmBase.collect()</span></code></a> and is what is updated within
+<a class="reference internal" href="#rl8.algorithms.GenericAlgorithmBase.step" title="rl8.algorithms.GenericAlgorithmBase.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GenericAlgorithmBase.step()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase.state">
+<span class="sig-name descname"><span class="pre">state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">_AlgorithmState</span></em><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase.state" title="Permalink to this definition"></a></dt>
+<dd><p>Algorithm state for determining when to reset the environment, when
+the policy can be updated, etc..</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase.collect">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">collect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">CollectStats</span></span></span><a class="reference internal" href="../_modules/rl8/algorithms/_base.html#GenericAlgorithmBase.collect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase.collect" title="Permalink to this definition"></a></dt>
+<dd><p>Collect environment transitions and policy samples in a buffer.</p>
+<p>This is one of the main <a class="reference internal" href="#rl8.algorithms.GenericAlgorithmBase" title="rl8.algorithms.GenericAlgorithmBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericAlgorithmBase</span></code></a> methods. This is
+usually called immediately prior to <a class="reference internal" href="#rl8.algorithms.GenericAlgorithmBase.step" title="rl8.algorithms.GenericAlgorithmBase.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GenericAlgorithmBase.step()</span></code></a>
+to collect experiences used for learning.</p>
+<p>The environment is reset immediately prior to collecting
+transitions according to <code class="docutils literal notranslate"><span class="pre">horizons_per_env_reset</span></code>. If
+the environment isn’t reset, then the last observation is used as
+the initial observation.</p>
+<p>This method sets the <code class="docutils literal notranslate"><span class="pre">buffered</span></code> flag to enable calling
+of <a class="reference internal" href="#rl8.algorithms.GenericAlgorithmBase.step" title="rl8.algorithms.GenericAlgorithmBase.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GenericAlgorithmBase.step()</span></code></a> so it isn’t called with dummy data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env_config</strong> – Optional config to pass to the environment’s reset
+method. This isn’t used if the environment isn’t scheduled
+to be reset according to <code class="docutils literal notranslate"><span class="pre">horizons_per_env_reset</span></code>.</p></li>
+<li><p><strong>deterministic</strong> – Whether to sample from the policy deterministically.
+This is usally <code class="docutils literal notranslate"><span class="pre">False</span></code> during learning and <code class="docutils literal notranslate"><span class="pre">True</span></code> during
+evaluation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Summary statistics related to the collected experiences and
+policy samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase.horizons_per_env_reset">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">horizons_per_env_reset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase.horizons_per_env_reset" title="Permalink to this definition"></a></dt>
+<dd><p>Number of times <a class="reference internal" href="#rl8.algorithms.GenericAlgorithmBase.collect" title="rl8.algorithms.GenericAlgorithmBase.collect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GenericAlgorithmBase.collect()</span></code></a> can be
+called before resetting <a class="reference internal" href="#rl8.algorithms.GenericAlgorithmBase.env" title="rl8.algorithms.GenericAlgorithmBase.env"><code class="xref py py-attr docutils literal notranslate"><span class="pre">GenericAlgorithmBase.env</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase.memory_stats">
+<span class="sig-name descname"><span class="pre">memory_stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">MemoryStats</span></span></span><a class="reference internal" href="../_modules/rl8/algorithms/_base.html#GenericAlgorithmBase.memory_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase.memory_stats" title="Permalink to this definition"></a></dt>
+<dd><p>Return current algorithm memory usage.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase.params">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase.params" title="Permalink to this definition"></a></dt>
+<dd><p>Return algorithm parameters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.algorithms.GenericAlgorithmBase.step">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">StepStats</span></span></span><a class="reference internal" href="../_modules/rl8/algorithms/_base.html#GenericAlgorithmBase.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.GenericAlgorithmBase.step" title="Permalink to this definition"></a></dt>
+<dd><p>Take a step with the algorithm, using collected environment
+experiences to update the policy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Data associated with the step (losses, loss coefficients, etc.).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.algorithms.</span></span><span class="sig-name descname"><span class="pre">RecurrentAlgorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rl8.html#rl8.env.EnvFactory" title="rl8.env.EnvFactory"><span class="pre">EnvFactory</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#rl8.algorithms.RecurrentAlgorithmConfig" title="rl8.algorithms._recurrent.RecurrentAlgorithmConfig"><span class="pre">RecurrentAlgorithmConfig</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/algorithms/_recurrent.html#RecurrentAlgorithm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithm" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rl8.algorithms.GenericAlgorithmBase" title="rl8.algorithms._base.GenericAlgorithmBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericAlgorithmBase</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">RecurrentAlgorithmHparams</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RecurrentAlgorithmState</span></code>, <a class="reference internal" href="rl8.policies.html#rl8.policies.RecurrentPolicy" title="rl8.policies._recurrent.RecurrentPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RecurrentPolicy</span></code></a>]</p>
+<p>An optimized recurrent <a class="reference external" href="https://arxiv.org/pdf/1707.06347.pdf">PPO</a> algorithm with common tricks for stabilizing
+and accelerating learning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env_cls</strong> – Highly parallelized environment for sampling experiences.
+Instantiated with <code class="docutils literal notranslate"><span class="pre">env_config</span></code>. Will be stepped for <code class="docutils literal notranslate"><span class="pre">horizon</span></code>
+each <a class="reference internal" href="#rl8.algorithms.RecurrentAlgorithm.collect" title="rl8.algorithms.RecurrentAlgorithm.collect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">RecurrentAlgorithm.collect()</span></code></a> call.</p></li>
+<li><p><strong>config</strong> – Recurrent algorithm config for building a recurrent PPO
+algorithm. See <a class="reference internal" href="#rl8.algorithms.RecurrentAlgorithmConfig" title="rl8.algorithms.RecurrentAlgorithmConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">RecurrentAlgorithmConfig</span></code></a> for all parameters.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Instantiate an algorithm for a dummy environment and update tne underlying
+policy once.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8</span><span class="w"> </span><span class="kn">import</span> <span class="n">RecurrentAlgorithmConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteDummyEnv</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">algo</span> <span class="o">=</span> <span class="n">RecurrentAlgorithmConfig</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">DiscreteDummyEnv</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">algo</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">algo</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>  
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithm.collect">
+<span class="sig-name descname"><span class="pre">collect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">CollectStats</span></span></span><a class="reference internal" href="../_modules/rl8/algorithms/_recurrent.html#RecurrentAlgorithm.collect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithm.collect" title="Permalink to this definition"></a></dt>
+<dd><p>Collect environment transitions and policy samples in a buffer.</p>
+<p>This is one of the main <a class="reference internal" href="#rl8.algorithms.RecurrentAlgorithm" title="rl8.algorithms.RecurrentAlgorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">RecurrentAlgorithm</span></code></a> methods. This is usually
+called immediately prior to <a class="reference internal" href="#rl8.algorithms.RecurrentAlgorithm.step" title="rl8.algorithms.RecurrentAlgorithm.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">RecurrentAlgorithm.step()</span></code></a> to collect
+experiences used for learning.</p>
+<p>The environment is reset immediately prior to collecting
+transitions according to <code class="docutils literal notranslate"><span class="pre">horizons_per_env_reset</span></code>. If
+the environment isn’t reset, then the last observation is used as
+the initial observation.</p>
+<p>This method sets the <code class="docutils literal notranslate"><span class="pre">buffered</span></code> flag to enable calling
+of <a class="reference internal" href="#rl8.algorithms.RecurrentAlgorithm.step" title="rl8.algorithms.RecurrentAlgorithm.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">RecurrentAlgorithm.step()</span></code></a> so it isn’t called with dummy data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env_config</strong> – Optional config to pass to the environment’s reset
+method. This isn’t used if the environment isn’t scheduled
+to be reset according to <code class="docutils literal notranslate"><span class="pre">horizons_per_env_reset</span></code>.</p></li>
+<li><p><strong>deterministic</strong> – Whether to sample from the policy deterministically.
+This is usally <code class="docutils literal notranslate"><span class="pre">False</span></code> during learning and <code class="docutils literal notranslate"><span class="pre">True</span></code> during
+evaluation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Summary statistics related to the collected experiences and
+policy samples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithm.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">StepStats</span></span></span><a class="reference internal" href="../_modules/rl8/algorithms/_recurrent.html#RecurrentAlgorithm.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithm.step" title="Permalink to this definition"></a></dt>
+<dd><p>Take a step with the algorithm, using collected environment
+experiences to update the policy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Data associated with the step (losses, loss coefficients, etc.).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithm.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/rl8/algorithms/_recurrent.html#RecurrentAlgorithm.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithm.validate" title="Permalink to this definition"></a></dt>
+<dd><p>Do some validation on all the tensor/tensordict shapes within
+the algorithm.</p>
+<p>Helpful when the algorithm is throwing an error on mismatched tensor/tensordict
+sizes. Call this at least once before running the algorithm for peace of
+mind.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.algorithms.</span></span><span class="sig-name descname"><span class="pre">RecurrentAlgorithmConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">~rl8.models._recurrent.RecurrentModel</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_cls:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">~rl8.models._recurrent.RecurrentModelFactory</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Any]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution_cls:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">type[rl8.distributions.Distribution]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizons_per_env_reset:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_envs:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">8192</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_len:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seqs_per_state_reset:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_cls:</span> <span class="pre">type[torch.optim.optimizer.Optimizer]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'torch.optim.adam.Adam'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_config:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Any]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accumulate_grads:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_amp:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr_schedule:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">list[tuple[int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr_schedule_kind:</span> <span class="pre">~typing.Literal['interp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'step']</span> <span class="pre">=</span> <span class="pre">'step'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entropy_coeff:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entropy_coeff_schedule:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">list[tuple[int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entropy_coeff_schedule_kind:</span> <span class="pre">~typing.Literal['interp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'step']</span> <span class="pre">=</span> <span class="pre">'step'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gae_lambda:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sgd_minibatch_size:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_sgd_iters:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle_minibatches:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_param:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vf_clip_param:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_clip_param:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vf_coeff:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_kl_div:</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_grad_norm:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_advantages:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_rewards:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">~torch.device</span> <span class="pre">|</span> <span class="pre">~typing.Literal['auto']</span> <span class="pre">=</span> <span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/algorithms/_recurrent.html#RecurrentAlgorithmConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.10/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Recurrent algorithm config for building a recurrent PPO algorithm.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.model">
+<span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="rl8.models.html#rl8.models.RecurrentModel" title="rl8.models._recurrent.RecurrentModel"><span class="pre">RecurrentModel</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.model" title="Permalink to this definition"></a></dt>
+<dd><p>Model instance to use. Mutually exclusive with <code class="docutils literal notranslate"><span class="pre">model_cls</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.model_cls">
+<span class="sig-name descname"><span class="pre">model_cls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="rl8.models.html#rl8.models.RecurrentModelFactory" title="rl8.models._recurrent.RecurrentModelFactory"><span class="pre">RecurrentModelFactory</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.model_cls" title="Permalink to this definition"></a></dt>
+<dd><p>Optional custom policy model definition. A model class
+is provided for you based on the environment instance’s specs
+if you don’t provide one. Defaults to a simple feedforward
+neural network.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.model_config" title="Permalink to this definition"></a></dt>
+<dd><p>Optional policy model config unpacked into the model
+during instantiation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.distribution_cls">
+<span class="sig-name descname"><span class="pre">distribution_cls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#type" title="(in Python v3.10)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="rl8.html#rl8.distributions.Distribution" title="rl8.distributions.Distribution"><span class="pre">rl8.distributions.Distribution</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.distribution_cls" title="Permalink to this definition"></a></dt>
+<dd><p>Custom policy action distribution class.
+If not provided, an action distribution class is inferred from the
+environment specs. Defaults to a categorical distribution for discrete
+actions and a normal distribution for continuous actions. Complex
+actions are not supported by default distributions.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.horizon">
+<span class="sig-name descname"><span class="pre">horizon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">32</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.horizon" title="Permalink to this definition"></a></dt>
+<dd><p>Number of environment transitions to collect during <a class="reference internal" href="#rl8.algorithms.RecurrentAlgorithm.collect" title="rl8.algorithms.RecurrentAlgorithm.collect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">RecurrentAlgorithm.collect()</span></code></a>.
+The environment resets according to <code class="docutils literal notranslate"><span class="pre">horizons_per_env_reset</span></code>.
+Buffer size is [B, T] where T = horizon.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.horizons_per_env_reset">
+<span class="sig-name descname"><span class="pre">horizons_per_env_reset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.horizons_per_env_reset" title="Permalink to this definition"></a></dt>
+<dd><p>Number of times <a class="reference internal" href="#rl8.algorithms.RecurrentAlgorithm.collect" title="rl8.algorithms.RecurrentAlgorithm.collect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">RecurrentAlgorithm.collect()</span></code></a> can be called before resetting
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">RecurrentAlgorithm.env</span></code>. Increase this for cross-horizon learning. Default
+1 resets after every horizon.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.num_envs">
+<span class="sig-name descname"><span class="pre">num_envs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8192</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.num_envs" title="Permalink to this definition"></a></dt>
+<dd><p>Number of parallelized environment instances.
+Determines buffer size [B, T] where B = num_envs.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.seq_len">
+<span class="sig-name descname"><span class="pre">seq_len</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.seq_len" title="Permalink to this definition"></a></dt>
+<dd><p>Truncated backpropagation through time sequence length.
+Not necessarily the sequence length the recurrent states
+are propagated for prior to being reset. This parameter
+coupled with <code class="docutils literal notranslate"><span class="pre">seqs_per_state_reset</span></code> controls how many environment transitions
+are made before recurrent model states are reset or reinitialized.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.seqs_per_state_reset">
+<span class="sig-name descname"><span class="pre">seqs_per_state_reset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.seqs_per_state_reset" title="Permalink to this definition"></a></dt>
+<dd><p>Number of sequences made within
+<a class="reference internal" href="#rl8.algorithms.RecurrentAlgorithm.collect" title="rl8.algorithms.RecurrentAlgorithm.collect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">RecurrentAlgorithm.collect()</span></code></a> before recurrent model states
+are reset or reinitialized. Recurrent model states are never reset or
+reinitialized if this parameter is negative.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.optimizer_cls">
+<span class="sig-name descname"><span class="pre">optimizer_cls</span></span><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.optimizer_cls" title="Permalink to this definition"></a></dt>
+<dd><p>alias of <a class="reference external" href="https://docs.pytorch.org/docs/stable/generated/torch.optim.adam.Adam.html#torch.optim.adam.Adam" title="(in PyTorch v2.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Adam</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.optimizer_config">
+<span class="sig-name descname"><span class="pre">optimizer_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.optimizer_config" title="Permalink to this definition"></a></dt>
+<dd><p>Configuration passed to the optimizer during instantiation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.accumulate_grads">
+<span class="sig-name descname"><span class="pre">accumulate_grads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.accumulate_grads" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to accumulate gradients across minibatches before stepping the
+optimizer. Increases effective batch size while minimizing memory usage.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.enable_amp">
+<span class="sig-name descname"><span class="pre">enable_amp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.enable_amp" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to enable Automatic Mixed Precision (AMP) for faster and more
+memory-efficient training.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.lr_schedule">
+<span class="sig-name descname"><span class="pre">lr_schedule</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#tuple" title="(in Python v3.10)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.lr_schedule" title="Permalink to this definition"></a></dt>
+<dd><p>Optional schedule controlling the optimizer’s learning rate over
+environment transitions. Keeps learning rate constant if not provided.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.lr_schedule_kind">
+<span class="sig-name descname"><span class="pre">lr_schedule_kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Literal" title="(in Python v3.10)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'interp'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'step'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'step'</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.lr_schedule_kind" title="Permalink to this definition"></a></dt>
+<dd><p>Learning rate scheduler type if lr_schedule is provided.
+Options: <code class="docutils literal notranslate"><span class="pre">&quot;step&quot;</span></code> (jump and hold) or <code class="docutils literal notranslate"><span class="pre">&quot;interp&quot;</span></code> (interpolate between
+values).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.entropy_coeff">
+<span class="sig-name descname"><span class="pre">entropy_coeff</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.entropy_coeff" title="Permalink to this definition"></a></dt>
+<dd><p>Entropy coefficient weight in total loss.
+Ignored if <code class="docutils literal notranslate"><span class="pre">entropy_coeff_schedule</span></code> is provided.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.entropy_coeff_schedule">
+<span class="sig-name descname"><span class="pre">entropy_coeff_schedule</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#tuple" title="(in Python v3.10)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.entropy_coeff_schedule" title="Permalink to this definition"></a></dt>
+<dd><p>Optional schedule overriding entropy_coeff based on number of environment
+transitions.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.entropy_coeff_schedule_kind">
+<span class="sig-name descname"><span class="pre">entropy_coeff_schedule_kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Literal" title="(in Python v3.10)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'interp'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'step'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'step'</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.entropy_coeff_schedule_kind" title="Permalink to this definition"></a></dt>
+<dd><p>Entropy scheduler type. Options:
+<code class="docutils literal notranslate"><span class="pre">&quot;step&quot;</span></code>: jump and hold, <code class="docutils literal notranslate"><span class="pre">&quot;interp&quot;</span></code>: interpolate between values.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.gae_lambda">
+<span class="sig-name descname"><span class="pre">gae_lambda</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.95</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.gae_lambda" title="Permalink to this definition"></a></dt>
+<dd><p>Generalized Advantage Estimation (GAE) λ parameter for controlling the
+variance and bias tradeoff when estimating the state value function
+from collected environment transitions. A higher value allows higher
+variance while a lower value allows higher bias estimation but lower
+variance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.gamma">
+<span class="sig-name descname"><span class="pre">gamma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.95</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.gamma" title="Permalink to this definition"></a></dt>
+<dd><p>Discount reward factor often used in the Bellman operator for controlling
+the variance and bias tradeoff in collected experienced rewards. Note,
+this does not control the bias/variance of the state value estimation
+and only controls the weight future rewards have on the total discounted
+return.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.sgd_minibatch_size">
+<span class="sig-name descname"><span class="pre">sgd_minibatch_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.sgd_minibatch_size" title="Permalink to this definition"></a></dt>
+<dd><p>PPO hyperparameter for minibatch size during policy update.
+Larger minibatches reduce update variance and accelerate CUDA computations.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the entire buffer is treated as one batch.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.num_sgd_iters">
+<span class="sig-name descname"><span class="pre">num_sgd_iters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.num_sgd_iters" title="Permalink to this definition"></a></dt>
+<dd><p>PPO hyperparameter for number of SGD iterations over the collected buffer.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.shuffle_minibatches">
+<span class="sig-name descname"><span class="pre">shuffle_minibatches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.shuffle_minibatches" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to shuffle minibatches within <a class="reference internal" href="#rl8.algorithms.RecurrentAlgorithm.step" title="rl8.algorithms.RecurrentAlgorithm.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">RecurrentAlgorithm.step()</span></code></a>. Recommended, but
+not necessary if the minibatch size is large enough (e.g., the buffer is the
+batch).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.clip_param">
+<span class="sig-name descname"><span class="pre">clip_param</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.2</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.clip_param" title="Permalink to this definition"></a></dt>
+<dd><p>PPO hyperparameter indicating the max distance the policy can update away from
+previously collected policy sample data with respect to likelihoods of taking
+actions conditioned on observations. This is the main innovation of PPO.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.vf_clip_param">
+<span class="sig-name descname"><span class="pre">vf_clip_param</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5.0</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.vf_clip_param" title="Permalink to this definition"></a></dt>
+<dd><p>PPO hyperparameter similar to <code class="docutils literal notranslate"><span class="pre">clip_param</span></code> but for the value function estimate.
+A measure of max distance the model’s value function is allowed to update away
+from previous value function samples.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.dual_clip_param">
+<span class="sig-name descname"><span class="pre">dual_clip_param</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.dual_clip_param" title="Permalink to this definition"></a></dt>
+<dd><p>PPO hyperparameter that clips like <code class="docutils literal notranslate"><span class="pre">clip_param</span></code> but when advantage estimations
+are negative. Helps prevent instability for continuous action spaces when
+policies are making large updates. Leave <code class="docutils literal notranslate"><span class="pre">None</span></code> for this clip to not apply.
+Otherwise, typical values are around <code class="docutils literal notranslate"><span class="pre">5</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.vf_coeff">
+<span class="sig-name descname"><span class="pre">vf_coeff</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.vf_coeff" title="Permalink to this definition"></a></dt>
+<dd><p>Value function loss component weight. Only needs to be tuned when the policy
+and value function share parameters.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.target_kl_div">
+<span class="sig-name descname"><span class="pre">target_kl_div</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.target_kl_div" title="Permalink to this definition"></a></dt>
+<dd><p>Target maximum KL divergence when updating the policy. If approximate KL
+divergence is greater than this value, then policy updates stop early for
+that algorithm step. If this is left <a href="#id4"><span class="problematic" id="id5">`</span></a>None then early stopping doesn’t occur.
+A higher value means the policy is allowed to diverge more from the previous
+policy during updates.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.max_grad_norm">
+<span class="sig-name descname"><span class="pre">max_grad_norm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5.0</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.max_grad_norm" title="Permalink to this definition"></a></dt>
+<dd><p>Max gradient norm allowed when updating the policy’s model within
+<a class="reference internal" href="#rl8.algorithms.Algorithm.step" title="rl8.algorithms.Algorithm.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Algorithm.step()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.normalize_advantages">
+<span class="sig-name descname"><span class="pre">normalize_advantages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.normalize_advantages" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to normalize advantages computed for GAE using the batch’s
+mean and standard deviation. This has been shown to generally improve
+convergence speed and performance and should usually be <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.normalize_rewards">
+<span class="sig-name descname"><span class="pre">normalize_rewards</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.normalize_rewards" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to normalize rewards using reversed discounted returns as
+from <a class="reference external" href="https://arxiv.org/pdf/2005.12729.pdf">https://arxiv.org/pdf/2005.12729.pdf</a>. Reward normalization,
+although not exactly correct and optimal, typically improves
+convergence speed and performance and should usually be <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.device">
+<span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.9)"><span class="pre">device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Literal" title="(in Python v3.10)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'auto'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'auto'</span></em><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.device" title="Permalink to this definition"></a></dt>
+<dd><p>Device <code class="xref py py-attr docutils literal notranslate"><span class="pre">RecurrentAlgorithm.env</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">RecurrentAlgorithm.buffer</span></code>, and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">RecurrentAlgorithm.policy</span></code> all reside on.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.algorithms.RecurrentAlgorithmConfig.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rl8.html#rl8.env.EnvFactory" title="rl8.env.EnvFactory"><span class="pre">EnvFactory</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#rl8.algorithms.RecurrentAlgorithm" title="rl8.algorithms._recurrent.RecurrentAlgorithm"><span class="pre">RecurrentAlgorithm</span></a></span></span><a class="reference internal" href="../_modules/rl8/algorithms/_recurrent.html#RecurrentAlgorithmConfig.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.algorithms.RecurrentAlgorithmConfig.build" title="Permalink to this definition"></a></dt>
+<dd><p>Build and validate a :class:RecurrentAlgorithm` from a config.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rl8.html" class="btn btn-neutral float-left" title="rl8 package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rl8.models.html" class="btn btn-neutral float-right" title="rl8.models package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Andrew B.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

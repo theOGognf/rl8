@@ -1,0 +1,559 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rl8.views &mdash; rl8  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+
+  
+      <script src="../../_static/jquery.js"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/clipboard.min.js"></script>
+      <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            rl8
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">rl8</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">rl8.views</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rl8.views</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Definitions regarding applying views to batches of tensors or tensor dicts.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Protocol</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tensordict</span><span class="w"> </span><span class="kn">import</span> <span class="n">TensorDict</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataKeys</span>
+
+<span class="n">ViewKind</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;last&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">]</span>
+<span class="n">ViewMethod</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;rolling_window&quot;</span><span class="p">,</span> <span class="s2">&quot;padded_rolling_window&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="View"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.View">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">View</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A view requirement protocol for processing batch elements during policy</span>
+<span class="sd">    sampling and training.</span>
+
+<span class="sd">    Supports applying methods to a batch of size ``[B, T, ...]`` (where ``B`` is the</span>
+<span class="sd">    batch dimension, and ``T`` is the time or sequence dimension) for all elements</span>
+<span class="sd">    of ``B`` and ``T`` or just the last elements of ``T`` for all ``B``.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="View.apply_all"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.View.apply_all">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_all</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">TensorDict</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">TensorDict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the view to all elements of ``B`` and ``T`` in a batch of size</span>
+<span class="sd">        ``[B, T, ...]`` such that the returned batch is of shape ``[B_NEW, size, ...]``</span>
+<span class="sd">        where ``B_NEW &lt;= B * T``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="View.apply_last"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.View.apply_last">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_last</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">TensorDict</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">TensorDict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the view to the last elements of ``T`` for all ``B`` in a batch</span>
+<span class="sd">        of size ``[B, T, ...]`` such that the returned batch is of shape</span>
+<span class="sd">        ``[B, size, ...]``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="View.drop_size"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.View.drop_size">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_size</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the amount of samples along the time or sequence dimension</span>
+<span class="sd">        that&#39;s dropped for each batch element.</span>
+
+<span class="sd">        This is used to determine batch size reshaping during training to make</span>
+<span class="sd">        batch components have the same size.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span></div></div>
+
+
+<div class="viewcode-block" id="pad_last_sequence"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.pad_last_sequence">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">pad_last_sequence</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TensorDict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pad the given tensor ``x`` along the time or sequence dimension such</span>
+<span class="sd">    that the tensor&#39;s time or sequence dimension is of size ``size`` when</span>
+<span class="sd">    selecting the last ``size`` elements of the sequence.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: Tensor of size ``[B, T, ...]`` where ``B`` is the batch dimension, and</span>
+<span class="sd">            ``T`` is the time or sequence dimension. ``B`` is typically the number</span>
+<span class="sd">            of parallel environments, and ``T`` is typically the number of time</span>
+<span class="sd">            steps or observations sampled from each environment.</span>
+<span class="sd">        size: Minimum size of the sequence to select over ``x``&#39;s ``T`` dimension.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A tensordict with key ``&quot;inputs&quot;`` corresponding to the padded (or not</span>
+<span class="sd">        padded) elements, and key ``&quot;padding_mask&quot;`` corresponding to booleans</span>
+<span class="sd">        indicating which elements of ``&quot;inputs&quot;`` are padding.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">B</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">pad</span> <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="n">T</span>
+    <span class="k">if</span> <span class="n">pad</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="n">padding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">pad</span><span class="p">,</span> <span class="o">*</span><span class="n">F</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">padding</span><span class="p">,</span> <span class="n">x</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">padding_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+        <span class="n">padding_mask</span><span class="p">[:,</span> <span class="p">:</span><span class="n">pad</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="o">-</span><span class="n">size</span><span class="p">:,</span> <span class="o">...</span><span class="p">]</span>
+        <span class="n">padding_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">TensorDict</span><span class="p">({},</span> <span class="n">batch_size</span><span class="o">=</span><span class="p">[</span><span class="n">B</span><span class="p">,</span> <span class="n">size</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">INPUTS</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+    <span class="n">out</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">PADDING_MASK</span><span class="p">]</span> <span class="o">=</span> <span class="n">padding_mask</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="pad_whole_sequence"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.pad_whole_sequence">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">pad_whole_sequence</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TensorDict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pad the given tensor ``x`` along the time or sequence dimension such</span>
+<span class="sd">    that the tensor&#39;s time or sequence dimension is of size ``size`` after</span>
+<span class="sd">    applying :meth:`rolling_window` to the tensor.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: Tensor of size ``[B, T, ...]`` where ``B`` is the batch dimension, and</span>
+<span class="sd">            ``T`` is the time or sequence dimension. ``B`` is typically the number</span>
+<span class="sd">            of parallel environments, and T is typically the number of time</span>
+<span class="sd">            steps or observations sampled from each environment.</span>
+<span class="sd">        size: Required sequence size for each batch element in ``x``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A tensordict with key ``&quot;inputs&quot;`` corresponding to the padded (or not</span>
+<span class="sd">        padded) elements, and key &quot;padding_mask&quot; corresponding to booleans</span>
+<span class="sd">        indicating which elements of ``&quot;inputs&quot;`` are padding.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">B</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+    <span class="n">pad</span> <span class="o">=</span> <span class="n">RollingWindow</span><span class="o">.</span><span class="n">drop_size</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">padding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">pad</span><span class="p">,</span> <span class="o">*</span><span class="n">F</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">padding</span><span class="p">,</span> <span class="n">x</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">padding_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">T</span> <span class="o">+</span> <span class="n">pad</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+    <span class="n">padding_mask</span><span class="p">[:,</span> <span class="p">:</span><span class="n">pad</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">TensorDict</span><span class="p">({},</span> <span class="n">batch_size</span><span class="o">=</span><span class="p">[</span><span class="n">B</span><span class="p">,</span> <span class="n">T</span> <span class="o">+</span> <span class="n">pad</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">INPUTS</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+    <span class="n">out</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">PADDING_MASK</span><span class="p">]</span> <span class="o">=</span> <span class="n">padding_mask</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="rolling_window"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.rolling_window">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">rolling_window</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unfold the given tensor ``x`` along the time or sequence dimension such</span>
+<span class="sd">    that the tensor&#39;s time or sequence dimension is mapped into two</span>
+<span class="sd">    additional dimensions that represent a rolling window of size ``size``</span>
+<span class="sd">    and step ``step`` over the time or sequence dimension.</span>
+
+<span class="sd">    See PyTorch&#39;s `unfold`_ for details on PyTorch&#39;s vanilla unfolding that does</span>
+<span class="sd">    most of the work.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: Tensor of size ``[B, T, ...]`` where ``B`` is the batch dimension, and</span>
+<span class="sd">            ``T`` is the time or sequence dimension. ``B`` is typically the number</span>
+<span class="sd">            of parallel environments, and ``T`` is typically the number of time</span>
+<span class="sd">            steps or observations sampled from each environment.</span>
+<span class="sd">        size: Size of the rolling window to create over ``x``&#39;s `T` dimension.</span>
+<span class="sd">            The new sequence dimension is placed in the 2nd dimension.</span>
+<span class="sd">        step: Number of steps to take when iterating over ``x``&#39;s ``T`` dimension</span>
+<span class="sd">            to create a new sequence of size ``size``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A new tensor of shape ``[B, (T - size) / step + 1, size, ...]``.</span>
+
+<span class="sd">    .. _`unfold`: https://pytorch.org/docs/stable/generated/torch.Tensor.unfold.html</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">dim</span><span class="p">())]</span>
+    <span class="n">dims</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">unfold</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="o">*</span><span class="n">dims</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RollingWindow"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.RollingWindow">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">RollingWindow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A view that creates a rolling window of an item&#39;s time or sequence</span>
+<span class="sd">    dimension without masking (at the expense of losing some samples at</span>
+<span class="sd">    the beginning of each sequence).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RollingWindow.apply_all"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.RollingWindow.apply_all">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_all</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">TensorDict</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">TensorDict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Unfold the given tensor or tensordict along the time or sequence</span>
+<span class="sd">        dimension such that the the time or sequence dimension becomes a</span>
+<span class="sd">        rolling window of size ``size``. The new time or sequence dimension is</span>
+<span class="sd">        also expanded into the batch dimension such that each new sequence</span>
+<span class="sd">        becomes an additional batch element.</span>
+
+<span class="sd">        The expanded batch dimension has sample loss because the initial</span>
+<span class="sd">        ``size - 1`` samples are required to make a sequence of size ``size``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: Tensor or tensordict of size ``[B, T, ...]`` where ``B`` is the</span>
+<span class="sd">                batch dimension, and ``T`` is the time or sequence dimension.</span>
+<span class="sd">                ``B`` is typically the number of parallel environments, and ``T``</span>
+<span class="sd">                is typically the number of time steps or observations sampled</span>
+<span class="sd">                from each environment.</span>
+<span class="sd">            size: Size of the rolling window to create over ``x``&#39;s ``T`` dimension.</span>
+<span class="sd">                The new sequence dimension is placed in the 2nd dimension.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new tensor or tensordict of shape</span>
+<span class="sd">            ``[B * (T - size + 1), size, ...]``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+            <span class="n">E</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+            <span class="k">return</span> <span class="n">rolling_window</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="o">*</span><span class="n">E</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">B_OLD</span><span class="p">,</span> <span class="n">T_OLD</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">T_NEW</span> <span class="o">=</span> <span class="n">T_OLD</span> <span class="o">-</span> <span class="n">size</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">rolling_window</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">batch_size</span><span class="o">=</span><span class="p">[</span><span class="n">B_OLD</span><span class="p">,</span> <span class="n">T_NEW</span><span class="p">]</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RollingWindow.apply_last"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.RollingWindow.apply_last">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_last</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">TensorDict</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">TensorDict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Grab the last ``size`` elements of ``x`` along the time or sequence</span>
+<span class="sd">        dimension.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: Tensor or tensordict of size ``[B, T, ...]`` where ``B`` is the</span>
+<span class="sd">                batch dimension, and ``T`` is the time or sequence dimension.</span>
+<span class="sd">                ``B`` is typically the number of parallel environments, and ``T``</span>
+<span class="sd">                is typically the number of time steps or observations sampled</span>
+<span class="sd">                from each environment.</span>
+<span class="sd">            size: Number of &quot;last&quot; samples to grab along the time or sequence</span>
+<span class="sd">                dimension ``T``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new tensor or tensordict of shape ``[B, size, ...]``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">x</span><span class="p">[:,</span> <span class="o">-</span><span class="n">size</span><span class="p">:,</span> <span class="o">...</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">B</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">T_NEW</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[:,</span> <span class="o">-</span><span class="n">size</span><span class="p">:,</span> <span class="o">...</span><span class="p">],</span> <span class="n">batch_size</span><span class="o">=</span><span class="p">[</span><span class="n">B</span><span class="p">,</span> <span class="n">T_NEW</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="RollingWindow.drop_size"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.RollingWindow.drop_size">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_size</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This view doesn&#39;t perform any padding or masking and instead</span>
+<span class="sd">        drops a small amount of samples at the beginning of each</span>
+<span class="sd">        sequence in order to create sequences of the same length.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">size</span> <span class="o">-</span> <span class="mi">1</span></div></div>
+
+
+<div class="viewcode-block" id="PaddedRollingWindow"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.PaddedRollingWindow">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">PaddedRollingWindow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A view that creates a rolling window of an item&#39;s time or sequence</span>
+<span class="sd">    dimension with padding and masking to make all batch elements the same</span>
+<span class="sd">    size.</span>
+
+<span class="sd">    This is effectively the same as :class:`RollingWindow` but with padding and</span>
+<span class="sd">    masking applied beforehand.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PaddedRollingWindow.apply_all"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.PaddedRollingWindow.apply_all">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_all</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">TensorDict</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TensorDict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Unfold the given tensor or tensordict along the time or sequence</span>
+<span class="sd">        dimension such that the the time or sequence dimension becomes a</span>
+<span class="sd">        rolling window of size ``size``. The new time or sequence dimension is</span>
+<span class="sd">        also expanded into the batch dimension such that each new sequence</span>
+<span class="sd">        becomes an additional batch element.</span>
+
+<span class="sd">        The expanded batch dimension is always size ``B * T`` because this view</span>
+<span class="sd">        pads and masks to enforce all seqeunce elements to be used.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: Tensor or tensordict of size ``[B, T, ...]`` where B is the</span>
+<span class="sd">                batch dimension, and ``T`` is the time or sequence dimension.</span>
+<span class="sd">                ``B`` is typically the number of parallel environments, and ``T``</span>
+<span class="sd">                is typically the number of time steps or observations sampled</span>
+<span class="sd">                from each environment.</span>
+<span class="sd">            size: Size of the rolling window to create over `x`&#39;s ``T`` dimension.</span>
+<span class="sd">                The new sequence dimension is placed in the 2nd dimension.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new tensor or tensordict of shape</span>
+<span class="sd">            ``[B * T, size, ...]``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">RollingWindow</span><span class="o">.</span><span class="n">apply_all</span><span class="p">(</span><span class="n">pad_whole_sequence</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">size</span><span class="p">),</span> <span class="n">size</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">B_OLD</span><span class="p">,</span> <span class="n">T_OLD</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">T_NEW</span> <span class="o">=</span> <span class="n">T_OLD</span> <span class="o">+</span> <span class="n">RollingWindow</span><span class="o">.</span><span class="n">drop_size</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">RollingWindow</span><span class="o">.</span><span class="n">apply_all</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pad_whole_sequence</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">size</span><span class="p">),</span> <span class="n">batch_size</span><span class="o">=</span><span class="p">[</span><span class="n">B_OLD</span><span class="p">,</span> <span class="n">T_NEW</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="n">size</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="PaddedRollingWindow.apply_last"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.PaddedRollingWindow.apply_last">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_last</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">TensorDict</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TensorDict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Grab the last ``size`` elements of ``x`` along the time or sequence</span>
+<span class="sd">        dimension, and pad and mask to force the sequence to be of size ``size``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: Tensor or tensordict of size ``[B, T, ...]`` where ``B`` is the</span>
+<span class="sd">                batch dimension, and ``T`` is the time or sequence dimension.</span>
+<span class="sd">                ``B`` is typically the number of parallel environments, and ``T``</span>
+<span class="sd">                is typically the number of time steps or observations sampled</span>
+<span class="sd">                from each environment.</span>
+<span class="sd">            size: Number of &quot;last&quot; samples to grab along the time or sequence</span>
+<span class="sd">                dimension ``T``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new tensor or tensordict of shape ``[B, size, ...]``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">pad_last_sequence</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">B</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pad_last_sequence</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">size</span><span class="p">),</span> <span class="n">batch_size</span><span class="o">=</span><span class="p">[</span><span class="n">B</span><span class="p">,</span> <span class="n">size</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="PaddedRollingWindow.drop_size"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.PaddedRollingWindow.drop_size">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_size</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This view pads the beginning of each sequence and provides masking</span>
+<span class="sd">        to avoid dropping-off samples.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">size</span> <span class="o">-</span> <span class="n">size</span></div></div>
+
+
+<div class="viewcode-block" id="ViewRequirement"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.ViewRequirement">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ViewRequirement</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Batch preprocessing for creating overlapping time series or sequential</span>
+<span class="sd">    environment observations that&#39;s applied prior to feeding samples into a</span>
+<span class="sd">    policy&#39;s model.</span>
+
+<span class="sd">    This component is purely for convenience. Its functionality can optionally</span>
+<span class="sd">    be replicated within an environment&#39;s observation function. However, because</span>
+<span class="sd">    this functionaltiy is fairly common, it&#39;s recommended to use this</span>
+<span class="sd">    component where simple time or sequence shifting is required for</span>
+<span class="sd">    sequence-based observations.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        shift: Number of additional previous samples in the time or sequence</span>
+<span class="sd">            dimension to include in the view requirement&#39;s output.</span>
+<span class="sd">        method: Method for applying a nonzero shift view requirement.</span>
+<span class="sd">            Options include:</span>
+
+<span class="sd">                - &quot;rolling_window&quot;: Create a rolling window over a tensor&#39;s</span>
+<span class="sd">                  time or sequence dimension at the cost of dropping</span>
+<span class="sd">                  samples early into the sequence in order to force all</span>
+<span class="sd">                  sequences to be the same size.</span>
+<span class="sd">                - &quot;padded_rolling_window&quot;: The same as &quot;rolling_window&quot; but</span>
+<span class="sd">                  pad the beginning of each sequence to avoid dropping</span>
+<span class="sd">                  samples and provide a mask indicating which element is</span>
+<span class="sd">                  padding.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#: Method for applying a nonzero shift view requirement. Each method</span>
+    <span class="c1">#: has its own advantage. Options include:</span>
+    <span class="c1">#:</span>
+    <span class="c1">#:  - ``&quot;rolling_window&quot;``: Create a rolling window over a tensor&#39;s</span>
+    <span class="c1">#:      time or sequence dimension. This method is memory-efficient</span>
+    <span class="c1">#:      and fast, but it drops samples in order for each new batch</span>
+    <span class="c1">#:      element to have the same sequence size. Only use this method</span>
+    <span class="c1">#:      if the view requirement&#39;s shift is much smaller than an</span>
+    <span class="c1">#:      environment&#39;s horizon.</span>
+    <span class="c1">#:  - ``&quot;padded_rolling_window&quot;``: The same as ``&quot;rolling_window&quot;``, but it</span>
+    <span class="c1">#:      pads the beginning of each sequence so no samples are dropped. This</span>
+    <span class="c1">#:      method also provides a padding mask for each tensor or tensor</span>
+    <span class="c1">#:      dict to indicate which sequence element is padding.</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">View</span><span class="p">]</span>
+
+    <span class="c1">#: Number of additional previous samples in the time or sequence dimension</span>
+    <span class="c1">#: to include in the view requirement&#39;s output. E.g., if shift is ``1``,</span>
+    <span class="c1">#: then the last two samples in the time or sequence dimension will be</span>
+    <span class="c1">#: included for each batch element.</span>
+    <span class="n">shift</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">shift</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">:</span> <span class="n">ViewMethod</span> <span class="o">=</span> <span class="s2">&quot;padded_rolling_window&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shift</span> <span class="o">=</span> <span class="n">shift</span>
+        <span class="k">if</span> <span class="n">shift</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> `shift` must be non-negative.&quot;</span><span class="p">)</span>
+        <span class="k">match</span> <span class="n">method</span><span class="p">:</span>
+            <span class="k">case</span> <span class="s2">&quot;rolling_window&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">RollingWindow</span>
+            <span class="k">case</span> <span class="s2">&quot;padded_rolling_window&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">PaddedRollingWindow</span>
+
+<div class="viewcode-block" id="ViewRequirement.apply_all"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.ViewRequirement.apply_all">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">apply_all</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">batch</span><span class="p">:</span> <span class="n">TensorDict</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">TensorDict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the view to all of the time or sequence elements.</span>
+
+<span class="sd">        This method expands the elements of ``batch``&#39;s first two dimensions</span>
+<span class="sd">        together to allow parallel batching of `batch`&#39;s elements in the batch</span>
+<span class="sd">        and time or sequence dimension together. This method is typically</span>
+<span class="sd">        used within a training loop and isn&#39;t typically used for sampling</span>
+<span class="sd">        a policy&#39;s actions or environment interaction.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            key: Key to apply the view requirement to for a given batch. The key</span>
+<span class="sd">                can be any key that is compatible with a tensordict key.</span>
+<span class="sd">                E.g., a key can be a tuple of strings such that the item in the</span>
+<span class="sd">                batch is accessed like ``batch[(&quot;obs&quot;, &quot;prices&quot;)]``.</span>
+<span class="sd">            batch: Tensor dict of size ``[B, T, ...]`` where ``B`` is the batch</span>
+<span class="sd">                dimension, and ``T`` is the time or sequence dimension. ``B`` is</span>
+<span class="sd">                typically the number of parallel environments, and ``T`` is</span>
+<span class="sd">                typically the number of time steps or observations sampled</span>
+<span class="sd">                from each environment.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tensor or tensordict of size ``[B_NEW, self.shift, ...]``</span>
+<span class="sd">            where ``B_NEW &lt;= B * T``, depending on the view requirement method</span>
+<span class="sd">            applied. In the case where :attr:`ViewRequirement.shift` is ``0``,</span>
+<span class="sd">            the return tensor or tensordict has size ``[B * T, ...]``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">apply_all</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ViewRequirement.apply_last"><a class="viewcode-back" href="../../api/rl8.html#rl8.views.ViewRequirement.apply_last">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">apply_last</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">batch</span><span class="p">:</span> <span class="n">TensorDict</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">|</span> <span class="n">TensorDict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the view to just the last time or sequence elements.</span>
+
+<span class="sd">        This method is typically used for sampling a model&#39;s features</span>
+<span class="sd">        and eventual sampling of a policy&#39;s actions for parallel environments.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            key: Key to apply the view requirement to for a given batch. The key</span>
+<span class="sd">                can be any key that is compatible with a tensordict key.</span>
+<span class="sd">                E.g., a key can be a tuple of strings such that the item in the</span>
+<span class="sd">                batch is accessed like ``batch[(&quot;obs&quot;, &quot;prices&quot;)]``.</span>
+<span class="sd">            batch: Tensor dict of size ``[B, T, ...]`` where ``B`` is the batch</span>
+<span class="sd">                dimension, and ``T`` is the time or sequence dimension. ``B`` is</span>
+<span class="sd">                typically the number of parallel environments, and ``T`` is</span>
+<span class="sd">                typically the number of time steps or observations sampled</span>
+<span class="sd">                from each environment.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tensor or tensordict of size ``[B, self.shift + 1, ...]``. In the</span>
+<span class="sd">            case where :attr:`ViewRequirement.shift` is ``0``, the returned</span>
+<span class="sd">            tensor or tensordict has size ``[B, ...]``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">apply_last</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of samples dropped when using the underlying view requirement method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">drop_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shift</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Andrew B.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,612 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rl8.policies package &mdash; rl8  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="rl8.trainers package" href="rl8.trainers.html" />
+    <link rel="prev" title="rl8.nn.modules package" href="rl8.nn.modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            rl8
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="rl8.html">rl8 package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="rl8.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="rl8.algorithms.html">rl8.algorithms package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.models.html">rl8.models package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.html">rl8.nn package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">rl8.policies package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.trainers.html">rl8.trainers package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.conditions">rl8.conditions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.distributions">rl8.distributions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.env">rl8.env module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.schedulers">rl8.schedulers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.views">rl8.views module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">rl8</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">rl8</a></li>
+          <li class="breadcrumb-item"><a href="rl8.html">rl8 package</a></li>
+      <li class="breadcrumb-item active">rl8.policies package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/rl8.policies.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="rl8-policies-package">
+<h1>rl8.policies package<a class="headerlink" href="#rl8-policies-package" title="Permalink to this heading"></a></h1>
+<section id="module-rl8.policies">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-rl8.policies" title="Permalink to this heading"></a></h2>
+<p>Definitions related to the union of models and action distributions.</p>
+<p>This is the main definition used by training algorithms for sampling
+from models and action distributions. It’s recommended to use this interface
+when deploying a policy or model such that the action distribution
+is always paired with the model and transformations required for model
+inference are properly handled.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.policies.GenericPolicyBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.policies.</span></span><span class="sig-name descname"><span class="pre">GenericPolicyBase</span></span><a class="reference internal" href="../_modules/rl8/policies/_base.html#GenericPolicyBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.GenericPolicyBase" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Generic" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">_Model</span></code>]</p>
+<p>The base policy, defining the interfaces for the union of a feedforward
+model and an action distribution.</p>
+<p>All policies inherit from this base class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.policies.GenericPolicyBase.distribution_cls">
+<span class="sig-name descname"><span class="pre">distribution_cls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#type" title="(in Python v3.10)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="rl8.html#rl8.distributions.Distribution" title="rl8.distributions.Distribution"><span class="pre">rl8.distributions.Distribution</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#rl8.policies.GenericPolicyBase.distribution_cls" title="Permalink to this definition"></a></dt>
+<dd><p>Underlying policy action distribution that’s parameterized by
+features produced by <a class="reference internal" href="#rl8.policies.GenericPolicyBase.model" title="rl8.policies.GenericPolicyBase.model"><code class="xref py py-attr docutils literal notranslate"><span class="pre">GenericPolicyBase.model</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.policies.GenericPolicyBase.model">
+<span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">_Model</span></em><a class="headerlink" href="#rl8.policies.GenericPolicyBase.model" title="Permalink to this definition"></a></dt>
+<dd><p>Underlying policy model that processes environment observations
+into a value function approximation and into features to be
+consumed by an action distribution for action sampling.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="rl8.policies.GenericPolicyBase.action_spec">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_spec</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">TensorSpec</span></em><a class="headerlink" href="#rl8.policies.GenericPolicyBase.action_spec" title="Permalink to this definition"></a></dt>
+<dd><p>Return the action spec used for constructing the model.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="rl8.policies.GenericPolicyBase.device">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.9)"><span class="pre">device</span></a></em><a class="headerlink" href="#rl8.policies.GenericPolicyBase.device" title="Permalink to this definition"></a></dt>
+<dd><p>Return the device the policy’s model is on.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="rl8.policies.GenericPolicyBase.observation_spec">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">observation_spec</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">TensorSpec</span></em><a class="headerlink" href="#rl8.policies.GenericPolicyBase.observation_spec" title="Permalink to this definition"></a></dt>
+<dd><p>Return the observation spec used for constructing the model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.policies.GenericPolicyBase.save">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/os.html#os.PathLike" title="(in Python v3.10)"><span class="pre">PathLike</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">PythonModel</span></span></span><a class="reference internal" href="../_modules/rl8/policies/_base.html#GenericPolicyBase.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.GenericPolicyBase.save" title="Permalink to this definition"></a></dt>
+<dd><p>Save the policy by cloud pickling it to <code class="docutils literal notranslate"><span class="pre">path</span></code> and returning
+the interface used for deploying it with MLflow.</p>
+<p>This method is only defined to expose a common interface between
+different algorithms. This is by no means the only way
+to save a policy and isn’t even the recommended way to save
+a policy.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.policies.GenericPolicyBase.to">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.9)"><span class="pre">device</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../_modules/rl8/policies/_base.html#GenericPolicyBase.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.GenericPolicyBase.to" title="Permalink to this definition"></a></dt>
+<dd><p>Move the policy and its attributes to <code class="docutils literal notranslate"><span class="pre">device</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.policies.MLflowPolicyModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.policies.</span></span><span class="sig-name descname"><span class="pre">MLflowPolicyModel</span></span><a class="reference internal" href="../_modules/rl8/policies/_feedforward.html#MLflowPolicyModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.MLflowPolicyModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PythonModel</span></code></p>
+<p>A MLflow Python model implementation of a feedforward policy.</p>
+<p>This is by no means the only way to define a MLflow interface for
+a feedforward policy, nor is it the recommended way to deploy
+or serve your trained policy with MLflow. This is simply a minimal
+and generic implementation of a MLflow Python model for feedforward
+policies that serves as a convenience. The majority of policy deployment
+use cases will probably be satisified with this minimal implementation.
+Use cases not covered by this implementation are encouraged to write
+their own implementation that fits their needs as this implementation
+will likely not see further development beyond bugfixes.</p>
+<p>On top of this implementation being minimal and in “maintenance mode”,
+it doesn’t support all the many kinds of policy models one could
+define with <code class="docutils literal notranslate"><span class="pre">rl8</span></code>. This implementation supports many observation
+spaces, but this implementation does not support all action spaces.
+Action spaces are limited to (flattened) 1D spaces; more than 1D is
+possible, but it’s likely it will experience inconsistent behavior
+when storing actions in the output dataframe.</p>
+<p class="rubric">Examples</p>
+<p>A minimal example of training a policy, saving it with MLflow,
+and then reloading it for inference using this interface.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">tempfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemporaryDirectory</span>
+<span class="gp">...</span>
+<span class="gp">... </span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="gp">...</span>
+<span class="gp">... </span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trainer</span>
+<span class="gp">... </span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteDummyEnv</span>
+<span class="gp">... </span><span class="c1"># Create the trainer and step it once for the heck of it.</span>
+<span class="gp">... </span><span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span><span class="n">DiscreteDummyEnv</span><span class="p">)</span>
+<span class="gp">... </span><span class="n">trainer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="gp">... </span><span class="c1"># Create a temporary directory for storing model artifacts</span>
+<span class="gp">... </span><span class="c1"># and the actual MLflow model. This&#39;ll get cleaned-up</span>
+<span class="gp">... </span><span class="c1"># once the context ends.</span>
+<span class="gp">... </span><span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="c1"># This is where you set options specific to your</span>
+<span class="gp">... </span>    <span class="c1"># use case. At a bare minimum, the policy&#39;s</span>
+<span class="gp">... </span>    <span class="c1"># artifact (the policy pickle file) is specified,</span>
+<span class="gp">... </span>    <span class="c1"># but you may want to add code files, data files,</span>
+<span class="gp">... </span>    <span class="c1"># dependencies/requirements, etc..</span>
+<span class="gp">... </span>    <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmp</span><span class="si">}</span><span class="s2">/model&quot;</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">python_model</span><span class="o">=</span><span class="n">trainer</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmp</span><span class="si">}</span><span class="s2">/policy.pkl&quot;</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="n">artifacts</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;policy&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmp</span><span class="si">}</span><span class="s2">/policy.pkl&quot;</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmp</span><span class="si">}</span><span class="s2">/model&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="c1"># We cheat here a bit and use the environment&#39;s spec</span>
+<span class="gp">... </span>    <span class="c1"># to generate a valid input example. These are usually</span>
+<span class="gp">... </span>    <span class="c1"># constructed by some other service.</span>
+<span class="gp">... </span>    <span class="n">obs</span> <span class="o">=</span> <span class="n">DiscreteDummyEnv</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">observation_spec</span><span class="o">.</span><span class="n">rand</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">({</span><span class="s2">&quot;obs&quot;</span><span class="p">:</span> <span class="n">obs</span><span class="p">})</span>  
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.policies.MLflowPolicyModel.load_context">
+<span class="sig-name descname"><span class="pre">load_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PythonModelContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/rl8/policies/_feedforward.html#MLflowPolicyModel.load_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.MLflowPolicyModel.load_context" title="Permalink to this definition"></a></dt>
+<dd><p>Loads the saved policy on model instantiation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.policies.MLflowPolicyModel.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PythonModelContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><span class="pre">DataFrame</span></a></span></span><a class="reference internal" href="../_modules/rl8/policies/_feedforward.html#MLflowPolicyModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.MLflowPolicyModel.predict" title="Permalink to this definition"></a></dt>
+<dd><p>Sample from the underlying policy using <code class="docutils literal notranslate"><span class="pre">model_input</span></code> as input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>context</strong> – Python model context that’s unused for this implementation.</p></li>
+<li><p><strong>model_input</strong> – Policy model input (or observation). The observation
+space is expected to be a 1D vector or a composite spec that
+maps strings to tensor specs; the policy model is expected to
+ingest a tensordict and handle all the input preprocessing
+(such as tensor concatenation) on its own. The model input
+(or observation) is expected to match the policy model’s
+observation space within an <code class="docutils literal notranslate"><span class="pre">&quot;obs&quot;</span></code> key and is expected to
+be of shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T,</span> <span class="pre">...]</span></code> for each tensor within the observation
+where <code class="docutils literal notranslate"><span class="pre">B</span></code> is the batch dimension, and <code class="docutils literal notranslate"><span class="pre">T</span></code> is the time or
+sequence dimension. The underlying policy will handle reshaping
+of the model input for batch inference and the policy’s outputs
+will be of shape <code class="docutils literal notranslate"><span class="pre">[B</span> <span class="pre">*</span> <span class="pre">T,</span> <span class="pre">...]</span></code> such that the batch and time
+dimensions are flattened into the first dimension. Thus,
+the index of the resulting output dataframe from this method
+will correspond to indicies of the flattened first dimension.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dataframe with <code class="docutils literal notranslate"><span class="pre">B</span> <span class="pre">*</span> <span class="pre">T</span></code> rows containing sampled actions, log
+probabilities of sampling those actions, and value estimates.
+<code class="docutils literal notranslate"><span class="pre">B</span></code> is the model input’s batch dimension, and <code class="docutils literal notranslate"><span class="pre">T</span></code> is the model
+input’s time or sequence dimension.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.policies.MLflowRecurrentPolicyModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.policies.</span></span><span class="sig-name descname"><span class="pre">MLflowRecurrentPolicyModel</span></span><a class="reference internal" href="../_modules/rl8/policies/_recurrent.html#MLflowRecurrentPolicyModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.MLflowRecurrentPolicyModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PythonModel</span></code></p>
+<p>A MLflow Python model implementation of a recurrent policy.</p>
+<p>This is by no means the only way to define a MLflow interface for
+a recurrent policy, nor is it the recommended way to deploy
+or serve your trained policy with MLflow. This is simply a minimal
+and generic implementation of a MLflow Python model for recurrent
+policies that serves as a convenience. The majority of policy deployment
+use cases will probably be satisified with this minimal implementation.
+Use cases not covered by this implementation are encouraged to write
+their own implementation that fits their needs as this implementation
+will likely not see further development beyond bugfixes.</p>
+<p>On top of this implementation being minimal and in “maintenance mode”,
+it doesn’t support all the many kinds of policy models one could
+define with <code class="docutils literal notranslate"><span class="pre">rl8</span></code>. This implementation supports many observation
+spaces, but this implementation does not support all action spaces.
+Action spaces are limited to (flattened) 1D spaces; more than 1D is
+possible, but it’s likely it will experience inconsistent behavior
+when storing actions in the output dataframe.</p>
+<p class="rubric">Examples</p>
+<p>A minimal example of training a policy, saving it with MLflow,
+and then reloading it for inference using this interface.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">tempfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemporaryDirectory</span>
+<span class="gp">...</span>
+<span class="gp">... </span><span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="gp">...</span>
+<span class="gp">... </span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8</span><span class="w"> </span><span class="kn">import</span> <span class="n">RecurrentTrainer</span>
+<span class="gp">... </span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteDummyEnv</span>
+<span class="gp">... </span><span class="c1"># Create the trainer and step it once for the heck of it.</span>
+<span class="gp">... </span><span class="n">trainer</span> <span class="o">=</span> <span class="n">RecurrentTrainer</span><span class="p">(</span><span class="n">DiscreteDummyEnv</span><span class="p">)</span>
+<span class="gp">... </span><span class="n">trainer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="gp">... </span><span class="c1"># Create a temporary directory for storing model artifacts</span>
+<span class="gp">... </span><span class="c1"># and the actual MLflow model. This&#39;ll get cleaned-up</span>
+<span class="gp">... </span><span class="c1"># once the context ends.</span>
+<span class="gp">... </span><span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="c1"># This is where you set options specific to your</span>
+<span class="gp">... </span>    <span class="c1"># use case. At a bare minimum, the policy&#39;s</span>
+<span class="gp">... </span>    <span class="c1"># artifact (the policy pickle file) is specified,</span>
+<span class="gp">... </span>    <span class="c1"># but you may want to add code files, data files,</span>
+<span class="gp">... </span>    <span class="c1"># dependencies/requirements, etc..</span>
+<span class="gp">... </span>    <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmp</span><span class="si">}</span><span class="s2">/model&quot;</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">python_model</span><span class="o">=</span><span class="n">trainer</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmp</span><span class="si">}</span><span class="s2">/policy.pkl&quot;</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="n">artifacts</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;policy&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmp</span><span class="si">}</span><span class="s2">/policy.pkl&quot;</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="n">model</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">pyfunc</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmp</span><span class="si">}</span><span class="s2">/model&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="c1"># We cheat here a bit and use the environment&#39;s spec</span>
+<span class="gp">... </span>    <span class="c1"># to generate a valid input example. These are usually</span>
+<span class="gp">... </span>    <span class="c1"># constructed by some other service.</span>
+<span class="gp">... </span>    <span class="n">obs</span> <span class="o">=</span> <span class="n">DiscreteDummyEnv</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">observation_spec</span><span class="o">.</span><span class="n">rand</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">({</span><span class="s2">&quot;obs&quot;</span><span class="p">:</span> <span class="n">obs</span><span class="p">})</span>  
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.policies.MLflowRecurrentPolicyModel.load_context">
+<span class="sig-name descname"><span class="pre">load_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PythonModelContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/rl8/policies/_recurrent.html#MLflowRecurrentPolicyModel.load_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.MLflowRecurrentPolicyModel.load_context" title="Permalink to this definition"></a></dt>
+<dd><p>Loads the saved policy on model instantiation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.policies.MLflowRecurrentPolicyModel.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PythonModelContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><span class="pre">pandas.core.frame.DataFrame</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/rl8/policies/_recurrent.html#MLflowRecurrentPolicyModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.MLflowRecurrentPolicyModel.predict" title="Permalink to this definition"></a></dt>
+<dd><p>Sample from the underlying policy using <code class="docutils literal notranslate"><span class="pre">model_input</span></code> as input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>context</strong> – Python model context that’s unused for this implementation.</p></li>
+<li><p><strong>model_input</strong> – Policy model input (or observation). The observation
+space is expected to be a composite spec that maps strings to
+tensor specs; the policy model is expected to ingest a
+tensordict and handle all the input preprocessing
+(such as tensor concatenation) on its own. The model input
+(or observation) is expected to match the policy model’s
+observation space and should contain the recurrent model’s
+recurrent state (unless a new recurrent state is
+to be instantiated). The model inputs are expected to be of shape
+<code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T,</span> <span class="pre">...]</span></code> for each tensor within the observation where
+<code class="docutils literal notranslate"><span class="pre">B</span></code> is the batch dimension, and <code class="docutils literal notranslate"><span class="pre">T</span></code> is the time or sequence
+dimension, while the model recurrent states are expected to be
+of shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">1,</span> <span class="pre">...]</span></code>. The underlying policy will handle
+reshaping of the model input for batch inference and the policy’s
+outputs will be of shape <code class="docutils literal notranslate"><span class="pre">[B</span> <span class="pre">*</span> <span class="pre">T,</span> <span class="pre">...]</span></code> such that the batch and
+time dimensions are flattened into the first dimension. Thus,
+the index of the resulting output dataframe from this method
+will correspond to indicies of the flattened first dimension.
+The output dataframe will also contain the updated recurrent
+states for just the final timestep. These recurrent states are
+repeated along the time dimension to allow storing of recurrent
+states within the same dataframe as the model outputs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the first with <code class="docutils literal notranslate"><span class="pre">B</span> <span class="pre">*</span> <span class="pre">T</span></code> rows containing sampled
+actions, log probabilities of sampling those actions, and value
+estimates; the second with <code class="docutils literal notranslate"><span class="pre">B</span></code> rows containing updated recurrent
+model states. <code class="docutils literal notranslate"><span class="pre">B</span></code> is the model input’s batch dimension, and <code class="docutils literal notranslate"><span class="pre">T</span></code>
+is the model input’s time or sequence dimension.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Two dataframes</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.policies.Policy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.policies.</span></span><span class="sig-name descname"><span class="pre">Policy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TensorSpec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TensorSpec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="rl8.models.html#rl8.models.Model" title="rl8.models._feedforward.Model"><span class="pre">Model</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="rl8.models.html#rl8.models.ModelFactory" title="rl8.models._feedforward.ModelFactory"><span class="pre">ModelFactory</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution_cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#type" title="(in Python v3.10)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="rl8.html#rl8.distributions.Distribution" title="rl8.distributions.Distribution"><span class="pre">rl8.distributions.Distribution</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.9)"><span class="pre">device</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cpu'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/policies/_feedforward.html#Policy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.Policy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rl8.policies.GenericPolicyBase" title="rl8.policies._base.GenericPolicyBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericPolicyBase</span></code></a>[<a class="reference internal" href="rl8.models.html#rl8.models.Model" title="rl8.models._feedforward.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>]</p>
+<p>The union of a feedforward model and an action distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observation_spec</strong> – Spec defining observations from the environment
+and inputs to the model’s forward pass.</p></li>
+<li><p><strong>action_spec</strong> – Spec defining the action distribution’s outputs
+and the inputs to the environment.</p></li>
+<li><p><strong>model</strong> – Model instance to use. Mutually exclusive with <code class="docutils literal notranslate"><span class="pre">model_cls</span></code>.</p></li>
+<li><p><strong>model_cls</strong> – Model class or class factory to use.</p></li>
+<li><p><strong>model_config</strong> – Model class args.</p></li>
+<li><p><strong>distribution_cls</strong> – Action distribution class.</p></li>
+<li><p><strong>device</strong> – Device the policy resides on.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.policies.Policy.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Literal" title="(in Python v3.10)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'last'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'all'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'last'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires_grad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_logp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_views</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TensorDict</span></span></span><a class="reference internal" href="../_modules/rl8/policies/_feedforward.html#Policy.sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.Policy.sample" title="Permalink to this definition"></a></dt>
+<dd><p>Use <code class="docutils literal notranslate"><span class="pre">batch</span></code> to sample from the policy, sampling actions from
+the model and optionally sampling additional values often used for
+training and analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch</strong> – Batch to feed into the policy’s underlying model. Expected
+to be of size <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T,</span> <span class="pre">...]</span></code> where <code class="docutils literal notranslate"><span class="pre">B</span></code> is the batch dimension,
+and <code class="docutils literal notranslate"><span class="pre">T</span></code> is the time or sequence dimension. <code class="docutils literal notranslate"><span class="pre">B</span></code> is typically
+the number of parallel environments being sampled for during
+massively parallel training, and T is typically the number
+of time steps or observations sampled from the environments.
+The <code class="docutils literal notranslate"><span class="pre">B</span></code> and <code class="docutils literal notranslate"><span class="pre">T</span></code> dimensions are typically combined into one dimension
+during batch preprocessing according to the model’s view
+requirements.</p></li>
+<li><p><strong>kind</strong> – <p>String indicating the type of sample to perform. The model’s
+view requirements handles preprocessing slightly differently
+depending on the value. Options include:</p>
+<blockquote>
+<div><ul>
+<li><dl class="simple">
+<dt>”last”: Sample from <code class="docutils literal notranslate"><span class="pre">batch</span></code> using only the samples</dt><dd><p>necessary to sample for the most recent observations
+within the <code class="docutils literal notranslate"><span class="pre">batch</span></code>’s <code class="docutils literal notranslate"><span class="pre">T</span></code> dimension.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>”all”: Sample from <code class="docutils literal notranslate"><span class="pre">batch</span></code> using all observations within</dt><dd><p>the <code class="docutils literal notranslate"><span class="pre">batch</span></code>’s <code class="docutils literal notranslate"><span class="pre">T</span></code> dimension.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>deterministic</strong> – Whether to sample from the policy deterministically
+(the actions are always the same for the same inputs) or
+stochastically (there is a randomness to the policy’s actions).</p></li>
+<li><p><strong>inplace</strong> – Whether to store policy outputs in the given <code class="docutils literal notranslate"><span class="pre">batch</span></code>
+tensordict. Otherwise, create a separate tensordict that
+will only contain policy outputs.</p></li>
+<li><p><strong>requires_grad</strong> – Whether to enable gradients for the underlying
+model during forward passes. This should only be enabled during
+a training loop or when requiring gradients for explainability
+or other analysis reasons.</p></li>
+<li><p><strong>return_actions</strong> – Whether to sample the policy’s action distribution
+and return the sampled actions.</p></li>
+<li><p><strong>return_logp</strong> – Whether to return the log probability of taking the
+sampled actions. Often enabled during a training loop for
+aggregating training data a bit more efficiently.</p></li>
+<li><p><strong>return_values</strong> – Whether to return the value function approximation
+in the given observations. Often enabled during a training
+loop for aggregating training data a bit more efficiently.</p></li>
+<li><p><strong>return_views</strong> – Whether to return the observation view requirements
+in the output batch. Even if this flag is enabled, new views
+are only returned if the views are not already present in
+the output batch (i.e., if <cite>inplace</cite> is <code class="docutils literal notranslate"><span class="pre">True</span></code> and the views
+are already in the <code class="docutils literal notranslate"><span class="pre">batch</span></code>, then the returned batch will just
+contain the original views).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tensordict containing AT LEAST actions sampled from the policy of
+batch size <code class="docutils literal notranslate"><span class="pre">[B</span> <span class="pre">*</span> <span class="pre">T,</span> <span class="pre">...]</span></code> where <code class="docutils literal notranslate"><span class="pre">B</span></code> is the input’s batch dimension,
+and <code class="docutils literal notranslate"><span class="pre">T</span></code> is the time or sequence dimension.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.policies.Policy.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/os.html#os.PathLike" title="(in Python v3.10)"><span class="pre">PathLike</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#rl8.policies.MLflowPolicyModel" title="rl8.policies._feedforward.MLflowPolicyModel"><span class="pre">MLflowPolicyModel</span></a></span></span><a class="reference internal" href="../_modules/rl8/policies/_feedforward.html#Policy.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.Policy.save" title="Permalink to this definition"></a></dt>
+<dd><p>Save the policy by cloud pickling it to <code class="docutils literal notranslate"><span class="pre">path</span></code> and returning
+the interface used for deploying it with MLflow.</p>
+<p>This method is only defined to expose a common interface between
+different algorithms. This is by no means the only way
+to save a policy and isn’t even the recommended way to save
+a policy.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.policies.RecurrentPolicy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.policies.</span></span><span class="sig-name descname"><span class="pre">RecurrentPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TensorSpec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TensorSpec</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="rl8.models.html#rl8.models.RecurrentModel" title="rl8.models._recurrent.RecurrentModel"><span class="pre">RecurrentModel</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="rl8.models.html#rl8.models.RecurrentModelFactory" title="rl8.models._recurrent.RecurrentModelFactory"><span class="pre">RecurrentModelFactory</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution_cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#type" title="(in Python v3.10)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="rl8.html#rl8.distributions.Distribution" title="rl8.distributions.Distribution"><span class="pre">rl8.distributions.Distribution</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="(in PyTorch v2.9)"><span class="pre">device</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cpu'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/policies/_recurrent.html#RecurrentPolicy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.RecurrentPolicy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rl8.policies.GenericPolicyBase" title="rl8.policies._base.GenericPolicyBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericPolicyBase</span></code></a>[<a class="reference internal" href="rl8.models.html#rl8.models.RecurrentModel" title="rl8.models._recurrent.RecurrentModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">RecurrentModel</span></code></a>]</p>
+<p>The union of a recurrent model and an action distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observation_spec</strong> – Spec defining observations from the environment
+and inputs to the model’s forward pass.</p></li>
+<li><p><strong>action_spec</strong> – Spec defining the action distribution’s outputs
+and the inputs to the environment.</p></li>
+<li><p><strong>model</strong> – Model instance to use. Mutually exclusive with <code class="docutils literal notranslate"><span class="pre">model_cls</span></code>.</p></li>
+<li><p><strong>model_cls</strong> – Model class or class factory to use.</p></li>
+<li><p><strong>model_config</strong> – Model class args.</p></li>
+<li><p><strong>distribution_cls</strong> – Action distribution class.</p></li>
+<li><p><strong>device</strong> – Device the policy resides on.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.policies.RecurrentPolicy.init_states">
+<span class="sig-name descname"><span class="pre">init_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TensorDict</span></span></span><a class="reference internal" href="../_modules/rl8/policies/_recurrent.html#RecurrentPolicy.init_states"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.RecurrentPolicy.init_states" title="Permalink to this definition"></a></dt>
+<dd><p>Return new recurrent states for the policy’s model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.policies.RecurrentPolicy.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">TensorDict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires_grad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_logp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#tuple" title="(in Python v3.10)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">tensordict._td.TensorDict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tensordict._td.TensorDict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/rl8/policies/_recurrent.html#RecurrentPolicy.sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.RecurrentPolicy.sample" title="Permalink to this definition"></a></dt>
+<dd><p>Use <code class="docutils literal notranslate"><span class="pre">batch</span></code> and <code class="docutils literal notranslate"><span class="pre">states</span></code> to sample from the policy, sampling
+actions from the model and optionally sampling additional values
+often used for training and analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch</strong> – Batch to feed into the policy’s underlying model. Expected
+to be of size <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T,</span> <span class="pre">...]</span></code> where <code class="docutils literal notranslate"><span class="pre">B</span></code> is the batch dimension,
+and <code class="docutils literal notranslate"><span class="pre">T</span></code> is the time or sequence dimension. <code class="docutils literal notranslate"><span class="pre">B</span></code> is typically
+the number of parallel environments being sampled for during
+massively parallel training, and <code class="docutils literal notranslate"><span class="pre">T</span></code> is typically the number
+of time steps or observations sampled from the environments.</p></li>
+<li><p><strong>states</strong> – States to feed into the policy’s underlying model. Expected
+to be of size <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T,</span> <span class="pre">...]</span></code> where <code class="docutils literal notranslate"><span class="pre">B</span></code> is the batch dimension,
+and <code class="docutils literal notranslate"><span class="pre">T</span></code> is the time or sequence dimension. <code class="docutils literal notranslate"><span class="pre">B</span></code> is typically
+the number of parallel environments being sampled for during
+massively parallel training, and <code class="docutils literal notranslate"><span class="pre">T</span></code> is typically the number
+of time steps or observations sampled from the environments.</p></li>
+<li><p><strong>deterministic</strong> – Whether to sample from the policy deterministically
+(the actions are always the same for the same inputs) or
+stochastically (there is a randomness to the policy’s actions).</p></li>
+<li><p><strong>inplace</strong> – Whether to store policy outputs in the given <code class="docutils literal notranslate"><span class="pre">batch</span></code>
+tensordict. Otherwise, create a separate tensordict that
+will only contain policy outputs.</p></li>
+<li><p><strong>requires_grad</strong> – Whether to enable gradients for the underlying
+model during forward passes. This should only be enabled during
+a training loop or when requiring gradients for explainability
+or other analysis reasons.</p></li>
+<li><p><strong>return_actions</strong> – Whether to sample the policy’s action distribution
+and return the sampled actions.</p></li>
+<li><p><strong>return_logp</strong> – Whether to return the log probability of taking the
+sampled actions. Often enabled during a training loop for
+aggregating training data a bit more efficiently.</p></li>
+<li><p><strong>return_values</strong> – Whether to return the value function approximation
+in the given observations. Often enabled during a training
+loop for aggregating training data a bit more efficiently.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tensordict containing AT LEAST actions sampled from the policy
+and a tensordict containing updated recurrent states. The returned
+recurrent states will only have shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">...]</span></code> WITHOUT a
+time dimension <code class="docutils literal notranslate"><span class="pre">T</span></code> since only the last recurrent state of the
+series should be returned. Other returned values will have batch
+size <code class="docutils literal notranslate"><span class="pre">[B</span> <span class="pre">*</span> <span class="pre">T,</span> <span class="pre">...]</span></code> where <code class="docutils literal notranslate"><span class="pre">B</span></code> is the input’s batch dimension,
+and <code class="docutils literal notranslate"><span class="pre">T</span></code> is the time or sequence dimension.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.policies.RecurrentPolicy.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/os.html#os.PathLike" title="(in Python v3.10)"><span class="pre">PathLike</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#rl8.policies.MLflowRecurrentPolicyModel" title="rl8.policies._recurrent.MLflowRecurrentPolicyModel"><span class="pre">MLflowRecurrentPolicyModel</span></a></span></span><a class="reference internal" href="../_modules/rl8/policies/_recurrent.html#RecurrentPolicy.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.policies.RecurrentPolicy.save" title="Permalink to this definition"></a></dt>
+<dd><p>Save the policy by cloud pickling it to <code class="docutils literal notranslate"><span class="pre">path</span></code> and returning
+the interface used for deploying it with MLflow.</p>
+<p>This method is only defined to expose a common interface between
+different algorithms. This is by no means the only way
+to save a policy and isn’t even the recommended way to save
+a policy.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="rl8.policies.RecurrentPolicy.state_spec">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">state_spec</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Composite</span></em><a class="headerlink" href="#rl8.policies.RecurrentPolicy.state_spec" title="Permalink to this definition"></a></dt>
+<dd><p>Return the policy’s model’s state spec for defining recurrent state
+dimensions.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rl8.nn.modules.html" class="btn btn-neutral float-left" title="rl8.nn.modules package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rl8.trainers.html" class="btn btn-neutral float-right" title="rl8.trainers package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Andrew B.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

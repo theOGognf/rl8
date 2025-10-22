@@ -1,0 +1,482 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rl8.trainers package &mdash; rl8  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="rl8.policies package" href="rl8.policies.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            rl8
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="rl8.html">rl8 package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="rl8.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="rl8.algorithms.html">rl8.algorithms package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.models.html">rl8.models package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.html">rl8.nn package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.policies.html">rl8.policies package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">rl8.trainers package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.conditions">rl8.conditions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.distributions">rl8.distributions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.env">rl8.env module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.schedulers">rl8.schedulers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.views">rl8.views module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">rl8</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">rl8</a></li>
+          <li class="breadcrumb-item"><a href="rl8.html">rl8 package</a></li>
+      <li class="breadcrumb-item active">rl8.trainers package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/rl8.trainers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="rl8-trainers-package">
+<h1>rl8.trainers package<a class="headerlink" href="#rl8-trainers-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-rl8.trainers.config">
+<span id="rl8-trainers-config-module"></span><h2>rl8.trainers.config module<a class="headerlink" href="#module-rl8.trainers.config" title="Permalink to this heading"></a></h2>
+<p>Configuration for the high-level training interfaces.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.trainers.config.TrainConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.trainers.config.</span></span><span class="sig-name descname"><span class="pre">TrainConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_cls:</span> <span class="pre">~rl8.env.EnvFactory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm_config:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recurrent:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/trainers/config.html#TrainConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.trainers.config.TrainConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.10/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A helper for instantiating a trainer based on a config.</p>
+<p>It’s common to run training experiments based on some config.
+This class is introduced to reduce the need for creating some
+custom trainer config parser. This class doesn’t support all
+trainer/algorithm options/fields, but supports enough to cover
+the majority of use cases.</p>
+<p>It’s intended for this class to be instantiated from a JSON or
+YAML file, and then for the instance to build a trainer directly
+afterwards.</p>
+<p class="rubric">Examples</p>
+<p>Assume there’s some YAML config at <code class="docutils literal notranslate"><span class="pre">./config.yaml</span></code> with the
+following contents:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">env_cls</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rl8.env.DiscreteDummyEnv</span>
+<span class="nt">algorithm_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">horizon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+<span class="w">    </span><span class="nt">gamma</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+</pre></div>
+</div>
+<p>The following will instantiate a <a class="reference internal" href="#rl8.trainers.config.TrainConfig" title="rl8.trainers.config.TrainConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">TrainConfig</span></code></a> from the
+file, instantiate a trainer, and then train indefinitely.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8</span><span class="w"> </span><span class="kn">import</span> <span class="n">TrainConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TrainConfig</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;./config.yaml&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.trainers.config.TrainConfig.env_cls">
+<span class="sig-name descname"><span class="pre">env_cls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="rl8.html#rl8.env.EnvFactory" title="rl8.env.EnvFactory"><span class="pre">EnvFactory</span></a></em><a class="headerlink" href="#rl8.trainers.config.TrainConfig.env_cls" title="Permalink to this definition"></a></dt>
+<dd><p>Environment class to instantiate an algorithm with.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.trainers.config.TrainConfig.algorithm_config">
+<span class="sig-name descname"><span class="pre">algorithm_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#rl8.trainers.config.TrainConfig.algorithm_config" title="Permalink to this definition"></a></dt>
+<dd><p>Algorithm hyperparameters and config to build an algorithm with.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.trainers.config.TrainConfig.recurrent">
+<span class="sig-name descname"><span class="pre">recurrent</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#rl8.trainers.config.TrainConfig.recurrent" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to instantiate a recurrent variant of the algorithm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.trainers.config.TrainConfig.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#rl8.trainers.Trainer" title="rl8.trainers._feedforward.Trainer"><span class="pre">Trainer</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#rl8.trainers.RecurrentTrainer" title="rl8.trainers._recurrent.RecurrentTrainer"><span class="pre">RecurrentTrainer</span></a></span></span><a class="reference internal" href="../_modules/rl8/trainers/config.html#TrainConfig.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.trainers.config.TrainConfig.build" title="Permalink to this definition"></a></dt>
+<dd><p>Instantiate a trainer from the train config.</p>
+<p>Null fields are removed from the train config before being unpacked
+into the trainer’s constructor (so the default values on the trainer
+are used to instantiate the trainer). The trainer type (i.e., recurrent
+or feedforward) is specified by the <a href="#id1"><span class="problematic" id="id2">``</span></a>recurrent` attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A trainer based on the train config values.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8</span><span class="w"> </span><span class="kn">import</span> <span class="n">TrainConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteDummyEnv</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trainer</span> <span class="o">=</span> <span class="n">TrainConfig</span><span class="p">(</span><span class="n">DiscreteDummyEnv</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.trainers.config.TrainConfig.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/pathlib.html#pathlib.Path" title="(in Python v3.10)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#rl8.trainers.config.TrainConfig" title="rl8.trainers.config.TrainConfig"><span class="pre">TrainConfig</span></a></span></span><a class="reference internal" href="../_modules/rl8/trainers/config.html#TrainConfig.from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.trainers.config.TrainConfig.from_file" title="Permalink to this definition"></a></dt>
+<dd><p>Instantiate a <a class="reference internal" href="#rl8.trainers.config.TrainConfig" title="rl8.trainers.config.TrainConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">TrainConfig</span></code></a> from a JSON or YAML file.</p>
+<p>The JSON or YAML file should have fields with the same type
+as the dataclass fields except for:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“env_cls”</p></li>
+<li><p>“model_cls”</p></li>
+<li><p>“distribution_cls”</p></li>
+<li><p>“optimizer_cls”</p></li>
+</ul>
+</div></blockquote>
+<p>These fields should be fully qualified paths to their definitions.
+As an example, if one were to use a custom package <code class="docutils literal notranslate"><span class="pre">my_package</span></code>
+with submodule <code class="docutils literal notranslate"><span class="pre">envs</span></code> and environment class <code class="docutils literal notranslate"><span class="pre">MyEnv</span></code>, they would
+set <code class="docutils literal notranslate"><span class="pre">&quot;env_cls&quot;</span></code> to <code class="docutils literal notranslate"><span class="pre">&quot;my_package.envs.MyEnv&quot;</span></code>.</p>
+<p>Definitions specified in these fields will be dynamically imported
+from their respective packages and modules. A current limitation is
+these field specifications must point to an installed package and
+can’t be from relative file locations (e.g., something like
+<code class="docutils literal notranslate"><span class="pre">&quot;..my_package.envs.MyEnv&quot;</span></code> will not work).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> – Pathlike to the JSON or YAML file to read.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A train config based on the given file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-rl8.trainers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-rl8.trainers" title="Permalink to this heading"></a></h2>
+<p>Definitions related to PPO trainers (abstractions over algorithms
+and interfaces between those algorithms and other tools).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.trainers.GenericTrainerBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.trainers.</span></span><span class="sig-name descname"><span class="pre">GenericTrainerBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_Algorithm</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/trainers/_base.html#GenericTrainerBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.trainers.GenericTrainerBase" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Generic" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">_Algorithm</span></code>]</p>
+<p>The base trainer interface.</p>
+<p>All trainers (the higher-level training interfaces) inherit from this
+class and are bound to a particular algorithm (i.e., one trainer per
+algorithm).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.trainers.GenericTrainerBase.algorithm">
+<span class="sig-name descname"><span class="pre">algorithm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">_Algorithm</span></em><a class="headerlink" href="#rl8.trainers.GenericTrainerBase.algorithm" title="Permalink to this definition"></a></dt>
+<dd><p>Underlying PPO algorithm, including the environment, model,
+action distribution, and hyperparameters.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.trainers.GenericTrainerBase.state">
+<span class="sig-name descname"><span class="pre">state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">TrainerState</span></em><a class="headerlink" href="#rl8.trainers.GenericTrainerBase.state" title="Permalink to this definition"></a></dt>
+<dd><p>Trainer state used for tracking a handful of running totals
+necessary for logging metrics, determining when a policy
+can be evaluated, etc..</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.trainers.GenericTrainerBase.eval">
+<span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">EvalCollectStats</span></span></span><a class="reference internal" href="../_modules/rl8/trainers/_base.html#GenericTrainerBase.eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.trainers.GenericTrainerBase.eval" title="Permalink to this definition"></a></dt>
+<dd><p>Run a single evaluation step, collecting environment transitions
+for several horizons with potentially different environment configs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env_config</strong> – Environment config override. Useful for evaluating a
+policy’s generalizability by setting the environment config
+to something different from the environment config during
+training.</p></li>
+<li><p><strong>deterministic</strong> – Whether to sample from the policy deterministically.
+This is usally <code class="docutils literal notranslate"><span class="pre">False</span></code> during learning and <code class="docutils literal notranslate"><span class="pre">True</span></code> during
+evaluation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Eval stats from the collection buffer.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3.10/library/exceptions.html#RuntimeError" title="(in Python v3.10)"><strong>RuntimeError</strong></a> – If this method is called outside of the underlying
+    algorithm’s <code class="docutils literal notranslate"><span class="pre">horizons_per_env_reset</span></code> interval.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3.10/library/exceptions.html#ValueError" title="(in Python v3.10)"><strong>ValueError</strong></a> – If the an eval environment config is provided but
+    the environment isn’t expected to use that eval environment
+    config.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.trainers.GenericTrainerBase.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_env_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps_per_eval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_conditions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="rl8.html#rl8.conditions.Condition" title="rl8.conditions.Condition"><span class="pre">rl8.conditions.Condition</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TrainStats</span></span></span><a class="reference internal" href="../_modules/rl8/trainers/_base.html#GenericTrainerBase.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.trainers.GenericTrainerBase.run" title="Permalink to this definition"></a></dt>
+<dd><p>Run the trainer and underlying algorithm until at least of of the
+<code class="docutils literal notranslate"><span class="pre">stop_conditions</span></code> is satisfied.</p>
+<p>This method runs indefinitely unless at least one stop condition is
+provided.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env_config</strong> – Environment config override. Useful for scheduling
+domain randomization.</p></li>
+<li><p><strong>eval_env_config</strong> – Environment config override during evaluations.
+Defaults to the config provided by <code class="docutils literal notranslate"><span class="pre">env_config</span></code> if not
+provided. Useful for evaluating a policy’s generalizability.</p></li>
+<li><p><strong>steps_per_eval</strong> – Number of <code class="xref py py-meth docutils literal notranslate"><span class="pre">Trainer.step()</span></code> calls before calling
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">Trainer.eval()</span></code>.</p></li>
+<li><p><strong>stop_conditions</strong> – Conditions evaluated each iteration that determines
+whether to stop training. Only one condition needs to evaluate
+as <code class="docutils literal notranslate"><span class="pre">True</span></code> for training to stop. Training will continue
+indefinitely unless a stop condition returns <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The most recent train stats when the training is stopped due
+to a stop condition being satisfied.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/exceptions.html#ValueError" title="(in Python v3.10)"><strong>ValueError</strong></a> – <ol class="arabic simple">
+<li><p>If the an eval environment config is provided but
+    the environment isn’t expected to use that eval environment
+    config, and 2) if <code class="docutils literal notranslate"><span class="pre">steps_per_eval</span></code> is not a factor of
+    the algorithm’s <code class="docutils literal notranslate"><span class="pre">horizons_per_env_reset</span></code>.</p></li>
+</ol>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.trainers.GenericTrainerBase.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TrainStats</span></span></span><a class="reference internal" href="../_modules/rl8/trainers/_base.html#GenericTrainerBase.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.trainers.GenericTrainerBase.step" title="Permalink to this definition"></a></dt>
+<dd><p>Run a single training step, collecting environment transitions
+and updating the policy with those transitions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>env_config</strong> – Environment config override. Useful for scheduling
+domain randomization.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Train stats from the policy update.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.trainers.RecurrentTrainer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.trainers.</span></span><span class="sig-name descname"><span class="pre">RecurrentTrainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_Algorithm</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/trainers/_recurrent.html#RecurrentTrainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.trainers.RecurrentTrainer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rl8.trainers.GenericTrainerBase" title="rl8.trainers._base.GenericTrainerBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericTrainerBase</span></code></a>[<a class="reference internal" href="rl8.algorithms.html#rl8.algorithms.RecurrentAlgorithm" title="rl8.algorithms._recurrent.RecurrentAlgorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">RecurrentAlgorithm</span></code></a>]</p>
+<p>Higher-level training interface that interops with other tools for
+tracking and saving experiments (i.e., MLflow).</p>
+<p>This is the preferred training interface when training recurrent
+policies in most cases.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.trainers.TrainConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.trainers.</span></span><span class="sig-name descname"><span class="pre">TrainConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_cls:</span> <span class="pre">~rl8.env.EnvFactory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm_config:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recurrent:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/trainers/config.html#TrainConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.trainers.TrainConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.10/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A helper for instantiating a trainer based on a config.</p>
+<p>It’s common to run training experiments based on some config.
+This class is introduced to reduce the need for creating some
+custom trainer config parser. This class doesn’t support all
+trainer/algorithm options/fields, but supports enough to cover
+the majority of use cases.</p>
+<p>It’s intended for this class to be instantiated from a JSON or
+YAML file, and then for the instance to build a trainer directly
+afterwards.</p>
+<p class="rubric">Examples</p>
+<p>Assume there’s some YAML config at <code class="docutils literal notranslate"><span class="pre">./config.yaml</span></code> with the
+following contents:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">env_cls</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rl8.env.DiscreteDummyEnv</span>
+<span class="nt">algorithm_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">horizon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+<span class="w">    </span><span class="nt">gamma</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+</pre></div>
+</div>
+<p>The following will instantiate a <a class="reference internal" href="#rl8.trainers.TrainConfig" title="rl8.trainers.TrainConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">TrainConfig</span></code></a> from the
+file, instantiate a trainer, and then train indefinitely.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8</span><span class="w"> </span><span class="kn">import</span> <span class="n">TrainConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TrainConfig</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;./config.yaml&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.trainers.TrainConfig.env_cls">
+<span class="sig-name descname"><span class="pre">env_cls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="rl8.html#rl8.env.EnvFactory" title="rl8.env.EnvFactory"><span class="pre">EnvFactory</span></a></em><a class="headerlink" href="#rl8.trainers.TrainConfig.env_cls" title="Permalink to this definition"></a></dt>
+<dd><p>Environment class to instantiate an algorithm with.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.trainers.TrainConfig.algorithm_config">
+<span class="sig-name descname"><span class="pre">algorithm_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/typing.html#typing.Any" title="(in Python v3.10)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#rl8.trainers.TrainConfig.algorithm_config" title="Permalink to this definition"></a></dt>
+<dd><p>Algorithm hyperparameters and config to build an algorithm with.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rl8.trainers.TrainConfig.recurrent">
+<span class="sig-name descname"><span class="pre">recurrent</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#rl8.trainers.TrainConfig.recurrent" title="Permalink to this definition"></a></dt>
+<dd><p>Whether to instantiate a recurrent variant of the algorithm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.trainers.TrainConfig.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#rl8.trainers.Trainer" title="rl8.trainers._feedforward.Trainer"><span class="pre">Trainer</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#rl8.trainers.RecurrentTrainer" title="rl8.trainers._recurrent.RecurrentTrainer"><span class="pre">RecurrentTrainer</span></a></span></span><a class="reference internal" href="../_modules/rl8/trainers/config.html#TrainConfig.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.trainers.TrainConfig.build" title="Permalink to this definition"></a></dt>
+<dd><p>Instantiate a trainer from the train config.</p>
+<p>Null fields are removed from the train config before being unpacked
+into the trainer’s constructor (so the default values on the trainer
+are used to instantiate the trainer). The trainer type (i.e., recurrent
+or feedforward) is specified by the <a href="#id3"><span class="problematic" id="id4">``</span></a>recurrent` attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A trainer based on the train config values.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8</span><span class="w"> </span><span class="kn">import</span> <span class="n">TrainConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteDummyEnv</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trainer</span> <span class="o">=</span> <span class="n">TrainConfig</span><span class="p">(</span><span class="n">DiscreteDummyEnv</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="rl8.trainers.TrainConfig.from_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/pathlib.html#pathlib.Path" title="(in Python v3.10)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#rl8.trainers.config.TrainConfig" title="rl8.trainers.config.TrainConfig"><span class="pre">TrainConfig</span></a></span></span><a class="reference internal" href="../_modules/rl8/trainers/config.html#TrainConfig.from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.trainers.TrainConfig.from_file" title="Permalink to this definition"></a></dt>
+<dd><p>Instantiate a <a class="reference internal" href="#rl8.trainers.TrainConfig" title="rl8.trainers.TrainConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">TrainConfig</span></code></a> from a JSON or YAML file.</p>
+<p>The JSON or YAML file should have fields with the same type
+as the dataclass fields except for:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“env_cls”</p></li>
+<li><p>“model_cls”</p></li>
+<li><p>“distribution_cls”</p></li>
+<li><p>“optimizer_cls”</p></li>
+</ul>
+</div></blockquote>
+<p>These fields should be fully qualified paths to their definitions.
+As an example, if one were to use a custom package <code class="docutils literal notranslate"><span class="pre">my_package</span></code>
+with submodule <code class="docutils literal notranslate"><span class="pre">envs</span></code> and environment class <code class="docutils literal notranslate"><span class="pre">MyEnv</span></code>, they would
+set <code class="docutils literal notranslate"><span class="pre">&quot;env_cls&quot;</span></code> to <code class="docutils literal notranslate"><span class="pre">&quot;my_package.envs.MyEnv&quot;</span></code>.</p>
+<p>Definitions specified in these fields will be dynamically imported
+from their respective packages and modules. A current limitation is
+these field specifications must point to an installed package and
+can’t be from relative file locations (e.g., something like
+<code class="docutils literal notranslate"><span class="pre">&quot;..my_package.envs.MyEnv&quot;</span></code> will not work).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> – Pathlike to the JSON or YAML file to read.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A train config based on the given file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="rl8.trainers.Trainer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rl8.trainers.</span></span><span class="sig-name descname"><span class="pre">Trainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_Algorithm</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl8/trainers/_feedforward.html#Trainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.trainers.Trainer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#rl8.trainers.GenericTrainerBase" title="rl8.trainers._base.GenericTrainerBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericTrainerBase</span></code></a>[<a class="reference internal" href="rl8.algorithms.html#rl8.algorithms.Algorithm" title="rl8.algorithms._feedforward.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a>]</p>
+<p>Higher-level training interface that interops with other tools for
+tracking and saving experiments (i.e., MLflow).</p>
+<p>This is the preferred training interface when training feedforward
+(i.e., non-recurrent) policies in most cases.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rl8.policies.html" class="btn btn-neutral float-left" title="rl8.policies package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Andrew B.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

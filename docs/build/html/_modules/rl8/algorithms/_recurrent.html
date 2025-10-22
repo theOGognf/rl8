@@ -1,0 +1,862 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rl8.algorithms._recurrent &mdash; rl8  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+
+  
+      <script src="../../../_static/jquery.js"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+      <script src="../../../_static/doctools.js"></script>
+      <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/clipboard.min.js"></script>
+      <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            rl8
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">rl8</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">rl8.algorithms._recurrent</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rl8.algorithms._recurrent</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.amp</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">amp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.optim</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">optim</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.amp.grad_scaler</span><span class="w"> </span><span class="kn">import</span> <span class="n">GradScaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchrl.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Composite</span><span class="p">,</span> <span class="n">Unbounded</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">Batcher</span><span class="p">,</span> <span class="n">StatTracker</span><span class="p">,</span> <span class="n">assert_nd_spec</span><span class="p">,</span> <span class="n">profile_ms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..data</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CollectStats</span><span class="p">,</span>
+    <span class="n">DataKeys</span><span class="p">,</span>
+    <span class="n">Device</span><span class="p">,</span>
+    <span class="n">RecurrentAlgorithmHparams</span><span class="p">,</span>
+    <span class="n">RecurrentAlgorithmState</span><span class="p">,</span>
+    <span class="n">StepStats</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Distribution</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..env</span><span class="w"> </span><span class="kn">import</span> <span class="n">EnvFactory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..models</span><span class="w"> </span><span class="kn">import</span> <span class="n">RecurrentModel</span><span class="p">,</span> <span class="n">RecurrentModelFactory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">generalized_advantage_estimate</span><span class="p">,</span> <span class="n">ppo_losses</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..policies</span><span class="w"> </span><span class="kn">import</span> <span class="n">RecurrentPolicy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..schedulers</span><span class="w"> </span><span class="kn">import</span> <span class="n">EntropyScheduler</span><span class="p">,</span> <span class="n">LRScheduler</span><span class="p">,</span> <span class="n">ScheduleKind</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._base</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericAlgorithmBase</span>
+
+
+<div class="viewcode-block" id="RecurrentAlgorithmConfig"><a class="viewcode-back" href="../../../api/rl8.algorithms.html#rl8.algorithms.RecurrentAlgorithmConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RecurrentAlgorithmConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Recurrent algorithm config for building a recurrent PPO algorithm.&quot;&quot;&quot;</span>
+
+    <span class="c1">#: Model instance to use. Mutually exclusive with ``model_cls``.</span>
+    <span class="n">model</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">RecurrentModel</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#: Optional custom policy model definition. A model class</span>
+    <span class="c1">#: is provided for you based on the environment instance&#39;s specs</span>
+    <span class="c1">#: if you don&#39;t provide one. Defaults to a simple feedforward</span>
+    <span class="c1">#: neural network.</span>
+    <span class="n">model_cls</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">RecurrentModelFactory</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#: Optional policy model config unpacked into the model</span>
+    <span class="c1">#: during instantiation.</span>
+    <span class="n">model_config</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#: Custom policy action distribution class.</span>
+    <span class="c1">#: If not provided, an action distribution class is inferred from the</span>
+    <span class="c1">#: environment specs. Defaults to a categorical distribution for discrete</span>
+    <span class="c1">#: actions and a normal distribution for continuous actions. Complex</span>
+    <span class="c1">#: actions are not supported by default distributions.</span>
+    <span class="n">distribution_cls</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">type</span><span class="p">[</span><span class="n">Distribution</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#: Number of environment transitions to collect during :meth:`RecurrentAlgorithm.collect`.</span>
+    <span class="c1">#: The environment resets according to ``horizons_per_env_reset``.</span>
+    <span class="c1">#: Buffer size is [B, T] where T = horizon.</span>
+    <span class="n">horizon</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span>
+
+    <span class="c1">#: Number of times :meth:`RecurrentAlgorithm.collect` can be called before resetting</span>
+    <span class="c1">#: :attr:`RecurrentAlgorithm.env`. Increase this for cross-horizon learning. Default</span>
+    <span class="c1">#: 1 resets after every horizon.</span>
+    <span class="n">horizons_per_env_reset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1">#: Number of parallelized environment instances.</span>
+    <span class="c1">#: Determines buffer size [B, T] where B = num_envs.</span>
+    <span class="n">num_envs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8192</span>
+
+    <span class="c1">#: Truncated backpropagation through time sequence length.</span>
+    <span class="c1">#: Not necessarily the sequence length the recurrent states</span>
+    <span class="c1">#: are propagated for prior to being reset. This parameter</span>
+    <span class="c1">#: coupled with ``seqs_per_state_reset`` controls how many environment transitions</span>
+    <span class="c1">#: are made before recurrent model states are reset or reinitialized.</span>
+    <span class="n">seq_len</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span>
+
+    <span class="c1">#: Number of sequences made within</span>
+    <span class="c1">#: :meth:`RecurrentAlgorithm.collect` before recurrent model states</span>
+    <span class="c1">#: are reset or reinitialized. Recurrent model states are never reset or</span>
+    <span class="c1">#: reinitialized if this parameter is negative.</span>
+    <span class="n">seqs_per_state_reset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span>
+
+    <span class="c1">#: Custom optimizer class. Defaults to a simple, low-tuning optimizer.</span>
+    <span class="n">optimizer_cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">optim</span><span class="o">.</span><span class="n">Optimizer</span><span class="p">]</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span>
+
+    <span class="c1">#: Configuration passed to the optimizer during instantiation.</span>
+    <span class="n">optimizer_config</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#: Whether to accumulate gradients across minibatches before stepping the</span>
+    <span class="c1">#: optimizer. Increases effective batch size while minimizing memory usage.</span>
+    <span class="n">accumulate_grads</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1">#: Whether to enable Automatic Mixed Precision (AMP) for faster and more</span>
+    <span class="c1">#: memory-efficient training.</span>
+    <span class="n">enable_amp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1">#: Optional schedule controlling the optimizer&#39;s learning rate over</span>
+    <span class="c1">#: environment transitions. Keeps learning rate constant if not provided.</span>
+    <span class="n">lr_schedule</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#: Learning rate scheduler type if lr_schedule is provided.</span>
+    <span class="c1">#: Options: ``&quot;step&quot;`` (jump and hold) or ``&quot;interp&quot;`` (interpolate between</span>
+    <span class="c1">#: values).</span>
+    <span class="n">lr_schedule_kind</span><span class="p">:</span> <span class="n">ScheduleKind</span> <span class="o">=</span> <span class="s2">&quot;step&quot;</span>
+
+    <span class="c1">#: Entropy coefficient weight in total loss.</span>
+    <span class="c1">#: Ignored if ``entropy_coeff_schedule`` is provided.</span>
+    <span class="n">entropy_coeff</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="c1">#: Optional schedule overriding entropy_coeff based on number of environment</span>
+    <span class="c1">#: transitions.</span>
+    <span class="n">entropy_coeff_schedule</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#: Entropy scheduler type. Options:</span>
+    <span class="c1">#: ``&quot;step&quot;``: jump and hold, ``&quot;interp&quot;``: interpolate between values.</span>
+    <span class="n">entropy_coeff_schedule_kind</span><span class="p">:</span> <span class="n">ScheduleKind</span> <span class="o">=</span> <span class="s2">&quot;step&quot;</span>
+
+    <span class="c1">#: Generalized Advantage Estimation (GAE) λ parameter for controlling the</span>
+    <span class="c1">#: variance and bias tradeoff when estimating the state value function</span>
+    <span class="c1">#: from collected environment transitions. A higher value allows higher</span>
+    <span class="c1">#: variance while a lower value allows higher bias estimation but lower</span>
+    <span class="c1">#: variance.</span>
+    <span class="n">gae_lambda</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span>
+
+    <span class="c1">#: Discount reward factor often used in the Bellman operator for controlling</span>
+    <span class="c1">#: the variance and bias tradeoff in collected experienced rewards. Note,</span>
+    <span class="c1">#: this does not control the bias/variance of the state value estimation</span>
+    <span class="c1">#: and only controls the weight future rewards have on the total discounted</span>
+    <span class="c1">#: return.</span>
+    <span class="n">gamma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span>
+
+    <span class="c1">#: PPO hyperparameter for minibatch size during policy update.</span>
+    <span class="c1">#: Larger minibatches reduce update variance and accelerate CUDA computations.</span>
+    <span class="c1">#: If ``None``, the entire buffer is treated as one batch.</span>
+    <span class="n">sgd_minibatch_size</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#: PPO hyperparameter for number of SGD iterations over the collected buffer.</span>
+    <span class="n">num_sgd_iters</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span>
+
+    <span class="c1">#: Whether to shuffle minibatches within :meth:`RecurrentAlgorithm.step`. Recommended, but</span>
+    <span class="c1">#: not necessary if the minibatch size is large enough (e.g., the buffer is the</span>
+    <span class="c1">#: batch).</span>
+    <span class="n">shuffle_minibatches</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1">#: PPO hyperparameter indicating the max distance the policy can update away from</span>
+    <span class="c1">#: previously collected policy sample data with respect to likelihoods of taking</span>
+    <span class="c1">#: actions conditioned on observations. This is the main innovation of PPO.</span>
+    <span class="n">clip_param</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span>
+
+    <span class="c1">#: PPO hyperparameter similar to ``clip_param`` but for the value function estimate.</span>
+    <span class="c1">#: A measure of max distance the model&#39;s value function is allowed to update away</span>
+    <span class="c1">#: from previous value function samples.</span>
+    <span class="n">vf_clip_param</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span>
+
+    <span class="c1">#: PPO hyperparameter that clips like ``clip_param`` but when advantage estimations</span>
+    <span class="c1">#: are negative. Helps prevent instability for continuous action spaces when</span>
+    <span class="c1">#: policies are making large updates. Leave ``None`` for this clip to not apply.</span>
+    <span class="c1">#: Otherwise, typical values are around ``5``.</span>
+    <span class="n">dual_clip_param</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#: Value function loss component weight. Only needs to be tuned when the policy</span>
+    <span class="c1">#: and value function share parameters.</span>
+    <span class="n">vf_coeff</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="c1">#: Target maximum KL divergence when updating the policy. If approximate KL</span>
+    <span class="c1">#: divergence is greater than this value, then policy updates stop early for</span>
+    <span class="c1">#: that algorithm step. If this is left `None then early stopping doesn&#39;t occur.</span>
+    <span class="c1">#: A higher value means the policy is allowed to diverge more from the previous</span>
+    <span class="c1">#: policy during updates.</span>
+    <span class="n">target_kl_div</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#: Max gradient norm allowed when updating the policy&#39;s model within</span>
+    <span class="c1">#: :meth:`Algorithm.step`.</span>
+    <span class="n">max_grad_norm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span>
+
+    <span class="c1">#: Whether to normalize advantages computed for GAE using the batch&#39;s</span>
+    <span class="c1">#: mean and standard deviation. This has been shown to generally improve</span>
+    <span class="c1">#: convergence speed and performance and should usually be ``True``.</span>
+    <span class="n">normalize_advantages</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1">#: Whether to normalize rewards using reversed discounted returns as</span>
+    <span class="c1">#: from https://arxiv.org/pdf/2005.12729.pdf. Reward normalization,</span>
+    <span class="c1">#: although not exactly correct and optimal, typically improves</span>
+    <span class="c1">#: convergence speed and performance and should usually be ``True``.</span>
+    <span class="n">normalize_rewards</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1">#: Device :attr:`RecurrentAlgorithm.env`, :attr:`RecurrentAlgorithm.buffer`, and</span>
+    <span class="c1">#: :attr:`RecurrentAlgorithm.policy` all reside on.</span>
+    <span class="n">device</span><span class="p">:</span> <span class="n">Device</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span>
+
+<div class="viewcode-block" id="RecurrentAlgorithmConfig.build"><a class="viewcode-back" href="../../../api/rl8.algorithms.html#rl8.algorithms.RecurrentAlgorithmConfig.build">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_cls</span><span class="p">:</span> <span class="n">EnvFactory</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RecurrentAlgorithm&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build and validate a :class:RecurrentAlgorithm` from a config.&quot;&quot;&quot;</span>
+        <span class="n">algo</span> <span class="o">=</span> <span class="n">RecurrentAlgorithm</span><span class="p">(</span><span class="n">env_cls</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">algo</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">algo</span></div></div>
+
+
+<div class="viewcode-block" id="RecurrentAlgorithm"><a class="viewcode-back" href="../../../api/rl8.algorithms.html#rl8.algorithms.RecurrentAlgorithm">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">RecurrentAlgorithm</span><span class="p">(</span>
+    <span class="n">GenericAlgorithmBase</span><span class="p">[</span>
+        <span class="n">RecurrentAlgorithmHparams</span><span class="p">,</span> <span class="n">RecurrentAlgorithmState</span><span class="p">,</span> <span class="n">RecurrentPolicy</span>
+    <span class="p">]</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An optimized recurrent `PPO`_ algorithm with common tricks for stabilizing</span>
+<span class="sd">    and accelerating learning.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        env_cls: Highly parallelized environment for sampling experiences.</span>
+<span class="sd">            Instantiated with ``env_config``. Will be stepped for ``horizon``</span>
+<span class="sd">            each :meth:`RecurrentAlgorithm.collect` call.</span>
+<span class="sd">        config: Recurrent algorithm config for building a recurrent PPO</span>
+<span class="sd">            algorithm. See :class:`RecurrentAlgorithmConfig` for all parameters.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        Instantiate an algorithm for a dummy environment and update tne underlying</span>
+<span class="sd">        policy once.</span>
+
+<span class="sd">        &gt;&gt;&gt; from rl8 import RecurrentAlgorithmConfig</span>
+<span class="sd">        &gt;&gt;&gt; from rl8.env import DiscreteDummyEnv</span>
+<span class="sd">        &gt;&gt;&gt; algo = RecurrentAlgorithmConfig.build(DiscreteDummyEnv)</span>
+<span class="sd">        &gt;&gt;&gt; algo.collect()  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; algo.step()  # doctest: +SKIP</span>
+
+<span class="sd">    .. _`PPO`: https://arxiv.org/pdf/1707.06347.pdf</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">env_cls</span><span class="p">:</span> <span class="n">EnvFactory</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">RecurrentAlgorithmConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">RecurrentAlgorithmConfig</span><span class="p">()</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+            <span class="s2">&quot;cuda&quot;</span>
+            <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
+            <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">device</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span>
+            <span class="k">else</span> <span class="n">config</span><span class="o">.</span><span class="n">device</span>
+        <span class="p">)</span>
+        <span class="n">max_num_envs</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">env_cls</span><span class="o">.</span><span class="n">max_num_envs</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">env_cls</span><span class="p">,</span> <span class="s2">&quot;max_num_envs&quot;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">config</span><span class="o">.</span><span class="n">num_envs</span>
+        <span class="p">)</span>
+        <span class="n">num_envs</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">num_envs</span><span class="p">,</span> <span class="n">max_num_envs</span><span class="p">)</span>
+        <span class="n">max_horizon</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">env_cls</span><span class="o">.</span><span class="n">max_horizon</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">env_cls</span><span class="p">,</span> <span class="s2">&quot;max_horizon&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="mi">1_000_000</span>
+        <span class="p">)</span>
+        <span class="n">horizon</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">horizon</span><span class="p">,</span> <span class="n">max_horizon</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">env_cls</span><span class="p">(</span><span class="n">num_envs</span><span class="p">,</span> <span class="n">horizon</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">assert_nd_spec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_spec</span><span class="p">)</span>
+        <span class="n">assert_nd_spec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">=</span> <span class="n">RecurrentPolicy</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_spec</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_spec</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">model_cls</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">model_cls</span><span class="p">,</span>
+            <span class="n">model_config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">model_config</span><span class="p">,</span>
+            <span class="n">distribution_cls</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">distribution_cls</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer_spec</span> <span class="o">=</span> <span class="n">Composite</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_spec</span><span class="p">,</span>
+                <span class="n">DataKeys</span><span class="o">.</span><span class="n">STATES</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">state_spec</span><span class="p">,</span>
+                <span class="n">DataKeys</span><span class="o">.</span><span class="n">REWARDS</span><span class="p">:</span> <span class="n">Unbounded</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">),</span>
+                <span class="n">DataKeys</span><span class="o">.</span><span class="n">ACTIONS</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_spec</span><span class="p">,</span>
+                <span class="n">DataKeys</span><span class="o">.</span><span class="n">LOGP</span><span class="p">:</span> <span class="n">Unbounded</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">),</span>
+                <span class="n">DataKeys</span><span class="o">.</span><span class="n">VALUES</span><span class="p">:</span> <span class="n">Unbounded</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">),</span>
+                <span class="n">DataKeys</span><span class="o">.</span><span class="n">ADVANTAGES</span><span class="p">:</span> <span class="n">Unbounded</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">),</span>
+                <span class="n">DataKeys</span><span class="o">.</span><span class="n">RETURNS</span><span class="p">:</span> <span class="n">Unbounded</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">normalize_rewards</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer_spec</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+                <span class="n">DataKeys</span><span class="o">.</span><span class="n">REVERSED_DISCOUNTED_RETURNS</span><span class="p">,</span>
+                <span class="n">Unbounded</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer_spec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer_spec</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer_spec</span><span class="o">.</span><span class="n">zero</span><span class="p">([</span><span class="n">num_envs</span><span class="p">,</span> <span class="n">horizon</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">optimizer_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">optimizer_config</span> <span class="ow">or</span> <span class="p">{</span><span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">}</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">optimizer_cls</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="o">**</span><span class="n">optimizer_config</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lr_scheduler</span> <span class="o">=</span> <span class="n">LRScheduler</span><span class="p">(</span>
+            <span class="n">optimizer</span><span class="p">,</span>
+            <span class="n">schedule</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">lr_schedule</span><span class="p">,</span>
+            <span class="n">kind</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">lr_schedule_kind</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entropy_scheduler</span> <span class="o">=</span> <span class="n">EntropyScheduler</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">entropy_coeff</span><span class="p">,</span>
+            <span class="n">schedule</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">entropy_coeff_schedule</span><span class="p">,</span>
+            <span class="n">kind</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">entropy_coeff_schedule_kind</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">sgd_minibatch_size</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">sgd_minibatch_size</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">sgd_minibatch_size</span>
+            <span class="k">else</span> <span class="n">num_envs</span> <span class="o">*</span> <span class="p">(</span><span class="n">horizon</span> <span class="o">//</span> <span class="n">config</span><span class="o">.</span><span class="n">seq_len</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span> <span class="o">=</span> <span class="n">RecurrentAlgorithmHparams</span><span class="p">(</span>
+            <span class="n">accumulate_grads</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">accumulate_grads</span><span class="p">,</span>
+            <span class="n">clip_param</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">clip_param</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">device</span><span class="p">),</span>
+            <span class="n">dual_clip_param</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">dual_clip_param</span><span class="p">,</span>
+            <span class="n">enable_amp</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">enable_amp</span><span class="p">,</span>
+            <span class="n">gae_lambda</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">gae_lambda</span><span class="p">,</span>
+            <span class="n">gamma</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">gamma</span><span class="p">,</span>
+            <span class="n">horizon</span><span class="o">=</span><span class="n">horizon</span><span class="p">,</span>
+            <span class="n">horizons_per_env_reset</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">horizons_per_env_reset</span><span class="p">,</span>
+            <span class="n">max_grad_norm</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">max_grad_norm</span><span class="p">,</span>
+            <span class="n">normalize_advantages</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">normalize_advantages</span><span class="p">,</span>
+            <span class="n">normalize_rewards</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">normalize_rewards</span><span class="p">,</span>
+            <span class="n">num_envs</span><span class="o">=</span><span class="n">num_envs</span><span class="p">,</span>
+            <span class="n">num_sgd_iters</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">num_sgd_iters</span><span class="p">,</span>
+            <span class="n">seq_len</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">seq_len</span><span class="p">,</span>
+            <span class="n">seqs_per_state_reset</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">seqs_per_state_reset</span><span class="p">,</span>
+            <span class="n">sgd_minibatch_size</span><span class="o">=</span><span class="n">sgd_minibatch_size</span><span class="p">,</span>
+            <span class="n">shuffle_minibatches</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">shuffle_minibatches</span><span class="p">,</span>
+            <span class="n">target_kl_div</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">target_kl_div</span><span class="p">,</span>
+            <span class="n">vf_clip_param</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">vf_clip_param</span><span class="p">,</span>
+            <span class="n">vf_coeff</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">vf_coeff</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">RecurrentAlgorithmState</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grad_scaler</span> <span class="o">=</span> <span class="n">GradScaler</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">enable_amp</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RecurrentAlgorithm.collect"><a class="viewcode-back" href="../../../api/rl8.algorithms.html#rl8.algorithms.RecurrentAlgorithm.collect">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">collect</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">env_config</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CollectStats</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Collect environment transitions and policy samples in a buffer.</span>
+
+<span class="sd">        This is one of the main :class:`RecurrentAlgorithm` methods. This is usually</span>
+<span class="sd">        called immediately prior to :meth:`RecurrentAlgorithm.step` to collect</span>
+<span class="sd">        experiences used for learning.</span>
+
+<span class="sd">        The environment is reset immediately prior to collecting</span>
+<span class="sd">        transitions according to ``horizons_per_env_reset``. If</span>
+<span class="sd">        the environment isn&#39;t reset, then the last observation is used as</span>
+<span class="sd">        the initial observation.</span>
+
+<span class="sd">        This method sets the ``buffered`` flag to enable calling</span>
+<span class="sd">        of :meth:`RecurrentAlgorithm.step` so it isn&#39;t called with dummy data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            env_config: Optional config to pass to the environment&#39;s reset</span>
+<span class="sd">                method. This isn&#39;t used if the environment isn&#39;t scheduled</span>
+<span class="sd">                to be reset according to ``horizons_per_env_reset``.</span>
+<span class="sd">            deterministic: Whether to sample from the policy deterministically.</span>
+<span class="sd">                This is usally ``False`` during learning and ``True`` during</span>
+<span class="sd">                evaluation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Summary statistics related to the collected experiences and</span>
+<span class="sd">            policy samples.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">profile_ms</span><span class="p">()</span> <span class="k">as</span> <span class="n">collect_timer</span><span class="p">:</span>
+            <span class="c1"># Gather initial observation and states.</span>
+            <span class="n">env_was_reset</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">horizons</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">horizons_per_env_reset</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">][</span>
+                    <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span>
+                <span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">normalize_rewards</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">REVERSED_DISCOUNTED_RETURNS</span><span class="p">][</span>
+                        <span class="p">:,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">...</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">REVERSED_DISCOUNTED_RETURNS</span><span class="p">][:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">horizons</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">horizons_per_env_reset</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">env_config</span><span class="p">)</span>
+                <span class="n">env_was_reset</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">normalize_rewards</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">REVERSED_DISCOUNTED_RETURNS</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">][</span>
+                    <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span>
+                <span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">normalize_rewards</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">REVERSED_DISCOUNTED_RETURNS</span><span class="p">][</span>
+                        <span class="p">:,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">...</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">REVERSED_DISCOUNTED_RETURNS</span><span class="p">][:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">STATES</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">STATES</span><span class="p">][</span>
+                <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span>
+            <span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">horizon</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">seqs</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">seqs_per_state_reset</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="p">(</span><span class="n">t</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">seq_len</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">seqs</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">seqs_per_state_reset</span>
+                <span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">STATES</span><span class="p">][:,</span> <span class="n">t</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">init_states</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">num_envs</span>
+                    <span class="p">)</span>
+
+                <span class="c1"># Sample the policy and step the environment.</span>
+                <span class="n">in_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[:,</span> <span class="n">t</span> <span class="p">:</span> <span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="o">...</span><span class="p">]</span>
+                <span class="n">in_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">STATES</span><span class="p">][:,</span> <span class="n">t</span> <span class="p">:</span> <span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="o">...</span><span class="p">]</span>
+                <span class="n">sample_batch</span><span class="p">,</span> <span class="n">sample_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
+                    <span class="n">in_batch</span><span class="p">,</span>
+                    <span class="n">in_states</span><span class="p">,</span>
+                    <span class="n">deterministic</span><span class="o">=</span><span class="n">deterministic</span><span class="p">,</span>
+                    <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">return_actions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">return_logp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">return_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">out_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">sample_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">ACTIONS</span><span class="p">])</span>
+
+                <span class="c1"># Getting reversed discounted returns for normalizing reward</span>
+                <span class="c1"># scale during GAE. This isn&#39;t exactly correct according to</span>
+                <span class="c1"># theory but works in practice.</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">normalize_rewards</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">REVERSED_DISCOUNTED_RETURNS</span><span class="p">][:,</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">gamma</span>
+                        <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">REVERSED_DISCOUNTED_RETURNS</span><span class="p">][:,</span> <span class="n">t</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+                        <span class="o">+</span> <span class="n">out_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">REWARDS</span><span class="p">]</span>
+                    <span class="p">)</span>
+
+                <span class="c1"># Update the buffer using sampled policy data and environment</span>
+                <span class="c1"># transition data.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">ACTIONS</span><span class="p">][:,</span> <span class="n">t</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_batch</span><span class="p">[</span>
+                    <span class="n">DataKeys</span><span class="o">.</span><span class="n">ACTIONS</span>
+                <span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">LOGP</span><span class="p">][:,</span> <span class="n">t</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">LOGP</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">VALUES</span><span class="p">][:,</span> <span class="n">t</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">VALUES</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">REWARDS</span><span class="p">][:,</span> <span class="n">t</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">REWARDS</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">][:,</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">STATES</span><span class="p">][:,</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_states</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">seq_len</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">seqs</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># Sample features and value function at last observation.</span>
+            <span class="n">in_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">:,</span> <span class="o">...</span><span class="p">]</span>
+            <span class="n">in_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">STATES</span><span class="p">][:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">:,</span> <span class="o">...</span><span class="p">]</span>
+            <span class="n">sample_batch</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
+                <span class="n">in_batch</span><span class="p">,</span>
+                <span class="n">in_states</span><span class="p">,</span>
+                <span class="n">deterministic</span><span class="o">=</span><span class="n">deterministic</span><span class="p">,</span>
+                <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">return_actions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">return_logp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">return_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">VALUES</span><span class="p">][:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">VALUES</span><span class="p">]</span>
+
+            <span class="c1"># Aggregate some metrics.</span>
+            <span class="n">rewards</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">REWARDS</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+            <span class="n">returns</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rewards</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">returns_std</span><span class="p">,</span> <span class="n">returns_mean</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">std_mean</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
+            <span class="n">rewards_std</span><span class="p">,</span> <span class="n">rewards_mean</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">std_mean</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
+            <span class="n">collect_stats</span><span class="p">:</span> <span class="n">CollectStats</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;returns/min&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">returns</span><span class="p">)),</span>
+                <span class="s2">&quot;returns/max&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">returns</span><span class="p">)),</span>
+                <span class="s2">&quot;returns/mean&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">returns_mean</span><span class="p">),</span>
+                <span class="s2">&quot;returns/std&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">returns_std</span><span class="p">),</span>
+                <span class="s2">&quot;rewards/min&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">rewards</span><span class="p">)),</span>
+                <span class="s2">&quot;rewards/max&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">rewards</span><span class="p">)),</span>
+                <span class="s2">&quot;rewards/mean&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">rewards_mean</span><span class="p">),</span>
+                <span class="s2">&quot;rewards/std&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">rewards_std</span><span class="p">),</span>
+            <span class="p">}</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">horizons</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">buffered</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">reward_scale</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">float</span><span class="p">(</span>
+                    <span class="n">torch</span><span class="o">.</span><span class="n">std</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">REVERSED_DISCOUNTED_RETURNS</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">:,</span> <span class="o">...</span><span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">normalize_rewards</span>
+                <span class="k">else</span> <span class="mf">1.0</span>
+            <span class="p">)</span>
+
+        <span class="n">collect_stats</span><span class="p">[</span><span class="s2">&quot;env/resets&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">num_envs</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">env_was_reset</span><span class="p">)</span>
+        <span class="n">collect_stats</span><span class="p">[</span><span class="s2">&quot;env/steps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">num_envs</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">horizon</span>
+        <span class="n">collect_stats</span><span class="p">[</span><span class="s2">&quot;profiling/collect_ms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">collect_timer</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">collect_stats</span></div>
+
+<div class="viewcode-block" id="RecurrentAlgorithm.step"><a class="viewcode-back" href="../../../api/rl8.algorithms.html#rl8.algorithms.RecurrentAlgorithm.step">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepStats</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Take a step with the algorithm, using collected environment</span>
+<span class="sd">        experiences to update the policy.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Data associated with the step (losses, loss coefficients, etc.).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">buffered</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is not buffered. &quot;</span>
+                <span class="s2">&quot;Call `collect` once prior to `step`.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">profile_ms</span><span class="p">()</span> <span class="k">as</span> <span class="n">step_timer</span><span class="p">:</span>
+            <span class="c1"># Generalized Advantage Estimation (GAE) and returns bootstrapping.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">generalized_advantage_estimate</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span>
+                <span class="n">gae_lambda</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">gae_lambda</span><span class="p">,</span>
+                <span class="n">gamma</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">gamma</span><span class="p">,</span>
+                <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">normalize_advantages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">normalize_advantages</span><span class="p">,</span>
+                <span class="n">return_returns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">reward_scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">reward_scale</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Batchify the buffer. Save the last sample for adding it back to the</span>
+            <span class="c1"># buffer. Remove the last sample afterwards since it contains dummy</span>
+            <span class="c1"># data.</span>
+            <span class="n">final_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">][:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+            <span class="n">final_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">STATES</span><span class="p">][:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+            <span class="c1"># Free buffer elements that aren&#39;t used for the rest of the step.</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">REWARDS</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">VALUES</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">seq_len</span><span class="p">)</span>
+
+            <span class="c1"># Main PPO loop.</span>
+            <span class="n">grad_accumulation_steps</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">num_minibatches</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">accumulate_grads</span> <span class="k">else</span> <span class="mi">1</span>
+            <span class="p">)</span>
+            <span class="n">stat_tracker</span> <span class="o">=</span> <span class="n">StatTracker</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;coefficients/entropy&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;coefficients/vf&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;losses/entropy&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;losses/policy&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;losses/vf&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;losses/total&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;monitors/kl_div&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="n">sum_keys</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;losses/entropy&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;losses/policy&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;losses/vf&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;losses/total&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;monitors/kl_div&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">batcher</span> <span class="o">=</span> <span class="n">Batcher</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span>
+                <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">sgd_minibatch_size</span><span class="p">,</span>
+                <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">shuffle_minibatches</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">stop_early</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">num_sgd_iters</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">buffer_batch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batcher</span><span class="p">):</span>
+                    <span class="n">step_this_batch</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">grad_accumulation_steps</span> <span class="o">==</span> <span class="mi">0</span>
+                    <span class="k">with</span> <span class="n">amp</span><span class="o">.</span><span class="n">autocast</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">device_type</span><span class="p">,</span>
+                        <span class="n">enabled</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">enable_amp</span><span class="p">,</span>
+                    <span class="p">):</span>
+                        <span class="n">sample_batch</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
+                            <span class="n">buffer_batch</span><span class="p">,</span>
+                            <span class="n">buffer_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">STATES</span><span class="p">],</span>
+                            <span class="n">deterministic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">return_actions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">return_logp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">return_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="n">buffer_batch</span> <span class="o">=</span> <span class="n">buffer_batch</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+                        <span class="c1"># Get action distributions and their log probability ratios.</span>
+                        <span class="n">curr_action_dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">distribution_cls</span><span class="p">(</span>
+                            <span class="n">sample_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">FEATURES</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">model</span>
+                        <span class="p">)</span>
+                        <span class="n">losses</span> <span class="o">=</span> <span class="n">ppo_losses</span><span class="p">(</span>
+                            <span class="n">buffer_batch</span><span class="p">,</span>
+                            <span class="n">sample_batch</span><span class="p">,</span>
+                            <span class="n">curr_action_dist</span><span class="p">,</span>
+                            <span class="n">clip_param</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">clip_param</span><span class="p">,</span>
+                            <span class="n">dual_clip_param</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">dual_clip_param</span><span class="p">,</span>
+                            <span class="n">entropy_coeff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">entropy_scheduler</span><span class="o">.</span><span class="n">coeff</span><span class="p">,</span>
+                            <span class="n">vf_clip_param</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">vf_clip_param</span><span class="p">,</span>
+                            <span class="n">vf_coeff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">vf_coeff</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="n">losses</span> <span class="o">=</span> <span class="n">losses</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="n">grad_accumulation_steps</span><span class="p">)</span>
+
+                    <span class="c1"># Calculate approximate KL divergence for early-stopping and</span>
+                    <span class="c1"># debugging. Early stopping is per-batch and can&#39;t be done with</span>
+                    <span class="c1"># gradient accumulation (hence approximate KL isn&#39;t compared to</span>
+                    <span class="c1"># target KL with the number of gradient accumulation steps</span>
+                    <span class="c1"># factor).</span>
+                    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+                        <span class="n">logp_ratio</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">curr_action_dist</span><span class="o">.</span><span class="n">logp</span><span class="p">(</span><span class="n">buffer_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">ACTIONS</span><span class="p">])</span>
+                            <span class="o">-</span> <span class="n">buffer_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">LOGP</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="n">approximate_kl_div</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                            <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logp_ratio</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">logp_ratio</span><span class="p">)</span>
+                        <span class="p">)</span>
+
+                    <span class="c1"># Update step data.</span>
+                    <span class="n">stat_tracker</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;coefficients/entropy&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">entropy_scheduler</span><span class="o">.</span><span class="n">coeff</span><span class="p">,</span>
+                            <span class="s2">&quot;coefficients/vf&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">vf_coeff</span><span class="p">,</span>
+                            <span class="s2">&quot;losses/entropy&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="s2">&quot;entropy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()),</span>
+                            <span class="s2">&quot;losses/policy&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="s2">&quot;policy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()),</span>
+                            <span class="s2">&quot;losses/vf&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="s2">&quot;vf&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()),</span>
+                            <span class="s2">&quot;losses/total&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()),</span>
+                            <span class="s2">&quot;monitors/kl_div&quot;</span><span class="p">:</span> <span class="n">approximate_kl_div</span>
+                            <span class="o">/</span> <span class="n">grad_accumulation_steps</span><span class="p">,</span>
+                        <span class="p">},</span>
+                        <span class="n">reduce</span><span class="o">=</span><span class="n">step_this_batch</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                    <span class="c1"># Early stopping using approximate KL divergence.</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">target_kl_div</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="ow">and</span> <span class="n">approximate_kl_div</span> <span class="o">&gt;</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">target_kl_div</span>
+                    <span class="p">):</span>
+                        <span class="n">stop_early</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+
+                    <span class="c1"># Optimize.</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">grad_scaler</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">losses</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">step_this_batch</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">grad_scaler</span><span class="o">.</span><span class="n">unscale_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">)</span>
+                        <span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">clip_grad_norm_</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">max_grad_norm</span>
+                        <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">grad_scaler</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">grad_scaler</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">stop_early</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+            <span class="c1"># Update schedulers.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">num_envs</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">horizons</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">entropy_scheduler</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">num_envs</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">horizons</span><span class="p">)</span>
+
+            <span class="c1"># Reset the buffer and buffered flag.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer_spec</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">num_envs</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">horizon</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">][:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_obs</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">STATES</span><span class="p">][:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_states</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">buffered</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="c1"># Update algo stats.</span>
+            <span class="n">step_stats</span> <span class="o">=</span> <span class="n">stat_tracker</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="n">step_stats</span><span class="p">[</span><span class="s2">&quot;profiling/step_ms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step_timer</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">step_stats</span>  <span class="c1"># type: ignore[return-value]</span></div>
+
+<div class="viewcode-block" id="RecurrentAlgorithm.validate"><a class="viewcode-back" href="../../../api/rl8.algorithms.html#rl8.algorithms.RecurrentAlgorithm.validate">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Do some validation on all the tensor/tensordict shapes within</span>
+<span class="sd">        the algorithm.</span>
+
+<span class="sd">        Helpful when the algorithm is throwing an error on mismatched tensor/tensordict</span>
+<span class="sd">        sizes. Call this at least once before running the algorithm for peace of</span>
+<span class="sd">        mind.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check initial observation and policy states.</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_spec</span><span class="o">.</span><span class="n">assert_is_in</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">obs</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The observation from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> doesn&#39;t match the&quot;</span>
+                <span class="s2">&quot; observation spec shape.&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+        <span class="n">states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">init_states</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">num_envs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">state_spec</span><span class="o">.</span><span class="n">assert_is_in</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">STATES</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">states</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="s2">&quot;The policy state from&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">init_states</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> doesn&#39;t match the&quot;</span>
+                <span class="s2">&quot; policy state spec.&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+        <span class="c1"># Sample the policy and check all outputs.</span>
+        <span class="n">in_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+        <span class="n">in_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">STATES</span><span class="p">][:,</span> <span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+        <span class="n">sample_batch</span><span class="p">,</span> <span class="n">sample_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
+            <span class="n">in_batch</span><span class="p">,</span>
+            <span class="n">in_states</span><span class="p">,</span>
+            <span class="n">deterministic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">return_actions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">return_logp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">return_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">actions</span> <span class="o">=</span> <span class="n">sample_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">ACTIONS</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">actions</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;Actions must be at least 2D and have shape ``[N, ...]`` (where ``N`` is&quot;</span>
+            <span class="s2">&quot; the number of independent elements or environment instances, and ``...``&quot;</span>
+            <span class="s2">&quot; is any number of additional dimensions).&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_spec</span><span class="o">.</span><span class="n">assert_is_in</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">ACTIONS</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">ACTIONS</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="s2">&quot;The action sampled from the policy doesn&#39;t match the action spec.&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">state_spec</span><span class="o">.</span><span class="n">assert_is_in</span><span class="p">(</span><span class="n">sample_states</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">STATES</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_states</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="s2">&quot;The policy state from&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> doesn&#39;t match the policy&quot;</span>
+                <span class="s2">&quot; state spec.&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+        <span class="k">assert</span> <span class="n">sample_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">LOGP</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">num_envs</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="p">),</span> <span class="p">(</span>
+            <span class="s2">&quot;Action log probabilities must be 2D and have shape ``[N, 1]`` (where ``N``&quot;</span>
+            <span class="s2">&quot; is the number of independent elements or environment instances).&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">sample_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">VALUES</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">num_envs</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="p">),</span> <span class="p">(</span>
+            <span class="s2">&quot;Expected value estimates must be 2D and have shape ``[N, 1]`` (where ``N``&quot;</span>
+            <span class="s2">&quot; is the number of independent elements or environment instances).&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Step the environment and check everything once more.</span>
+        <span class="n">out_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">out_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_spec</span><span class="o">.</span><span class="n">assert_is_in</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">OBS</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">obs</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The observation from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> doesn&#39;t match the&quot;</span>
+                <span class="s2">&quot; observation spec shape.&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+        <span class="k">assert</span> <span class="n">out_batch</span><span class="p">[</span><span class="n">DataKeys</span><span class="o">.</span><span class="n">REWARDS</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">num_envs</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="p">),</span> <span class="p">(</span>
+            <span class="s2">&quot;Rewards must be 2D and have shape ``[N, 1]`` (where ``N`` is the number of&quot;</span>
+            <span class="s2">&quot; independent elements or environment instances).&quot;</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Andrew B.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

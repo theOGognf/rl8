@@ -1,0 +1,384 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Start &mdash; rl8  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+
+  
+      <script src="_static/jquery.js"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+      <script src="_static/doctools.js"></script>
+      <script src="_static/sphinx_highlight.js"></script>
+      <script src="_static/clipboard.min.js"></script>
+      <script src="_static/copybutton.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CLI" href="cli.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            rl8
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">rl8</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Quick Start</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <a class="reference external image-reference" href="https://raw.githubusercontent.com/theOGognf/rl8/main/docs/_static/rl8-logo.png"><img alt="rl8 logo." src="https://raw.githubusercontent.com/theOGognf/rl8/main/docs/_static/rl8-logo.png" /></a>
+<hr class="docutils" />
+<a class="reference external image-reference" href="https://img.shields.io/pypi/dm/rl8"><img alt="PyPI Downloads" src="https://img.shields.io/pypi/dm/rl8" /></a>
+<a class="reference external image-reference" href="https://img.shields.io/pypi/v/rl8"><img alt="PyPI Version" src="https://img.shields.io/pypi/v/rl8" /></a>
+<a class="reference external image-reference" href="https://img.shields.io/pypi/pyversions/rl8"><img alt="Python Versions" src="https://img.shields.io/pypi/pyversions/rl8" /></a>
+<p><strong>rl8</strong> is a minimal, end-to-end RL library that can simulate highly
+parallelized, infinite-horizon environments, and can train a PPO policy
+using those environments, achieving up to 1M environment transitions
+(and one policy update) per second with a single NVIDIA RTX 2080.</p>
+<ul class="simple">
+<li><p><strong>Documentation</strong>: <a class="reference external" href="https://theogognf.github.io/rl8/">https://theogognf.github.io/rl8/</a></p></li>
+<li><p><strong>PyPI</strong>: <a class="reference external" href="https://pypi.org/project/rl8/">https://pypi.org/project/rl8/</a></p></li>
+<li><p><strong>Repository</strong>: <a class="reference external" href="https://github.com/theOGognf/rl8">https://github.com/theOGognf/rl8</a></p></li>
+</ul>
+<p>The figure below depicts <strong>rl8</strong>‘s experiment tracking integration with
+<a class="reference external" href="https://github.com/mlflow/mlflow">MLflow</a> and <strong>rl8</strong>‘s ability to solve reinforcement learning problems
+within seconds.</p>
+<a class="reference external image-reference" href="https://raw.githubusercontent.com/theOGognf/rl8/main/docs/_static/rl8-examples-solving-cartpole.png"><img alt="Consistently solving CartPole within seconds." src="https://raw.githubusercontent.com/theOGognf/rl8/main/docs/_static/rl8-examples-solving-cartpole.png" /></a>
+<section id="quick-start">
+<h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this heading"></a></h1>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
+<p>Install with pip for the latest stable version.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install rl8</span>
+</pre></div>
+</div>
+<p>Install from GitHub for the latest unstable version.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git clone https://github.com/theOGognf/rl8.git</span>
+<span class="go">pip install ./rl8/</span>
+</pre></div>
+</div>
+</section>
+<section id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Permalink to this heading"></a></h2>
+<p>Train a policy with PPO and log training progress with MLflow using the
+high-level trainer interface (this updates the policy indefinitely).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlgorithmConfig</span><span class="p">,</span> <span class="n">Trainer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rl8.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteDummyEnv</span>
+
+<span class="n">algo</span> <span class="o">=</span> <span class="n">AlgorithmConfig</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">DiscreteDummyEnv</span><span class="p">)</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span><span class="n">algo</span><span class="p">)</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Collect environment transitions and update a policy directly using the
+low-level algorithm interface (this updates the policy once).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlgorithmConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rl8.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteDummyEnv</span>
+
+<span class="n">algo</span> <span class="o">=</span> <span class="n">AlgorithmConfig</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">DiscreteDummyEnv</span><span class="p">)</span>
+<span class="n">algo</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="n">algo</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The trainer interface is the most popular interface for policy training
+workflows, whereas the algorithm interface is useful for lower-level
+customization of policy training workflows.</p>
+</section>
+</section>
+<section id="concepts">
+<h1>Concepts<a class="headerlink" href="#concepts" title="Permalink to this heading"></a></h1>
+<p><strong>rl8</strong> is minimal in that it limits the number of interfaces required for
+training a policy with PPO without restrictions on observation and action
+specs, custom models, and custom action distributions.</p>
+<p><strong>rl8</strong> is built around six key concepts:</p>
+<ul class="simple">
+<li><p><a href="#id1"><span class="problematic" id="id2">**</span></a><a class="reference external" href="https://theogognf.github.io/rl8/build/html/_modules/rl8/env.html#Env">The environment</a><a href="#id3"><span class="problematic" id="id4">**</span></a>: The simulation that the policy learns to interact with.
+The environment definition is a bit different from your typical environment
+definition from other RL libraries.</p></li>
+<li><p><a href="#id5"><span class="problematic" id="id6">**</span></a><a class="reference external" href="https://theogognf.github.io/rl8/build/html/_modules/rl8/models/_base.html#GenericModelBase">The model</a><a href="#id7"><span class="problematic" id="id8">**</span></a>: The policy parameterization that determines how the policy
+processes environment observations and how parameters for the action
+distribution are generated.</p></li>
+<li><p><a href="#id9"><span class="problematic" id="id10">**</span></a><a class="reference external" href="https://theogognf.github.io/rl8/build/html/_modules/rl8/distributions.html#Distribution">The action distribution</a><a href="#id11"><span class="problematic" id="id12">**</span></a>: The mechanism for representing actions
+conditioned on environment observations and model outputs. Environment
+actions are ultimately sampled from the action distribution.</p></li>
+<li><p><a href="#id13"><span class="problematic" id="id14">**</span></a><a class="reference external" href="https://theogognf.github.io/rl8/build/html/_modules/rl8/policies/_base.html#GenericPolicyBase">The policy</a><a href="#id15"><span class="problematic" id="id16">**</span></a>: The union of the model and the action distribution that
+actually calls and samples from the model and action distribution,
+respectively.</p></li>
+<li><p><a href="#id17"><span class="problematic" id="id18">**</span></a><a class="reference external" href="https://theogognf.github.io/rl8/build/html/_modules/rl8/algorithms/_base.html#GenericAlgorithmBase">The algorithm</a><a href="#id19"><span class="problematic" id="id20">**</span></a>: The PPO implementation that uses the environment to train
+the policy (i.e., update the model’s parameters).</p></li>
+<li><p><a href="#id21"><span class="problematic" id="id22">**</span></a><a class="reference external" href="https://theogognf.github.io/rl8/build/html/_modules/rl8/trainers/_base.html#GenericTrainerBase">The trainer</a><a href="#id23"><span class="problematic" id="id24">**</span></a>: The high-level interface for using the algorithm to train
+indefinitely or until some condition is met. The trainer directly integrates
+with MLflow to track experiments and training progress.</p></li>
+</ul>
+</section>
+<section id="quick-examples">
+<h1>Quick Examples<a class="headerlink" href="#quick-examples" title="Permalink to this heading"></a></h1>
+<p>These short snippets showcase <strong>rl8</strong>‘s main features. See the <a class="reference external" href="https://github.com/theOGognf/rl8/tree/main/examples">examples</a>
+for complete implementations of <strong>rl8</strong>-compatible environments and models.</p>
+<section id="customizing-training-runs">
+<h2>Customizing Training Runs<a class="headerlink" href="#customizing-training-runs" title="Permalink to this heading"></a></h2>
+<p>Use a custom distribution and custom hyperparameters by passing
+options to the trainer (or algorithm) interface.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlgorithmConfig</span><span class="p">,</span> <span class="n">Trainer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rl8.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">SquashedNormal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rl8.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContinuousDummyEnv</span>
+
+<span class="n">algo</span> <span class="o">=</span> <span class="n">AlgorithmConfig</span><span class="p">(</span>
+    <span class="n">distribution_cls</span><span class="o">=</span><span class="n">SquashedNormal</span><span class="p">,</span>
+    <span class="n">gae_lambda</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span>
+    <span class="n">gamma</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">ContinuousDummyEnv</span><span class="p">)</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span><span class="n">algo</span><span class="p">)</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="training-a-recurrent-policy">
+<h2>Training a Recurrent Policy<a class="headerlink" href="#training-a-recurrent-policy" title="Permalink to this heading"></a></h2>
+<p>Swap to the recurrent flavor of the trainer (or algorithm) interface
+to train a recurrent model and policy.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8</span><span class="w"> </span><span class="kn">import</span> <span class="n">RecurrentAlgorithmConfig</span><span class="p">,</span> <span class="n">RecurrentTrainer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rl8.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteDummyEnv</span>
+
+<span class="n">algo</span> <span class="o">=</span> <span class="n">RecurrentAlgorithmConfig</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">DiscreteDummyEnv</span><span class="p">)</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">RecurrentTrainer</span><span class="p">(</span><span class="n">algo</span><span class="p">)</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="training-on-a-gpu">
+<h2>Training on a GPU<a class="headerlink" href="#training-on-a-gpu" title="Permalink to this heading"></a></h2>
+<p>Specify the device used across the environment, model, and
+algorithm.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlgorithmConfig</span><span class="p">,</span> <span class="n">Trainer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rl8.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteDummyEnv</span>
+
+<span class="n">algo</span> <span class="o">=</span> <span class="n">AlgorithmConfig</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">DiscreteDummyEnv</span><span class="p">)</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span><span class="n">algo</span><span class="p">)</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="minimizing-gpu-memory-usage">
+<h2>Minimizing GPU Memory Usage<a class="headerlink" href="#minimizing-gpu-memory-usage" title="Permalink to this heading"></a></h2>
+<p>Enable policy updates with gradient accumulation and/or
+<a class="reference external" href="https://pytorch.org/docs/stable/amp.html">Automatic Mixed Precision (AMP)</a> to minimize GPU memory
+usage so you can simulate more environments or use larger models.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch.optim</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">optim</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">rl8</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlgorithmConfig</span><span class="p">,</span> <span class="n">Trainer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rl8.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteDummyEnv</span>
+
+<span class="n">algo</span> <span class="o">=</span> <span class="n">AlgorithmConfig</span><span class="p">(</span>
+    <span class="n">optimizer_cls</span><span class="o">=</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">,</span>
+    <span class="n">accumulate_grads</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">enable_amp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">sgd_minibatch_size</span><span class="o">=</span><span class="mi">8192</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cuda&quot;</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">DiscreteDummyEnv</span><span class="p">)</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span><span class="n">algo</span><span class="p">)</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="specifying-training-stop-conditions">
+<h2>Specifying Training Stop Conditions<a class="headerlink" href="#specifying-training-stop-conditions" title="Permalink to this heading"></a></h2>
+<p>Specify conditions based on training statistics to stop training early.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rl8</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlgorithmConfig</span><span class="p">,</span> <span class="n">Trainer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rl8.conditions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plateaus</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rl8.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteDummyEnv</span>
+
+<span class="n">algo</span> <span class="o">=</span> <span class="n">AlgorithmConfig</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">DiscreteDummyEnv</span><span class="p">)</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span><span class="n">algo</span><span class="p">)</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">stop_conditions</span><span class="o">=</span><span class="p">[</span><span class="n">Plateaus</span><span class="p">(</span><span class="s2">&quot;returns/mean&quot;</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)])</span>
+</pre></div>
+</div>
+</section>
+<section id="training-with-the-cli">
+<h2>Training with the CLI<a class="headerlink" href="#training-with-the-cli" title="Permalink to this heading"></a></h2>
+<p>Suppose <code class="docutils literal notranslate"><span class="pre">./config.yaml</span></code> contains the following.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fully qualified path to the environment&#39;s definition.</span>
+<span class="nt">env_cls</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rl8.env.ContinuousDummyEnv</span>
+
+<span class="c1"># Some custom parameters.</span>
+<span class="nt">algorithm_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">horizon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+<span class="w">    </span><span class="nt">gamma</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+</pre></div>
+</div>
+<p>Train a policy with the trainer interface using the <code class="docutils literal notranslate"><span class="pre">rl8</span> <span class="pre">train</span></code> CLI.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">rl8 train -f config.yaml</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="why-rl8">
+<h1>Why rl8?<a class="headerlink" href="#why-rl8" title="Permalink to this heading"></a></h1>
+<p><strong>TL;DR: rl8 focuses on a niche subset of RL that simplifies the overall
+library while allowing fast and fully customizable environments, models, and
+action distributions.</strong></p>
+<p>There are many high quality, open-sourced RL libraries. Most of them take on the
+daunting task of being a monolithic, one-stop-shop for everything RL, attempting to
+support as many algorithms, environments, models, and compute capabilities as possible.
+Naturely, this monolothic goal has some drawbacks:</p>
+<ul class="simple">
+<li><p>The software becomes more dense with each supported feature, making the library
+all-the-more difficult to customize for a specific use case.</p></li>
+<li><p>The software becomes less performant for a specific use case. RL practitioners
+typically end up accepting the cost of transitioning to expensive and
+difficult-to-manage compute clusters to get results faster.</p></li>
+</ul>
+<p>Rather than focusing on being a monolithic RL library, <strong>rl8</strong> fills the niche
+of maximizing training performance for a few key assumptions:</p>
+<ul class="simple">
+<li><p>Environments are highly parallelized and their parallelization is entirely
+managed within the environment. This allows <strong>rl8</strong> to ignore distributed
+computing design considerations.</p></li>
+<li><p>Environments are infinite-horizon (i.e., they have no terminal conditions).
+This allows <strong>rl8</strong> to reset environments at the same, fixed horizon
+intervals, greatly simplifying environment and algorithm implementations.</p></li>
+<li><p>The only supported ML framework is PyTorch and the only supported algorithm
+is PPO. This allows <strong>rl8</strong> to ignore layers upon layers of abstraction,
+greatly simplifying the overall library implementation.</p></li>
+</ul>
+<p>The end result is a minimal and high throughput library that can train policies
+to solve complex tasks within minutes on consumer grade compute devices.</p>
+<p>Unfortunately, this means <strong>rl8</strong> doesn’t support as many use cases as
+a monolithic RL library might. In fact, <strong>rl8</strong> is probably a bad fit for
+your use case if:</p>
+<ul class="simple">
+<li><p>Your environment isn’t parallelizable.</p></li>
+<li><p>Your environment must contain terminal conditions and can’t be reformulated
+as an infinite-horizon task.</p></li>
+<li><p>You want to use an ML framework that isn’t PyTorch or you want to use an
+algorithm that isn’t a variant of PPO.</p></li>
+</ul>
+<p>However, if <strong>rl8</strong> does fit your use case, it can do wonders for your
+RL workflow.</p>
+</section>
+<section id="related-projects">
+<h1>Related Projects<a class="headerlink" href="#related-projects" title="Permalink to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/luchris429/purejaxrl">PureJaxRL</a>: PureJaxRL is a high-performance, end-to-end RL library. Think of
+it like <strong>rl8</strong>‘s Jax equivalent, but more general in that it doesn’t focus
+on infinite-horizon tasks.</p></li>
+<li><p><a class="reference external" href="https://github.com/Denys88/rl_games">RL Games</a>: RL Games is a high performance RL library built around popular
+environment protocols.</p></li>
+<li><p><a class="reference external" href="https://docs.ray.io/en/latest/rllib/index.html">RLlib</a>: Ray’s RLlib is the industry standard RL library that supports many
+popular RL algorithms. RLlib can scale RL workloads from your laptop all the
+way to the cloud with little-to-no changes to your code.</p></li>
+<li><p><a class="reference external" href="https://github.com/alex-petrenko/sample-factory">Sample Factory</a>: Sample Factory provides an efficient and high quality
+implementation of PPO with a focus on accelerating training for a single machine
+with support for a wide variety of environment protocols.</p></li>
+<li><p><a class="reference external" href="https://github.com/Toni-SM/skrl">SKRL</a>: SKRL focuses on readability, simplicity, and transparency of RL algorithm
+implementations with support for a wide variety of environment protocols.</p></li>
+<li><p><a class="reference external" href="https://github.com/DLR-RM/stable-baselines3">Stable Baselines 3</a>: Stable Baselines 3 is a set of reliable and user-friendly
+RL algorithm implementations that integrate with a rich set of features desirable
+by most practitioners and use cases.</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/rl">TorchRL</a>: TorchRL is PyTorch’s RL library that’s focused on efficient, modular,
+documented, and tested RL building blocks and algorithm implementations aimed
+at supporting research in RL. TorchRL is a direct dependency of <strong>rl8</strong>.</p></li>
+<li><p><a class="reference external" href="https://github.com/salesforce/warp-drive">WarpDrive</a>: WarpDrive is a flexible, lightweight, and easy-to-use open-source
+RL framework that implements end-to-end multi-agent RL on a single or multiple
+GPUs. Think of it like <strong>rl8</strong>, but with an emphasis on support for multi-agent
+RL and without a focus on infinite-horizon tasks.</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#training">Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/rl8.html">rl8 package</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<section id="genindex">
+<h2><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a><a class="headerlink" href="#genindex" title="Permalink to this heading"></a></h2>
+<p>Alphabetically-ordered index of all package members.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cli.html" class="btn btn-neutral float-right" title="CLI" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Andrew B.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

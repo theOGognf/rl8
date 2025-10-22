@@ -1,0 +1,493 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rl8.nn package &mdash; rl8  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="rl8.nn.modules package" href="rl8.nn.modules.html" />
+    <link rel="prev" title="rl8.models package" href="rl8.models.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            rl8
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">CLI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="rl8.html">rl8 package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="rl8.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="rl8.algorithms.html">rl8.algorithms package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.models.html">rl8.models package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">rl8.nn package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.policies.html">rl8.policies package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.trainers.html">rl8.trainers package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.conditions">rl8.conditions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.distributions">rl8.distributions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.env">rl8.env module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.schedulers">rl8.schedulers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8.views">rl8.views module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.html#module-rl8">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">rl8</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">rl8</a></li>
+          <li class="breadcrumb-item"><a href="rl8.html">rl8 package</a></li>
+      <li class="breadcrumb-item active">rl8.nn package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/rl8.nn.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="rl8-nn-package">
+<h1>rl8.nn package<a class="headerlink" href="#rl8-nn-package" title="Permalink to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rl8.nn.modules.html">rl8.nn.modules package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rl8.nn.modules.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rl8.nn.modules.html#module-rl8.nn.modules.activations">rl8.nn.modules.activations module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.activations.SquaredReLU"><code class="docutils literal notranslate"><span class="pre">SquaredReLU</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.activations.SquaredReLU.forward"><code class="docutils literal notranslate"><span class="pre">SquaredReLU.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.activations.get_activation"><code class="docutils literal notranslate"><span class="pre">get_activation()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rl8.nn.modules.html#module-rl8.nn.modules.attention">rl8.nn.modules.attention module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.PointerNetwork"><code class="docutils literal notranslate"><span class="pre">PointerNetwork</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.PointerNetwork.W1"><code class="docutils literal notranslate"><span class="pre">PointerNetwork.W1</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.PointerNetwork.W2"><code class="docutils literal notranslate"><span class="pre">PointerNetwork.W2</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.PointerNetwork.VT"><code class="docutils literal notranslate"><span class="pre">PointerNetwork.VT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.PointerNetwork.forward"><code class="docutils literal notranslate"><span class="pre">PointerNetwork.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.CrossAttention"><code class="docutils literal notranslate"><span class="pre">CrossAttention</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.CrossAttention.attention"><code class="docutils literal notranslate"><span class="pre">CrossAttention.attention</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.CrossAttention.kv_norm"><code class="docutils literal notranslate"><span class="pre">CrossAttention.kv_norm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.CrossAttention.q_norm"><code class="docutils literal notranslate"><span class="pre">CrossAttention.q_norm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.CrossAttention.skip_connection"><code class="docutils literal notranslate"><span class="pre">CrossAttention.skip_connection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.CrossAttention.forward"><code class="docutils literal notranslate"><span class="pre">CrossAttention.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.SelfAttention"><code class="docutils literal notranslate"><span class="pre">SelfAttention</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.SelfAttention.attention"><code class="docutils literal notranslate"><span class="pre">SelfAttention.attention</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.SelfAttention.skip_connection"><code class="docutils literal notranslate"><span class="pre">SelfAttention.skip_connection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.SelfAttention.x_norm"><code class="docutils literal notranslate"><span class="pre">SelfAttention.x_norm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.SelfAttention.forward"><code class="docutils literal notranslate"><span class="pre">SelfAttention.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.SelfAttentionStack"><code class="docutils literal notranslate"><span class="pre">SelfAttentionStack</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.attention.SelfAttentionStack.forward"><code class="docutils literal notranslate"><span class="pre">SelfAttentionStack.forward()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rl8.nn.modules.html#module-rl8.nn.modules.embeddings">rl8.nn.modules.embeddings module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.embeddings.PositionalEmbedding"><code class="docutils literal notranslate"><span class="pre">PositionalEmbedding</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.embeddings.PositionalEmbedding.pe"><code class="docutils literal notranslate"><span class="pre">PositionalEmbedding.pe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.embeddings.PositionalEmbedding.dropout"><code class="docutils literal notranslate"><span class="pre">PositionalEmbedding.dropout</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.embeddings.PositionalEmbedding.forward"><code class="docutils literal notranslate"><span class="pre">PositionalEmbedding.forward()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rl8.nn.modules.html#module-rl8.nn.modules.mlp">rl8.nn.modules.mlp module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.mlp.MLP"><code class="docutils literal notranslate"><span class="pre">MLP</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rl8.nn.modules.html#module-rl8.nn.modules.module">rl8.nn.modules.module module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.module.Module"><code class="docutils literal notranslate"><span class="pre">Module</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.module.Module.forward"><code class="docutils literal notranslate"><span class="pre">Module.forward()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rl8.nn.modules.html#module-rl8.nn.modules.perceiver">rl8.nn.modules.perceiver module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.perceiver.PerceiverLayer"><code class="docutils literal notranslate"><span class="pre">PerceiverLayer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.perceiver.PerceiverLayer.forward"><code class="docutils literal notranslate"><span class="pre">PerceiverLayer.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.perceiver.PerceiverIOLayer"><code class="docutils literal notranslate"><span class="pre">PerceiverIOLayer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.perceiver.PerceiverIOLayer.forward"><code class="docutils literal notranslate"><span class="pre">PerceiverIOLayer.forward()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rl8.nn.modules.html#module-rl8.nn.modules.skip">rl8.nn.modules.skip module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.skip.SequentialSkipConnection"><code class="docutils literal notranslate"><span class="pre">SequentialSkipConnection</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.skip.SequentialSkipConnection.kind"><code class="docutils literal notranslate"><span class="pre">SequentialSkipConnection.kind</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.skip.SequentialSkipConnection.append"><code class="docutils literal notranslate"><span class="pre">SequentialSkipConnection.append()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.skip.SequentialSkipConnection.forward"><code class="docutils literal notranslate"><span class="pre">SequentialSkipConnection.forward()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.skip.SequentialSkipConnection.in_features"><code class="docutils literal notranslate"><span class="pre">SequentialSkipConnection.in_features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="rl8.nn.modules.html#rl8.nn.modules.skip.SequentialSkipConnection.out_features"><code class="docutils literal notranslate"><span class="pre">SequentialSkipConnection.out_features</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rl8.nn.modules.html#module-rl8.nn.modules">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-rl8.nn.functional">
+<span id="rl8-nn-functional-module"></span><h2>rl8.nn.functional module<a class="headerlink" href="#module-rl8.nn.functional" title="Permalink to this heading"></a></h2>
+<p>Functional PyTorch definitions.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="rl8.nn.functional.binary_mask_to_float_mask">
+<span class="sig-prename descclassname"><span class="pre">rl8.nn.functional.</span></span><span class="sig-name descname"><span class="pre">binary_mask_to_float_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/functional.html#binary_mask_to_float_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.functional.binary_mask_to_float_mask" title="Permalink to this definition"></a></dt>
+<dd><p>Convert <code class="docutils literal notranslate"><span class="pre">0</span></code> and <code class="docutils literal notranslate"><span class="pre">1</span></code> elements in a binary mask to <code class="docutils literal notranslate"><span class="pre">-inf</span></code> and <code class="docutils literal notranslate"><span class="pre">0</span></code>,
+respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mask</strong> – Binary mask tensor.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Float mask tensor where <code class="docutils literal notranslate"><span class="pre">0</span></code> indicates an UNPADDED or VALID value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rl8.nn.functional.float_mask_to_binary_mask">
+<span class="sig-prename descclassname"><span class="pre">rl8.nn.functional.</span></span><span class="sig-name descname"><span class="pre">float_mask_to_binary_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/functional.html#float_mask_to_binary_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.functional.float_mask_to_binary_mask" title="Permalink to this definition"></a></dt>
+<dd><p>Convert <code class="docutils literal notranslate"><span class="pre">0</span></code> and <code class="docutils literal notranslate"><span class="pre">-inf</span></code> elements into a boolean mask of <code class="docutils literal notranslate"><span class="pre">True</span></code> and
+<code class="docutils literal notranslate"><span class="pre">False</span></code>, respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mask</strong> – Float mask tensor.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Boolean mask tensor where <code class="docutils literal notranslate"><span class="pre">True</span></code> indicates an UNPADDED or VALID value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rl8.nn.functional.generalized_advantage_estimate">
+<span class="sig-prename descclassname"><span class="pre">rl8.nn.functional.</span></span><span class="sig-name descname"><span class="pre">generalized_advantage_estimate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gae_lambda</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_advantages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_returns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TensorDict</span></span></span><a class="reference internal" href="../_modules/rl8/nn/functional.html#generalized_advantage_estimate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.functional.generalized_advantage_estimate" title="Permalink to this definition"></a></dt>
+<dd><p>Compute a Generalized Advantage Estimate (GAE) and, optionally,
+returns using value function estimates and rewards.</p>
+<p>GAE is most commonly used with PPO for computing a policy loss that
+incentivizes “good” actions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch</strong> – <p>Tensordict of batch size <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T</span> <span class="pre">+</span> <span class="pre">1,</span> <span class="pre">...]</span></code> that contains the
+following keys:</p>
+<ul>
+<li><p>”rewards”: Environment transition rewards.</p></li>
+<li><p>”values”: Policy value function estimates.</p></li>
+</ul>
+</p></li>
+<li><p><strong>gae_lambda</strong> – Generalized Advantage Estimation (GAE) hyperparameter for
+controlling the variance and bias tradeoff when estimating the
+state value function from collected environment transitions. A
+higher value allows higher variance while a lower value allows
+higher bias estimation but lower variance.</p></li>
+<li><p><strong>gamma</strong> – Discount reward factor often used in the Bellman operator for
+controlling the variance and bias tradeoff in collected experienced
+rewards. Note, this does not control the bias/variance of the
+state value estimation and only controls the weight future rewards
+have on the total discounted return.</p></li>
+<li><p><strong>inplace</strong> – Whether to store advantage and, optionally, return estimates
+in the given tensordict or whether to allocate a separate tensordict
+for the returned values.</p></li>
+<li><p><strong>normalize_advantages</strong> – Whether to normalize advantages using the mean and
+standard deviation of the advantage batch before storing in the
+returned tensordict.</p></li>
+<li><p><strong>return_returns</strong> – Whether to compute and return Monte Carlo return
+estimates with GAE.</p></li>
+<li><p><strong>reward_scale</strong> – Reward scale to use; useful for normalizing rewards
+for stabilizing learning and improving overall performance.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tensordict with at least advantages and, optionally, discounted
+returns.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rl8.nn.functional.mask_from_lengths">
+<span class="sig-prename descclassname"><span class="pre">rl8.nn.functional.</span></span><span class="sig-name descname"><span class="pre">mask_from_lengths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lengths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/functional.html#mask_from_lengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.functional.mask_from_lengths" title="Permalink to this definition"></a></dt>
+<dd><p>Return sequence mask that indicates UNPADDED or VALID values
+according to tensor lengths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Tensor with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T,</span> <span class="pre">...]</span></code>.</p></li>
+<li><p><strong>lengths</strong> – Tensor with shape <code class="docutils literal notranslate"><span class="pre">[B]</span></code> that indicates lengths of the
+<code class="docutils literal notranslate"><span class="pre">T</span></code> sequence for each B element in <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sequence mask of shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T]</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rl8.nn.functional.masked_avg">
+<span class="sig-prename descclassname"><span class="pre">rl8.nn.functional.</span></span><span class="sig-name descname"><span class="pre">masked_avg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keepdim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/functional.html#masked_avg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.functional.masked_avg" title="Permalink to this definition"></a></dt>
+<dd><p>Apply a masked average to <code class="docutils literal notranslate"><span class="pre">x</span></code> along <code class="docutils literal notranslate"><span class="pre">dim</span></code>.</p>
+<p>Useful for pooling potentially padded features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Tensor with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T,</span> <span class="pre">...]</span></code> to apply pooling to.</p></li>
+<li><p><strong>mask</strong> – Mask with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T]</span></code> indicating UNPADDED or VALID values.</p></li>
+<li><p><strong>dim</strong> – Dimension to pool along.</p></li>
+<li><p><strong>keepdim</strong> – Whether to keep the pooled dimension.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Masked max of <code class="docutils literal notranslate"><span class="pre">x</span></code> along <code class="docutils literal notranslate"><span class="pre">dim</span></code> and the indices of those maximums.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rl8.nn.functional.masked_categorical_sample">
+<span class="sig-prename descclassname"><span class="pre">rl8.nn.functional.</span></span><span class="sig-name descname"><span class="pre">masked_categorical_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#tuple" title="(in Python v3.10)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">torch.Tensor</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">torch.Tensor</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/rl8/nn/functional.html#masked_categorical_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.functional.masked_categorical_sample" title="Permalink to this definition"></a></dt>
+<dd><p>Masked categorical sampling of <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p>
+<p>Typically used for sampling from outputs of <a class="reference internal" href="#rl8.nn.functional.masked_log_softmax" title="rl8.nn.functional.masked_log_softmax"><code class="xref py py-meth docutils literal notranslate"><span class="pre">masked_log_softmax()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Logits with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T,</span> <span class="pre">...]</span></code> to sample from.</p></li>
+<li><p><strong>mask</strong> – Mask with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T]</span></code> indicating UNPADDED or VALID values.</p></li>
+<li><p><strong>dim</strong> – Dimension to gather sampled values along.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sampled logits and the indices of those sampled logits.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rl8.nn.functional.masked_log_softmax">
+<span class="sig-prename descclassname"><span class="pre">rl8.nn.functional.</span></span><span class="sig-name descname"><span class="pre">masked_log_softmax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/functional.html#masked_log_softmax"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.functional.masked_log_softmax" title="Permalink to this definition"></a></dt>
+<dd><p>Apply a masked log softmax to <code class="docutils literal notranslate"><span class="pre">x</span></code> along <code class="docutils literal notranslate"><span class="pre">dim</span></code>.</p>
+<p>Typically used for getting logits from a model that predicts a sequence.
+The output of this function is typically passed to <a class="reference internal" href="#rl8.nn.functional.masked_categorical_sample" title="rl8.nn.functional.masked_categorical_sample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">masked_categorical_sample()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Tensor with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T,</span> <span class="pre">...]</span></code>.</p></li>
+<li><p><strong>mask</strong> – Mask with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T]</span></code> indicating UNPADDED or VALID values.</p></li>
+<li><p><strong>dim</strong> – Dimension to apply log softmax along.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Logits.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rl8.nn.functional.masked_max">
+<span class="sig-prename descclassname"><span class="pre">rl8.nn.functional.</span></span><span class="sig-name descname"><span class="pre">masked_max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#tuple" title="(in Python v3.10)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">torch.Tensor</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">torch.Tensor</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/rl8/nn/functional.html#masked_max"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.functional.masked_max" title="Permalink to this definition"></a></dt>
+<dd><p>Apply a masked max to <code class="docutils literal notranslate"><span class="pre">x</span></code> along <code class="docutils literal notranslate"><span class="pre">dim</span></code>.</p>
+<p>Useful for pooling potentially padded features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Tensor with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T,</span> <span class="pre">...]</span></code> to apply pooling to.</p></li>
+<li><p><strong>mask</strong> – Mask with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T]</span></code> indicating UNPADDED or VALID values.</p></li>
+<li><p><strong>dim</strong> – Dimension to pool along.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Masked max of <code class="docutils literal notranslate"><span class="pre">x</span></code> along <code class="docutils literal notranslate"><span class="pre">dim</span></code> and the indices of those maximums.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rl8.nn.functional.ppo_losses">
+<span class="sig-prename descclassname"><span class="pre">rl8.nn.functional.</span></span><span class="sig-name descname"><span class="pre">ppo_losses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">buffer_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rl8.html#rl8.distributions.Distribution" title="rl8.distributions.Distribution"><span class="pre">Distribution</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_clip_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entropy_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vf_clip_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vf_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TensorDict</span></span></span><a class="reference internal" href="../_modules/rl8/nn/functional.html#ppo_losses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.functional.ppo_losses" title="Permalink to this definition"></a></dt>
+<dd><p>Proximal Policy Optimization loss.</p>
+<p>Includes a dual-clipped policy loss, value function estimate loss,
+and an optional entropy bonus loss. All losses are summed into a
+total loss and reduced with a mean operation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>buffer_batch</strong> – <p>Tensordict of batch size <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">...]</span></code> full of the
+following keys:</p>
+<ul>
+<li><p>”actions”: Policy action samples during environment transitions.</p></li>
+<li><p>”advantages”: Advantages from <a class="reference internal" href="#rl8.nn.functional.generalized_advantage_estimate" title="rl8.nn.functional.generalized_advantage_estimate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">generalized_advantage_estimate()</span></code></a>.</p></li>
+<li><p>”logp”: Log probabilities of taking <code class="docutils literal notranslate"><span class="pre">&quot;actions&quot;</span></code>.</p></li>
+<li><p>”returns”: Monte carlo return estimates.</p></li>
+</ul>
+</p></li>
+<li><p><strong>sample_batch</strong> – <p>Tensordict from sampling a policy of batch size <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">...]</span></code>
+full of the following keys:</p>
+<ul>
+<li><p>”values”: Policy value function estimates.</p></li>
+</ul>
+</p></li>
+<li><p><strong>sample_distribution</strong> – A distribution instance created from the model
+that provided <code class="docutils literal notranslate"><span class="pre">sample_batch</span></code> used for computing the policy
+loss and entropy bonus loss.</p></li>
+<li><p><strong>clip_param</strong> – PPO hyperparameter indicating the max distance the policy can
+update away from previously collected policy sample data with
+respect to likelihoods of taking actions conditioned on
+observations. This is the main innovation of PPO.</p></li>
+<li><p><strong>dual_clip_param</strong> – PPO hyperparameter that clips like <code class="docutils literal notranslate"><span class="pre">clip_param</span></code> but when
+advantage estimations are negative. Helps prevent instability for
+continuous action spaces when policies are making large updates.
+Leave <code class="docutils literal notranslate"><span class="pre">None</span></code> for this clip to not apply. Otherwise, typical values
+are around <code class="docutils literal notranslate"><span class="pre">5</span></code>.</p></li>
+<li><p><strong>entropy_coeff</strong> – Entropy coefficient value. Weight of the entropy loss w.r.t.
+other components of total loss.</p></li>
+<li><p><strong>vf_clip_param</strong> – PPO hyperparameter similar to <code class="docutils literal notranslate"><span class="pre">clip_param</span></code> but for
+the value function estimate. A measure of max distance the model’s
+value function is allowed to update away from previous value
+function samples.</p></li>
+<li><p><strong>vf_coeff</strong> – Value function loss component weight. Only needs to be tuned
+when the policy and value function share parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tensordict containing each of the loss components.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rl8.nn.functional.skip_connection">
+<span class="sig-prename descclassname"><span class="pre">rl8.nn.functional.</span></span><span class="sig-name descname"><span class="pre">skip_connection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cat'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.9)"><span class="pre">Tensor</span></a></span></span><a class="reference internal" href="../_modules/rl8/nn/functional.html#skip_connection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rl8.nn.functional.skip_connection" title="Permalink to this definition"></a></dt>
+<dd><p>Perform a skip connection for <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Skip connection seed with shape <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">T,</span> <span class="pre">...]</span></code>.</p></li>
+<li><p><strong>y</strong> – Skip connection seed with same shape as <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p></li>
+<li><p><strong>kind</strong> – <p>Type of skip connection to use.
+Options include:</p>
+<blockquote>
+<div><ul>
+<li><p>”residual” for a standard residual connection (summing outputs)</p></li>
+<li><p>”cat” for concatenating outputs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> for no skip connection</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>dim</strong> – Dimension to apply concatentation along. Only valid when
+<code class="docutils literal notranslate"><span class="pre">kind</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;cat&quot;</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tensor with shape depending on <code class="docutils literal notranslate"><span class="pre">kind</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-rl8.nn">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-rl8.nn" title="Permalink to this heading"></a></h2>
+<p>Top-level PyTorch neural network extensions.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rl8.models.html" class="btn btn-neutral float-left" title="rl8.models package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rl8.nn.modules.html" class="btn btn-neutral float-right" title="rl8.nn.modules package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Andrew B.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
